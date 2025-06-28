@@ -3,10 +3,10 @@
  * 整合其他服务，完成页面生成的完整流程
  */
 
-const markdownService = require('./markdownService');
-const templateService = require('./templateService');
-const i18nService = require('./i18nService');
-const fileService = require('./fileService');
+const markdownService = require('../../services/markdownService');
+const templateService = require('../../services/templateService');
+const i18nService = require('../../services/i18nService');
+const fileService = require('../../services/fileService');
 
 /**
  * 页面生成器服务
