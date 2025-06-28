@@ -133,7 +133,8 @@ async function loadFooterTemplate(pageInfo) {
         let template = await response.text();
         
         // 替换模板变量
-        template = template.replace(/{{jsPath}}/g, pageInfo.jsPath)
+        template = template.replace(/{{rootPath}}/g, pageInfo.rootPath)
+                          .replace(/{{jsPath}}/g, pageInfo.jsPath)
                           .replace(/{{pageName}}/g, pageInfo.pageName);
         
         // 插入模板内容

@@ -3,17 +3,8 @@
     "title": "Our Services - Uncle1bo Static Website",
     "description": "Uncle1bo static website services page"
   },
-  "nav": {
-    "home": "Home",
-    "about": "About",
-    "services": "Services",
-    "contact": "Contact Us",
-    "language": "Language"
-  },
+
   "services": {
     "title": "Our Services"
-  },
-  "footer": {
-    "copyright": "© 2023 Uncle1bo. All rights reserved."
   }
 }

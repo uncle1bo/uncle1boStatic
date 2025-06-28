@@ -1,0 +1,15 @@
+{
+  "nav": {
+    "home": "Home",
+    "about": "About",
+    "services": "Services",
+    "contact": "Contact Us",
+    "page-generator": "Page Generator",
+    "language": "Language"
+  },
+  "footer": {
+    "copyright": "© 2023 Uncle1bo. All rights reserved.",
+    "icp": "ICP License",
+    "police": "Public Security Filing"
+  }
+}

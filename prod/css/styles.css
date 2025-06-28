@@ -4,10 +4,17 @@
  */
 
 /* 全局样式 */
-body {
+html, body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     color: #333;
     line-height: 1.6;
+    height: 100%;
+    margin: 0;
+}
+
+body {
+    display: flex;
+    flex-direction: column;
 }
 
 /* 导航栏自定义样式 */
@@ -54,7 +61,25 @@ body {
 /* 页脚样式 */
 footer {
     border-top: 1px solid #eee;
-    margin-top: 50px;
+    margin-top: auto;
+    width: 100%;
+}
+
+.footer-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.beian-info {
+    font-size: 12px;
+    margin-top: 5px;
+}
+
+.beian-icon {
+    height: 14px;
+    margin-right: 3px;
+    vertical-align: middle;
 }
 
 /* 响应式调整 */

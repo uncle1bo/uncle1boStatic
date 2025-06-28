@@ -8,8 +8,5 @@
     "message": "Page Not Found",
     "description": "Sorry, the page you requested does not exist or has been moved.",
     "button": "Return to Home"
-  },
-  "footer": {
-    "copyright": "© 2023 Uncle1bo. All rights reserved."
   }
 }

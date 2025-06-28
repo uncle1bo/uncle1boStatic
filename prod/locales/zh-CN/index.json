@@ -3,14 +3,7 @@
     "title": "Uncle1bo 静态网站",
     "description": "一个使用Bootstrap构建并部署在Cloudflare Pages上的简单静态网站"
   },
-  "nav": {
-    "home": "首页",
-    "about": "关于",
-    "services": "服务",
-    "contact": "联系我们",
-    "page-generator": "页面生成器",
-    "language": "语言"
-  },
+
   "hero": {
     "title": "待开发",
     "subtitle": "网站正在开发中，敬请期待"
@@ -41,9 +34,7 @@
     "subtitle": "有问题？我们有答案。",
     "description": "发送邮件至info@uncle1bo.com或致电+1 (234) 567-890。"
   },
-  "footer": {
-    "copyright": "© 2023 Uncle1bo。保留所有权利。"
-  },
+
   "social": {
     "facebook": {
       "title": "脸书"

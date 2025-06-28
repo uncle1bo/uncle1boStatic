@@ -8,8 +8,5 @@
     "message": "页面未找到",
     "description": "抱歉，您请求的页面不存在或已被移动。",
     "button": "返回首页"
-  },
-  "footer": {
-    "copyright": "© 2023 Uncle1bo. 保留所有权利。"
   }
 }

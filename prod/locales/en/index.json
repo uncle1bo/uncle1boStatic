@@ -3,14 +3,7 @@
     "title": "Uncle1bo Static Website",
     "description": "A simple static website built with Bootstrap and deployed on Cloudflare Pages."
   },
-  "nav": {
-    "home": "Home",
-    "about": "About",
-    "services": "Services",
-    "contact": "Contact",
-    "page-generator": "Page Generator",
-    "language": "Language"
-  },
+
   "hero": {
     "title": "Under Development",
     "subtitle": "Website is under development, stay tuned"
@@ -41,9 +34,7 @@
     "subtitle": "Have questions? We have answers.",
     "description": "Email us at info@uncle1bo.com or call us at +1 (234) 567-890."
   },
-  "footer": {
-    "copyright": "© 2023 Uncle1bo. All rights reserved."
-  },
+
   "social": {
     "facebook": {
       "title": "Facebook"

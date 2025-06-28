@@ -3,17 +3,8 @@
     "title": "联系我们 - Uncle1bo 静态网站",
     "description": "Uncle1bo静态网站联系页面"
   },
-  "nav": {
-    "home": "首页",
-    "about": "关于",
-    "services": "服务",
-    "contact": "联系我们",
-    "language": "语言"
-  },
+
   "contact": {
     "title": "联系我们"
-  },
-  "footer": {
-    "copyright": "© 2023 Uncle1bo。保留所有权利。"
   }
 }

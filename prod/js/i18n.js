@@ -59,6 +59,9 @@ function setLanguage(lang) {
     document.documentElement.lang = lang;
 }
 
+// 全局变量存储公共翻译
+let commonTranslations = {};
+
 /**
  * 加载语言资源
  * @param {string} lang - 语言代码
@@ -98,6 +101,23 @@ async function loadLanguageResources(lang, pageName = null) {
             basePath += 'locales';
         }
         
+        // 首先加载公共语言资源（用于页头页脚模板）
+        const commonResourceUrl = `${basePath}/${lang}/common.json`;
+        console.log('Loading common language resource from:', commonResourceUrl);
+        
+        let commonTranslations = {};
+        try {
+            const commonResponse = await fetch(commonResourceUrl);
+            if (commonResponse.ok) {
+                commonTranslations = await commonResponse.json();
+                console.log('Common translations loaded successfully');
+            } else {
+                console.warn(`Failed to load common language resource: ${commonResponse.status}`);
+            }
+        } catch (error) {
+            console.warn('Failed to load common language resource:', error);
+        }
+        
         const resourceUrl = `${basePath}/${lang}/${pageName}.json`;
         console.log('Loading language resource from:', resourceUrl);
         
@@ -108,10 +128,13 @@ async function loadLanguageResources(lang, pageName = null) {
             throw new Error(`Failed to load language resource: ${response.status}`);
         }
         
-        const translations = await response.json();
+        const pageTranslations = await response.json();
+        
+        // 合并公共翻译和页面特定翻译
+        const mergedTranslations = mergeTranslations(commonTranslations, pageTranslations);
         
         // 应用翻译
-        applyTranslations(translations);
+        applyTranslations(mergedTranslations);
         
     } catch (error) {
         console.error('Error loading language resources:', error);
@@ -233,12 +256,68 @@ function getBrowserLanguage() {
     return 'en';
 }
 
+/**
+ * 合并两个翻译对象
+ * @param {Object} common - 公共翻译对象
+ * @param {Object} page - 页面特定翻译对象
+ * @returns {Object} - 合并后的翻译对象
+ */
+function mergeTranslations(common, page) {
+    // 创建一个新对象，避免修改原始对象
+    const merged = {};
+    
+    // 深度复制公共翻译
+    for (const key in common) {
+        if (typeof common[key] === 'object' && common[key] !== null) {
+            merged[key] = JSON.parse(JSON.stringify(common[key]));
+        } else {
+            merged[key] = common[key];
+        }
+    }
+    
+    // 深度合并页面特定翻译，页面特定翻译优先级更高
+    for (const key in page) {
+        if (typeof page[key] === 'object' && page[key] !== null && typeof merged[key] === 'object' && merged[key] !== null) {
+            // 如果两者都是对象，递归合并
+            merged[key] = mergeObjects(merged[key], page[key]);
+        } else {
+            // 否则直接覆盖
+            merged[key] = page[key];
+        }
+    }
+    
+    return merged;
+}
+
+/**
+ * 递归合并两个对象
+ * @param {Object} target - 目标对象
+ * @param {Object} source - 源对象
+ * @returns {Object} - 合并后的对象
+ */
+function mergeObjects(target, source) {
+    const merged = JSON.parse(JSON.stringify(target));
+    
+    for (const key in source) {
+        if (typeof source[key] === 'object' && source[key] !== null && typeof merged[key] === 'object' && merged[key] !== null) {
+            // 递归合并子对象
+            merged[key] = mergeObjects(merged[key], source[key]);
+        } else {
+            // 直接覆盖
+            merged[key] = source[key];
+        }
+    }
+    
+    return merged;
+}
+
 // 导出函数供其他模块使用
 window.i18n = {
     initI18n,
     setLanguage,
     loadLanguageResources,
     applyTranslations,
+    mergeTranslations,
     getCurrentLanguage: function() {
         return localStorage.getItem('preferredLanguage') || 'zh-CN';
     },
