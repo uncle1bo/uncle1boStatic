@@ -4,7 +4,6 @@
  */
 
 const express = require('express');
-const multer = require('multer');
 const path = require('path');
 const fs = require('fs-extra');
 const ejs = require('ejs');
@@ -12,9 +11,10 @@ const ejs = require('ejs');
 // 导入配置
 const paths = require('./config/pathConfig');
 
-// 导入服务
-const fileService = require('./services/fileService');
-const pageGeneratorService = require('./services/pageGeneratorService');
+// 导入工具路由
+const pageGeneratorRoutes = require('./tools/pageGenerator/routes');
+const sitemapUpdaterRoutes = require('./tools/sitemapUpdater/routes');
+const menuEditorRoutes = require('./tools/menuEditor/routes');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -33,71 +33,32 @@ app.use('/prod', express.static(paths.prod));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// 设置文件上传
-const upload = multer({ dest: paths.uploads });
-
 // 路由
 app.get('/', (req, res) => {
+  res.render('tool-selector');
+});
+
+// 页面生成器路由
+app.get('/page-generator', (req, res) => {
   res.render('index');
 });
+app.use('/page-generator', pageGeneratorRoutes);
 
-// 处理直接输入的Markdown内容
-app.post('/convert', async (req, res) => {
-  try {
-    const { markdownContent, pageName, pageTitle, pageDescription } = req.body;
-    
-    if (!markdownContent || !pageName) {
-      return res.status(400).json({ error: '缺少必要参数' });
-    }
-    
-    // 使用页面生成器服务生成页面
-    const htmlFilePath = await pageGeneratorService.generatePageFromMarkdown({
-      markdownContent,
-      pageName,
-      pageTitle: pageTitle || '',
-      pageDescription: pageDescription || ''
-    });
-    
-    res.json({ success: true, filePath: htmlFilePath });
-  } catch (error) {
-    console.error('转换失败:', error);
-    res.status(500).json({ error: '转换失败: ' + error.message });
-  }
+// 站点地图更新工具路由
+app.get('/sitemap-updater', (req, res) => {
+  res.render('sitemap-updater');
 });
+app.use('/sitemap-updater', sitemapUpdaterRoutes);
 
-// 处理上传的Markdown文件
-app.post('/upload', upload.single('markdownFile'), async (req, res) => {
-  try {
-    if (!req.file) {
-      return res.status(400).json({ error: '未上传文件' });
-    }
-    
-    const { pageName, pageTitle, pageDescription } = req.body;
-    
-    if (!pageName) {
-      return res.status(400).json({ error: '缺少页面名称' });
-    }
-    
-    // 读取上传的文件内容
-    const markdownContent = await fileService.readMarkdownFile(req.file.path);
-    
-    // 使用页面生成器服务生成页面
-    const htmlFilePath = await pageGeneratorService.generatePageFromMarkdown({
-      markdownContent,
-      pageName,
-      pageTitle: pageTitle || '',
-      pageDescription: pageDescription || ''
-    });
-    
-    // 删除临时上传的文件
-    await fileService.deleteFile(req.file.path);
-    
-    res.json({ success: true, filePath: htmlFilePath });
-  } catch (error) {
-    console.error('处理上传文件失败:', error);
-    res.status(500).json({ error: '处理上传文件失败: ' + error.message });
-  }
+// 目录编辑器工具路由
+app.get('/menu-editor', (req, res) => {
+  res.render('menu-editor');
 });
+app.use('/menu-editor', menuEditorRoutes);
+
+// 这里可以添加其他工具的路由
+// app.use('/other-tool', otherToolRoutes);
+
 
 // 启动服务器
 app.listen(PORT, () => {

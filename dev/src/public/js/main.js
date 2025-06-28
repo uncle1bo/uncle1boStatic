@@ -31,7 +31,7 @@ document.addEventListener('DOMContentLoaded', function() {
       };
       
       // 发送请求
-      const response = await fetch('/convert', {
+      const response = await fetch('/page-generator/convert', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -79,7 +79,7 @@ document.addEventListener('DOMContentLoaded', function() {
       }
       
       // 发送请求
-      const response = await fetch('/upload', {
+      const response = await fetch('/page-generator/upload', {
         method: 'POST',
         body: formData
       });

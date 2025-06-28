@@ -6,6 +6,11 @@
     "start": "http-server ./prod -p 8000 --proxy http://localhost:8000? -c-1 -o"
   },
   "dependencies": {
+    "body-parser": "^2.2.0",
+    "cheerio": "^1.1.0",
+    "ejs": "^3.1.10",
+    "express": "^5.1.0",
+    "fs-extra": "^11.3.0",
     "http-server": "^14.1.1"
   },
   "author": "Uncle1bo",

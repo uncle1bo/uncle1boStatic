@@ -1,5 +1,5 @@
 /**
- * MD to HTML Tool
+ * Uncle1bo静态站点工具集
  * 样式表
  */
 
@@ -58,9 +58,35 @@ textarea {
   color: #00994d;
 }
 
+/* 工具选择器卡片样式 */
+.card.border-primary {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.card.border-primary:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+}
+
+.card-title i {
+  font-size: 1.2rem;
+}
+
+.card-footer .btn {
+  transition: all 0.3s ease;
+}
+
+.card-footer .btn:hover {
+  transform: translateY(-2px);
+}
+
 /* 响应式调整 */
 @media (max-width: 768px) {
   .card-body {
     padding: 1rem;
+  }
+  
+  .row-cols-md-2 > * {
+    margin-bottom: 1rem;
   }
 }
