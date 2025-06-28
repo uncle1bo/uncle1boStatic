@@ -77,23 +77,33 @@ uncle1boStatic/
    cd uncle1boStatic
    ```
 
-2. 启动本地开发服务器：
-   - 如果您安装了Python：
+2. 安装依赖（推荐）：
+   ```
+   npm install
+   ```
+
+3. 启动本地开发服务器：
+   - 使用npm脚本（推荐）：
      ```
-     python -m http.server
-     ```
-   - 如果您安装了Node.js：
-     ```
-     npx http-server
+     npm start
      ```
    - 或者直接运行包含的批处理文件（Windows）：
      ```
      start-server.bat
      ```
+   - 启动页面生成器和开发工具：
+     ```
+     npm run dev
+     ```
+     或
+     ```
+     cd dev-tools
+     start-page-generator.bat
+     ```
 
-3. 打开您的浏览器并导航至：
-   - Python：`http://localhost:8000`
-   - Node.js：`http://localhost:8080`
+4. 打开您的浏览器并导航至：
+   - 主站：`http://localhost:8000`
+   - 页面生成器：`http://localhost:8080/html/page-generator.html`（使用dev命令或start-page-generator.bat时）
 
 ## 部署
 

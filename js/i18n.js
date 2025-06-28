@@ -87,12 +87,18 @@ async function loadLanguageResources(lang, pageName = null) {
         // 构建语言资源URL（使用相对路径）
         let basePath = '';
         
-        // 检查当前页面是否在子目录中
-        if (window.location.pathname.includes('/pages/')) {
-            basePath = '../';
+        // 检查是否有自定义的basePath配置（用于测试页面等特殊情况）
+        if (window.I18N_CONFIG && window.I18N_CONFIG.basePath) {
+            basePath = window.I18N_CONFIG.basePath;
+        } else {
+            // 检查当前页面是否在子目录中
+            if (window.location.pathname.includes('/pages/')) {
+                basePath = '../';
+            }
+            basePath += 'locales';
         }
         
-        const resourceUrl = `${basePath}locales/${lang}/${pageName}.json`;
+        const resourceUrl = `${basePath}/${lang}/${pageName}.json`;
         console.log('Loading language resource from:', resourceUrl);
         
         // 获取语言资源

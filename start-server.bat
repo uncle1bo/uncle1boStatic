@@ -1,0 +1,3 @@
+@echo off
+echo Starting Uncle1bo static website server...
+python -m http.server 8000
