@@ -1,0 +1,15 @@
+{
+  "meta": {
+    "title": "Page Not Found - Uncle1bo Static Website",
+    "description": "404 error page - The requested page does not exist"
+  },
+  "error": {
+    "code": "404",
+    "message": "Page Not Found",
+    "description": "Sorry, the page you requested does not exist or has been moved.",
+    "button": "Return to Home"
+  },
+  "footer": {
+    "copyright": "© 2023 Uncle1bo. All rights reserved."
+  }
+}
