@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" data-i18n="meta.description" content="Uncle1bo静态网站页面生成器">
+    <meta name="keywords" content="Uncle1bo, 静态网站, 页面生成器, Markdown">
+    <title data-i18n="meta.title">页面生成器 - Uncle1bo Static Website</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="../css/styles.css">
+    <!-- Template Processor -->
+    <script src="../js/template-processor.js"></script>
+    <!-- Markdown Parser -->
+    <script src="markdown-parser.js"></script>
+    <!-- Page Generator -->
+    <script src="page-generator.js"></script>
+    <style>
+        .preview-container {
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 20px;
+            margin-top: 20px;
+            background-color: #f9f9f9;
+        }
+        .markdown-help {
+            font-size: 0.9rem;
+            color: #6c757d;
+        }
+        .markdown-help code {
+            background-color: #f1f1f1;
+            padding: 2px 4px;
+            border-radius: 3px;
+        }
+    </style>
+</head>
+<body>
+    <!-- 头部模板 -->
+    <div id="header-template"></div>
+
+    <!-- Page Generator Section -->
+    <div class="container mt-5">
+        <div class="row">
+            <div class="col-md-12 text-center">
+                <h1 class="display-4" data-i18n="pageGenerator.title">页面生成器</h1>
+                <p class="lead" data-i18n="pageGenerator.subtitle">使用Markdown快速创建新页面</p>
+                <hr class="my-4">
+            </div>
+        </div>
+        
+        <div class="row">
+            <div class="col-md-6">
+                <div class="mb-3">
+                    <label for="pageName" class="form-label" data-i18n="pageGenerator.form.pageName">页面名称</label>
+                    <input type="text" class="form-control" id="pageName" placeholder="例如：blog, faq, products" required>
+                    <div class="form-text" data-i18n="pageGenerator.form.pageNameHelp">页面名称将用于URL和文件名，只能包含小写字母、数字和连字符</div>
+                </div>
+                
+                <div class="mb-3">
+                    <label for="pageTitle" class="form-label" data-i18n="pageGenerator.form.pageTitle">页面标题</label>
+                    <input type="text" class="form-control" id="pageTitle" placeholder="例如：博客, 常见问题, 产品展示" required>
+                </div>
+                
+                <div class="mb-3">
+                    <label for="pageDescription" class="form-label" data-i18n="pageGenerator.form.pageDescription">页面描述</label>
+                    <input type="text" class="form-control" id="pageDescription" placeholder="页面的简短描述，用于SEO">
+                </div>
+                
+                <div class="mb-3">
+                    <label for="pageKeywords" class="form-label" data-i18n="pageGenerator.form.pageKeywords">关键词</label>
+                    <input type="text" class="form-control" id="pageKeywords" placeholder="用逗号分隔的关键词，用于SEO">
+                </div>
+                
+                <div class="mb-3">
+                    <label for="navTitle" class="form-label" data-i18n="pageGenerator.form.navTitle">导航标题</label>
+                    <input type="text" class="form-control" id="navTitle" placeholder="显示在导航栏中的标题">
+                    <div class="form-text" data-i18n="pageGenerator.form.navTitleHelp">如果留空，将使用页面标题</div>
+                </div>
+                
+                <div class="mb-3 form-check">
+                    <input type="checkbox" class="form-check-input" id="addToNav" checked>
+                    <label class="form-check-label" for="addToNav" data-i18n="pageGenerator.form.addToNav">添加到导航栏</label>
+                </div>
+                
+                <div class="mb-3 form-check">
+                    <input type="checkbox" class="form-check-input" id="enableTranslation" checked>
+                    <label class="form-check-label" for="enableTranslation" data-i18n="pageGenerator.form.enableTranslation">启用自动翻译</label>
+                    <div class="form-text" data-i18n="pageGenerator.form.enableTranslationHelp">如果启用，将自动翻译内容为英文版本</div>
+                </div>
+                
+                <div class="mb-3">
+                    <label for="markdownContent" class="form-label" data-i18n="pageGenerator.form.markdownContent">Markdown内容</label>
+                    <textarea class="form-control" id="markdownContent" rows="10" placeholder="在这里输入Markdown格式的内容" required></textarea>
+                </div>
+                
+                <div class="mb-3">
+                    <button id="previewBtn" class="btn btn-secondary" data-i18n="pageGenerator.form.previewBtn">预览</button>
+                    <button id="generateBtn" class="btn btn-primary" data-i18n="pageGenerator.form.generateBtn">生成页面</button>
+                </div>
+                
+                <div class="markdown-help mt-4">
+                    <h5 data-i18n="pageGenerator.markdownHelp.title">Markdown语法帮助</h5>
+                    <ul>
+                        <li><code># 标题1</code> - 一级标题</li>
+                        <li><code>## 标题2</code> - 二级标题</li>
+                        <li><code>**粗体**</code> - <strong>粗体</strong></li>
+                        <li><code>*斜体*</code> - <em>斜体</em></li>
+                        <li><code>[链接文本](链接URL)</code> - <a href="#">链接文本</a></li>
+                        <li><code>![图片描述](图片URL)</code> - 图片</li>
+                        <li><code>- 列表项</code> - 无序列表</li>
+                        <li><code>1. 列表项</code> - 有序列表</li>
+                        <li><code>```代码块```</code> - 代码块</li>
+                        <li><code>`行内代码`</code> - <code>行内代码</code></li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="col-md-6">
+                <h4 class="mb-3" data-i18n="pageGenerator.preview.title">预览</h4>
+                <div id="previewContainer" class="preview-container">
+                    <p class="text-center text-muted" data-i18n="pageGenerator.preview.empty">点击"预览"按钮查看内容预览</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 底部模板 -->
+    <div id="footer-template"></div>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // 获取元素
+            const pageNameInput = document.getElementById('pageName');
+            const pageTitleInput = document.getElementById('pageTitle');
+            const pageDescriptionInput = document.getElementById('pageDescription');
+            const pageKeywordsInput = document.getElementById('pageKeywords');
+            const navTitleInput = document.getElementById('navTitle');
+            const addToNavCheckbox = document.getElementById('addToNav');
+            const enableTranslationCheckbox = document.getElementById('enableTranslation');
+            const markdownContentTextarea = document.getElementById('markdownContent');
+            const previewBtn = document.getElementById('previewBtn');
+            const generateBtn = document.getElementById('generateBtn');
+            const previewContainer = document.getElementById('previewContainer');
+            
+            // 预览按钮点击事件
+            previewBtn.addEventListener('click', function() {
+                const markdown = markdownContentTextarea.value;
+                if (!markdown) {
+                    previewContainer.innerHTML = '<p class="text-center text-muted">请先输入Markdown内容</p>';
+                    return;
+                }
+                
+                const htmlContent = window.markdownParser.parseMarkdown(markdown);
+                previewContainer.innerHTML = htmlContent;
+            });
+            
+            // 生成页面按钮点击事件
+            generateBtn.addEventListener('click', async function() {
+                // 验证必填字段
+                if (!pageNameInput.value) {
+                    alert('请输入页面名称');
+                    pageNameInput.focus();
+                    return;
+                }
+                
+                if (!pageTitleInput.value) {
+                    alert('请输入页面标题');
+                    pageTitleInput.focus();
+                    return;
+                }
+                
+                if (!markdownContentTextarea.value) {
+                    alert('请输入Markdown内容');
+                    markdownContentTextarea.focus();
+                    return;
+                }
+                
+                // 构建Markdown内容，包含元数据
+                const metadata = `---
+title: ${pageTitleInput.value}
+description: ${pageDescriptionInput.value}
+keywords: ${pageKeywordsInput.value}
+navTitle: ${navTitleInput.value || pageTitleInput.value}
+---
+
+`;
+                const fullMarkdown = metadata + markdownContentTextarea.value;
+                
+                try {
+                    // 调用页面生成函数
+                    const result = await window.pageGenerator.createPageFromMarkdown(
+                        fullMarkdown,
+                        pageNameInput.value,
+                        addToNavCheckbox.checked,
+                        enableTranslationCheckbox.checked
+                    );
+                    
+                    if (result.success) {
+                        alert(result.message);
+                        // 可以在这里添加重定向到新页面的逻辑
+                    } else {
+                        alert(result.message);
+                    }
+                } catch (error) {
+                    alert(`生成页面时发生错误: ${error.message}`);
+                }
+            });
+        });
+    </script>
+</body>
+</html>

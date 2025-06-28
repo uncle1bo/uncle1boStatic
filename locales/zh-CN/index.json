@@ -1,0 +1,61 @@
+{
+  "meta": {
+    "title": "Uncle1bo 静态网站",
+    "description": "一个使用Bootstrap构建并部署在Cloudflare Pages上的简单静态网站"
+  },
+  "nav": {
+    "home": "首页",
+    "about": "关于",
+    "services": "服务",
+    "contact": "联系我们",
+    "page-generator": "页面生成器",
+    "language": "语言"
+  },
+  "hero": {
+    "title": "待开发",
+    "subtitle": "网站正在开发中，敬请期待"
+  },
+  "features": {
+    "title": "特性",
+    "subtitle": "是什么让我们的静态网站与众不同",
+    "speed": {
+      "title": "快速加载",
+      "description": "静态网站加载迅速，因为它们不需要服务器端处理。"
+    },
+    "security": {
+      "title": "安全可靠",
+      "description": "没有数据库或服务器端代码，静态网站的安全漏洞更少。"
+    },
+    "responsive": {
+      "title": "响应式设计",
+      "description": "我们的模板设计适合所有设备，从手机到桌面电脑都能完美展示。"
+    }
+  },
+  "about": {
+    "title": "关于我们",
+    "subtitle": "我们是一支热衷于创建快速、安全和美观的静态网站的网络开发团队。",
+    "description": "我们的使命是帮助企业和个人通过精心制作的静态网站建立强大的在线形象，这些网站既美观又技术先进。"
+  },
+  "contact": {
+    "title": "联系我们",
+    "subtitle": "有问题？我们有答案。",
+    "description": "发送邮件至info@uncle1bo.com或致电+1 (234) 567-890。"
+  },
+  "footer": {
+    "copyright": "© 2023 Uncle1bo。保留所有权利。"
+  },
+  "social": {
+    "facebook": {
+      "title": "脸书"
+    },
+    "twitter": {
+      "title": "推特"
+    },
+    "instagram": {
+      "title": "Instagram"
+    },
+    "linkedin": {
+      "title": "领英"
+    }
+  }
+}

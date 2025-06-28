@@ -1,6 +1,16 @@
 # Cloudflare Pages Headers
 # 这些头信息将应用于所有页面
 
+# 阻止访问开发工具目录 - 安全措施
+/dev-tools/*
+  X-Robots-Tag: noindex, nofollow
+  Cache-Control: no-cache, no-store, must-revalidate
+  
+# 完全禁止访问开发工具目录（返回404）
+/dev-tools
+  X-Robots-Tag: noindex, nofollow
+  Cache-Control: no-cache, no-store, must-revalidate
+
 /*
   X-Frame-Options: DENY
   X-Content-Type-Options: nosniff

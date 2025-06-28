@@ -1,0 +1,19 @@
+{
+  "meta": {
+    "title": "Contact Us - Uncle1bo Static Website",
+    "description": "Uncle1bo static website contact page"
+  },
+  "nav": {
+    "home": "Home",
+    "about": "About",
+    "services": "Services",
+    "contact": "Contact Us",
+    "language": "Language"
+  },
+  "contact": {
+    "title": "Contact Us"
+  },
+  "footer": {
+    "copyright": "© 2023 Uncle1bo. All rights reserved."
+  }
+}
