@@ -1,5 +1,7 @@
 # Uncle1bo Static Website Project
 
+[English](#) | [简体中文](../README.md)
+
 This is a pure static website project built with the Bootstrap framework, planned to be deployed on Cloudflare Pages.
 
 ## Project Structure
@@ -7,26 +9,31 @@ This is a pure static website project built with the Bootstrap framework, planne
 ```
 uncle1boStatic/
 ├── index.html          # Main page
-├── pages/              # Other pages
+├── pages/              # User pages
 │   ├── about.html      # About page
 │   ├── services.html   # Services page
-│   └── contact.html    # Contact page
-├── assets/             # Static assets
+│   └── contact.html    # Contact us page
+├── assets/             # Static resources
 │   ├── images/         # Image resources
 │   ├── fonts/          # Font files
 │   └── icons/          # Icon files
 ├── css/                # CSS styles
 │   └── styles.css      # Custom styles
-├── js/                 # JavaScript files
+├── js/                 # Client-side JavaScript files
 │   ├── main.js         # Main JavaScript
-│   └── i18n.js         # Internationalization support
+│   ├── i18n.js         # Internationalization support
+│   └── template-processor.js # Template processor
 ├── locales/            # Language resources
 │   ├── en/             # English
 │   ├── zh-CN/          # Simplified Chinese
 
-└── docs/               # Documentation
-    ├── README.en.md    # English README
-
+├── templates/          # Page templates
+│   ├── header.html     # Header template
+│   └── footer.html     # Footer template
+├── docs/               # Documentation
+│   ├── README.en.md    # English README
+└── _headers            # Security headers configuration
+    
 ```
 
 ## Technology Stack
@@ -38,10 +45,10 @@ uncle1boStatic/
 
 ## Features
 
-- Responsive design that works on all devices
+- Responsive design, suitable for all devices
 - Multi-language support (English, Simplified Chinese)
 - Fast loading and optimized performance
-- SEO friendly
+- Search engine friendly
 
 ## Getting Started
 
@@ -58,28 +65,19 @@ No special prerequisites are needed to run this project. You only need a modern 
    ```
 
 2. Start a local development server:
-   - If you have Python installed:
+
+   - Use a simple python command to start the main site server:
      ```
-     python -m http.server
-     ```
-   - If you have Node.js installed:
-     ```
-     npx http-server
-     ```
-   - Or simply run the included batch file (Windows):
-     ```
-     start-server.bat
+     python -m http.server 8000
      ```
 
-3. Open your browser and navigate to:
-   - Python: `http://localhost:8000`
-   - Node.js: `http://localhost:8080`
+   - Open your browser and navigate to: `http://localhost:8000`
 
 ## Deployment
 
 This project is designed to be deployed on Cloudflare Pages, but can be hosted on any static site hosting service.
 
-### Deploying to Cloudflare Pages
+### Deploy to Cloudflare Pages
 
 1. Push your code to a GitHub repository
 2. Log in to your Cloudflare dashboard
@@ -96,19 +94,19 @@ The website supports multiple languages through the `i18n.js` module. Language r
 
 To add a new language:
 
-1. Create a new directory in `locales/` with the language code
+1. Create a new directory with the language code in `locales/`
 2. Copy the JSON files from an existing language directory
 3. Translate the values in the JSON files
 
 ## Contributing
 
-Contributions are welcome! Please feel free to submit a Pull Request.
+Contributions are welcome! Feel free to submit pull requests.
 
 ## License
 
 This project is licensed under the MIT License - see the LICENSE file for details.
 
-## Acknowledgments
+## Acknowledgements
 
 - Bootstrap for the responsive framework
-- Cloudflare Pages for hosting
+- Cloudflare Pages for hosting services
