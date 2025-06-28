@@ -1,0 +1,66 @@
+/**
+ * MD to HTML Tool
+ * 样式表
+ */
+
+body {
+  background-color: #f8f9fa;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.card {
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.card-header {
+  background: linear-gradient(135deg, #4a6bff 0%, #2541b8 100%);
+}
+
+textarea {
+  font-family: 'Consolas', 'Courier New', monospace;
+  resize: vertical;
+}
+
+.form-control:focus {
+  border-color: #4a6bff;
+  box-shadow: 0 0 0 0.25rem rgba(74, 107, 255, 0.25);
+}
+
+.btn-primary {
+  background-color: #4a6bff;
+  border-color: #4a6bff;
+}
+
+.btn-primary:hover, .btn-primary:focus {
+  background-color: #2541b8;
+  border-color: #2541b8;
+}
+
+.nav-tabs .nav-link.active {
+  color: #4a6bff;
+  font-weight: 500;
+}
+
+.nav-tabs .nav-link:not(.active) {
+  color: #6c757d;
+}
+
+.alert-info {
+  background-color: #e6f7ff;
+  border-color: #b3e0ff;
+  color: #0070cc;
+}
+
+.alert-success {
+  background-color: #e6fff0;
+  border-color: #b3ffd6;
+  color: #00994d;
+}
+
+/* 响应式调整 */
+@media (max-width: 768px) {
+  .card-body {
+    padding: 1rem;
+  }
+}

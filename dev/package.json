@@ -1,0 +1,16 @@
+{
+  "name": "md-to-html-tool",
+  "version": "1.0.0",
+  "description": "将Markdown内容转换为HTML页面并与模板结合",
+  "main": "src/index.js",
+  "scripts": {
+    "dev": "node src/index.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "marked": "^9.1.0",
+    "multer": "^1.4.5-lts.1",
+    "fs-extra": "^11.1.1",
+    "ejs": "^3.1.9"
+  }
+}
