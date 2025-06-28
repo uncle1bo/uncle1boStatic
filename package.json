@@ -1,0 +1,13 @@
+{
+  "name": "uncle1bo-static-website",
+  "version": "1.0.0",
+  "description": "Uncle1bo Static Website",
+  "scripts": {
+    "start": "http-server ./prod -p 8000 --proxy http://localhost:8000? -c-1 -o"
+  },
+  "dependencies": {
+    "http-server": "^14.1.1"
+  },
+  "author": "Uncle1bo",
+  "license": "MIT"
+}

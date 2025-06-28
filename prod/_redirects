@@ -1,0 +1,4 @@
+# Redirects for Cloudflare Pages
+
+# 将所有不存在的页面重定向到404.html
+/*  /404.html  404
