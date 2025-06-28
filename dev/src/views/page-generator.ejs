@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>页面生成器 - Uncle1bo静态站点工具集</title>
+  <!-- Bootstrap CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Bootstrap Icons -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+  <div class="container mt-5">
+    <div class="row justify-content-center">
+      <div class="col-md-10">
+        <div class="card shadow-sm">
+          <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+            <h1 class="h3 mb-0">页面生成器</h1>
+            <a href="/" class="btn btn-sm btn-outline-light">
+              <i class="bi bi-house-door me-1"></i>返回首页
+            </a>
+          </div>
+          <div class="card-body">
+            <div class="alert alert-info">
+              <i class="bi bi-info-circle-fill me-2"></i>
+              在这里您可以创建新的网站页面，支持多语言和模板系统。
+            </div>
+            
+            <!-- 页面生成表单 -->
+            <form id="pageGeneratorForm">
+              <!-- 页面名称 -->
+              <div class="mb-4">
+                <label for="pageName" class="form-label">页面名称 <span class="text-danger">*</span></label>
+                <input type="text" class="form-control" id="pageName" name="pageName" required 
+                       placeholder="例如: my-new-page (只能包含字母、数字和连字符)">
+                <div class="form-text">页面名称将用作文件名，只能包含字母、数字和连字符。</div>
+                <div class="invalid-feedback" id="pageNameError"></div>
+              </div>
+              
+              <!-- 页面标题 -->
+              <div class="mb-4">
+                <label class="form-label">页面标题 <span class="text-danger">*</span></label>
+                <ul class="nav nav-tabs" id="titleTabs" role="tablist">
+                  <li class="nav-item" role="presentation">
+                    <button class="nav-link active" id="title-zh-tab" data-bs-toggle="tab" data-bs-target="#title-zh" type="button" role="tab">
+                      <i class="bi bi-translate me-1"></i>中文
+                    </button>
+                  </li>
+                  <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="title-en-tab" data-bs-toggle="tab" data-bs-target="#title-en" type="button" role="tab">
+                      <i class="bi bi-globe me-1"></i>English
+                    </button>
+                  </li>
+                </ul>
+                <div class="tab-content border border-top-0 p-3">
+                  <div class="tab-pane fade show active" id="title-zh" role="tabpanel">
+                    <input type="text" class="form-control" id="pageTitleZh" name="pageTitleZh" required 
+                           placeholder="输入中文标题">
+                  </div>
+                  <div class="tab-pane fade" id="title-en" role="tabpanel">
+                    <input type="text" class="form-control" id="pageTitleEn" name="pageTitleEn" 
+                           placeholder="输入英文标题（留空则使用中文标题）">
+                  </div>
+                </div>
+              </div>
+              
+              <!-- 页面内容 -->
+              <div class="mb-4">
+                <label class="form-label">页面内容 <span class="text-danger">*</span></label>
+                
+                <!-- 内容工具栏 -->
+                <div class="mb-2">
+                  <div class="btn-group" role="group">
+                    <input type="file" id="markdownFile" accept=".md" style="display: none;">
+                    <button type="button" class="btn btn-outline-secondary btn-sm" id="importMarkdownBtn">
+                      <i class="bi bi-file-earmark-text me-1"></i>导入Markdown文件
+                    </button>
+                    <button type="button" class="btn btn-outline-info btn-sm" id="saveDraftBtn">
+                      <i class="bi bi-save me-1"></i>保存草稿
+                    </button>
+                    <button type="button" class="btn btn-outline-warning btn-sm" id="loadDraftBtn">
+                      <i class="bi bi-folder-open me-1"></i>加载草稿
+                    </button>
+                  </div>
+                </div>
+                
+                <ul class="nav nav-tabs" id="contentTabs" role="tablist">
+                  <li class="nav-item" role="presentation">
+                    <button class="nav-link active" id="content-zh-tab" data-bs-toggle="tab" data-bs-target="#content-zh" type="button" role="tab">
+                      <i class="bi bi-translate me-1"></i>中文内容
+                    </button>
+                  </li>
+                  <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="content-en-tab" data-bs-toggle="tab" data-bs-target="#content-en" type="button" role="tab">
+                      <i class="bi bi-globe me-1"></i>English Content
+                    </button>
+                  </li>
+                </ul>
+                <div class="tab-content border border-top-0 p-3">
+                  <div class="tab-pane fade show active" id="content-zh" role="tabpanel">
+                    <textarea class="form-control" id="pageContentZh" name="pageContentZh" rows="15" required 
+                              placeholder="输入Markdown格式的页面内容...
+
+例如：
+# 标题
+## 二级标题
+
+这是一个段落。
+
+- 列表项1
+- 列表项2
+
+**粗体文本** 和 *斜体文本*
+
+[链接文本](https://example.com)"></textarea>
+                    <div class="form-text">支持Markdown格式，将自动转换为HTML，内容将被包装在Bootstrap容器中。</div>
+                  </div>
+                  <div class="tab-pane fade" id="content-en" role="tabpanel">
+                    <textarea class="form-control" id="pageContentEn" name="pageContentEn" rows="15" 
+                              placeholder="输入Markdown格式的英文内容...
+
+Example:
+# Heading
+## Sub Heading
+
+This is a paragraph.
+
+- List item 1
+- List item 2
+
+**Bold text** and *italic text*
+
+[Link text](https://example.com)
+
+（留空则使用中文内容）"></textarea>
+                    <div class="form-text">支持Markdown格式，将自动转换为HTML，留空则自动使用中文内容。</div>
+                  </div>
+                </div>
+              </div>
+              
+              <!-- 操作按钮 -->
+              <div class="d-flex gap-2 justify-content-end">
+                <button type="button" class="btn btn-outline-primary" id="previewBtn">
+                  <i class="bi bi-eye me-1"></i>预览页面
+                </button>
+                <button type="submit" class="btn btn-success">
+                  <i class="bi bi-check-circle me-1"></i>生成页面
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- 预览模态框 -->
+  <div class="modal fade" id="previewModal" tabindex="-1" aria-labelledby="previewModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="previewModalLabel">页面预览</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body p-0">
+          <iframe id="previewFrame" style="width: 100%; height: 600px; border: none;"></iframe>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">关闭</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Bootstrap JS Bundle with Popper -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <!-- jQuery -->
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  
+  <script>
+    // 当页面加载完成后执行
+    $(document).ready(function() {
+      // 自动加载草稿
+      loadDraft();
+      
+      // 页面名称验证
+      $('#pageName').on('input', function() {
+        const pageName = $(this).val();
+        if (pageName) {
+          validatePageName(pageName);
+        }
+      });
+      
+      // 导入Markdown文件
+      $('#importMarkdownBtn').on('click', function() {
+        $('#markdownFile').click();
+      });
+      
+      $('#markdownFile').on('change', function() {
+        const file = this.files[0];
+        if (file) {
+          importMarkdownFile(file);
+        }
+      });
+      
+      // 保存草稿
+      $('#saveDraftBtn').on('click', function() {
+        saveDraft();
+      });
+      
+      // 加载草稿
+      $('#loadDraftBtn').on('click', function() {
+        loadDraft();
+      });
+      
+      // 预览页面
+      $('#previewBtn').on('click', function() {
+        previewPage();
+      });
+      
+      // 表单提交
+      $('#pageGeneratorForm').on('submit', function(e) {
+        e.preventDefault();
+        generatePage();
+      });
+      
+      // 标题同步功能
+      $('#pageTitleZh').on('input', function() {
+        const zhTitle = $(this).val();
+        const enTitle = $('#pageTitleEn').val();
+        if (!enTitle) {
+          $('#pageTitleEn').attr('placeholder', `输入英文标题（留空则使用：${zhTitle}）`);
+        }
+      });
+      
+      // 内容同步功能
+      $('#pageContentZh').on('input', function() {
+        const zhContent = $(this).val();
+        const enContent = $('#pageContentEn').val();
+        if (!enContent) {
+          $('#pageContentEn').attr('placeholder', '输入英文内容（留空则使用中文内容）');
+        }
+      });
+    });
+    
+    // 验证页面名称
+    function validatePageName(pageName) {
+      $.ajax({
+        url: '/page-generator/validate-name',
+        method: 'POST',
+        contentType: 'application/json',
+        data: JSON.stringify({ pageName }),
+        success: function(response) {
+          if (response.success && response.valid) {
+            $('#pageName').removeClass('is-invalid').addClass('is-valid');
+            $('#pageNameError').text('');
+          } else {
+            $('#pageName').removeClass('is-valid').addClass('is-invalid');
+            $('#pageNameError').text('页面名称只能包含字母、数字和连字符');
+          }
+        },
+        error: function() {
+          $('#pageName').removeClass('is-valid').addClass('is-invalid');
+          $('#pageNameError').text('验证失败');
+        }
+      });
+    }
+    
+    // 导入Markdown文件
+    function importMarkdownFile(file) {
+      const formData = new FormData();
+      formData.append('markdown', file);
+      
+      $.ajax({
+        url: '/page-generator/upload-markdown',
+        method: 'POST',
+        data: formData,
+        processData: false,
+        contentType: false,
+        success: function(response) {
+          if (response.success) {
+            $('#pageContentZh').val(response.content);
+            showAlert('success', 'Markdown文件导入成功');
+          } else {
+            showAlert('danger', '导入失败: ' + (response.error || '未知错误'));
+          }
+        },
+        error: function(xhr) {
+          showAlert('danger', '导入失败: ' + (xhr.responseJSON?.error || '服务器错误'));
+        }
+      });
+    }
+    
+    // 保存草稿
+    function saveDraft() {
+      const draft = {
+        pageName: $('#pageName').val(),
+        pageTitleZh: $('#pageTitleZh').val(),
+        pageTitleEn: $('#pageTitleEn').val(),
+        pageContentZh: $('#pageContentZh').val(),
+        pageContentEn: $('#pageContentEn').val(),
+        timestamp: new Date().toISOString()
+      };
+      
+      $.ajax({
+        url: '/page-generator/draft/save',
+        method: 'POST',
+        contentType: 'application/json',
+        data: JSON.stringify(draft),
+        success: function(response) {
+          if (response.success) {
+            showAlert('success', '草稿保存成功');
+          } else {
+            showAlert('danger', '保存失败: ' + (response.error || '未知错误'));
+          }
+        },
+        error: function(xhr) {
+          showAlert('danger', '保存失败: ' + (xhr.responseJSON?.error || '服务器错误'));
+        }
+      });
+    }
+    
+    // 加载草稿
+    function loadDraft() {
+      $.ajax({
+        url: '/page-generator/draft/load',
+        method: 'GET',
+        success: function(response) {
+          if (response.success && response.draft) {
+            const draft = response.draft;
+            $('#pageName').val(draft.pageName || '');
+            $('#pageTitleZh').val(draft.pageTitleZh || '');
+            $('#pageTitleEn').val(draft.pageTitleEn || '');
+            $('#pageContentZh').val(draft.pageContentZh || '');
+            $('#pageContentEn').val(draft.pageContentEn || '');
+            
+            if (draft.timestamp) {
+              showAlert('info', `已加载草稿（保存时间：${new Date(draft.timestamp).toLocaleString()}）`);
+            }
+          }
+        },
+        error: function(xhr) {
+          console.error('加载草稿失败:', xhr.responseJSON?.error || '服务器错误');
+        }
+      });
+    }
+    
+    // 预览页面
+    function previewPage() {
+      const pageName = $('#pageName').val() || 'preview';
+      const pageTitle = $('#pageTitleZh').val() || '预览页面';
+      const content = $('#pageContentZh').val();
+      
+      if (!content) {
+        showAlert('warning', '请先输入页面内容');
+        return;
+      }
+      
+      $.ajax({
+        url: '/page-generator/preview',
+        method: 'POST',
+        contentType: 'application/json',
+        data: JSON.stringify({ pageName, pageTitle, content }),
+        success: function(html) {
+          const iframe = document.getElementById('previewFrame');
+          iframe.srcdoc = html;
+          
+          const modal = new bootstrap.Modal(document.getElementById('previewModal'));
+          modal.show();
+        },
+        error: function(xhr) {
+          showAlert('danger', '预览失败: ' + (xhr.responseJSON?.error || '服务器错误'));
+        }
+      });
+    }
+    
+    // 生成页面
+    function generatePage() {
+      const pageName = $('#pageName').val();
+      const pageTitleZh = $('#pageTitleZh').val();
+      const pageTitleEn = $('#pageTitleEn').val();
+      const pageContentZh = $('#pageContentZh').val();
+      const pageContentEn = $('#pageContentEn').val();
+      
+      if (!pageName || !pageTitleZh || !pageContentZh) {
+        showAlert('warning', '请填写必要字段');
+        return;
+      }
+      
+      // 准备翻译数据
+      const translations = {
+        zh: {
+          'meta.title': pageTitleZh,
+          [`${pageName}.title`]: pageTitleZh,
+          [`${pageName}.content`]: pageContentZh
+        },
+        en: {
+          'meta.title': pageTitleEn || pageTitleZh,
+          [`${pageName}.title`]: pageTitleEn || pageTitleZh,
+          [`${pageName}.content`]: pageContentEn || pageContentZh
+        }
+      };
+      
+      $.ajax({
+        url: '/page-generator/generate',
+        method: 'POST',
+        contentType: 'application/json',
+        data: JSON.stringify({
+          pageName,
+          pageTitle: pageTitleZh,
+          content: pageContentZh,
+          translations
+        }),
+        success: function(response) {
+          if (response.success) {
+            showAlert('success', `页面 "${pageName}" 生成成功！您可以在页面管理器中查看。`);
+            // 清空表单
+            $('#pageGeneratorForm')[0].reset();
+            $('#pageName').removeClass('is-valid is-invalid');
+          } else {
+            showAlert('danger', '生成失败: ' + (response.error || '未知错误'));
+          }
+        },
+        error: function(xhr) {
+          showAlert('danger', '生成失败: ' + (xhr.responseJSON?.error || '服务器错误'));
+        }
+      });
+    }
+    
+    // 显示提示信息
+    function showAlert(type, message) {
+      const alertHtml = `
+        <div class="alert alert-${type} alert-dismissible fade show" role="alert">
+          ${message}
+          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+      `;
+      
+      // 移除现有的alert
+      $('.alert').remove();
+      
+      // 添加新的alert
+      $('.card-body').prepend(alertHtml);
+      
+      // 滚动到顶部
+      $('html, body').animate({ scrollTop: 0 }, 300);
+    }
+  </script>
+</body>
+</html>

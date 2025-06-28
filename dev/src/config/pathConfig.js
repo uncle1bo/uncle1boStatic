@@ -30,8 +30,8 @@ const paths = {
   
   // 模板文件路径
   templates: {
-    header: path.join(path.resolve(ROOT_DIR, '..', 'prod'), 'header.html'),
-    footer: path.join(path.resolve(ROOT_DIR, '..', 'prod'), 'footer.html')
+    header: path.join(path.resolve(ROOT_DIR, '..', 'prod'), 'templates', 'header.html'),
+    footer: path.join(path.resolve(ROOT_DIR, '..', 'prod'), 'templates', 'footer.html')
   },
   
   // 获取prod目录下的页面路径

@@ -1,5 +1,5 @@
 @echo off
-echo 正在启动Markdown转HTML工具...
+echo 正在启动Uncle1bo静态站点工具集...
 
 cd %~dp0
 

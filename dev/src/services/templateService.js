@@ -27,11 +27,11 @@ const templateService = {
    * @param {Object} options - 选项
    * @param {string} options.pageName - 页面名称
    * @param {string} options.pageTitle - 页面标题
-   * @param {string} options.pageDescription - 页面描述
+
    * @returns {string} 处理后的模板
    */
   processHeaderTemplate: function(template, options) {
-    const { pageName, pageTitle, pageDescription } = options;
+    const { pageName, pageTitle } = options;
     
     let processedTemplate = template
       .replace(/{{rootPath}}/g, '../')
@@ -51,7 +51,7 @@ const templateService = {
     processedTemplate = processedTemplate.replace(/<title[^>]*>[^<]*<\/title>/, 
       `<title>${pageTitle || pageName}</title>`);
     processedTemplate = processedTemplate.replace(/<meta name="description"[^>]*>/, 
-      `<meta name="description" content="${pageDescription || ''}" data-i18n="meta.description">`);
+      `<meta name="description" content="" data-i18n="meta.description">`);
     
     return processedTemplate;
   },
@@ -78,18 +78,18 @@ const templateService = {
    * @param {string} options.htmlContent - HTML内容
    * @param {string} options.pageName - 页面名称
    * @param {string} options.pageTitle - 页面标题
-   * @param {string} options.pageDescription - 页面描述
+
    * @returns {string} 完整的HTML页面
    */
   generateFullHtml: function(options) {
-    const { htmlContent, pageName, pageTitle, pageDescription } = options;
+    const { htmlContent, pageName, pageTitle } = options;
     
     return `<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" data-i18n="meta.description" content="${pageDescription || ''}">
+    <meta name="description" data-i18n="meta.description" content="">
     <meta name="keywords" content="" data-i18n="meta.keywords">
     <title data-i18n="meta.title">${pageTitle || pageName}</title>
     <!-- Bootstrap CSS -->
@@ -111,7 +111,7 @@ const templateService = {
             <div class="col-md-12">
                 <h1 class="display-4" data-i18n="${pageName}.title">${pageTitle || pageName}</h1>
                 <hr class="my-4">
-                <div class="content">
+                <div class="content" data-i18n="${pageName}.content">
                     ${htmlContent}
                 </div>
             </div>

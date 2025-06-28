@@ -74,7 +74,31 @@ const fileService = {
       path.join(paths.prod, 'locales', 'en', `${pageName}.json`)
     );
     
+    // 清理临时文件
+    await this.cleanupTempFiles(pageName);
+    
     console.log(`文件已成功复制到prod目录: ${pageName}`);
+  },
+
+  /**
+   * 清理临时文件
+   * @param {string} pageName - 页面名称
+   * @returns {Promise<void>}
+   */
+  cleanupTempFiles: async function(pageName) {
+    try {
+      // 删除临时HTML文件
+      await fs.remove(path.join(paths.temp, `${pageName}.html`));
+      
+      // 删除临时语言文件
+      await fs.remove(path.join(paths.temp, 'locales', 'zh-CN', `${pageName}.json`));
+      await fs.remove(path.join(paths.temp, 'locales', 'en', `${pageName}.json`));
+      
+      console.log(`临时文件已清理: ${pageName}`);
+    } catch (error) {
+      console.error(`清理临时文件失败: ${error.message}`);
+      // 不抛出错误，避免影响主流程
+    }
   }
 };
 

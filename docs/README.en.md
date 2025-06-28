@@ -27,7 +27,6 @@ uncle1boStatic/
 │   ├── js/             # Client-side JavaScript files
 │   │   ├── main.js     # Main JavaScript
 │   │   ├── i18n.js     # Internationalization support
-│   │   ├── markdown-parser.js # Markdown parser
 │   │   └── template-processor.js # Template processor
 │   ├── locales/        # Language resources
 │   │   ├── en/         # English

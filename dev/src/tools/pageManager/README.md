@@ -16,7 +16,6 @@ pageManager/
 
 - 查看所有现有页面列表
 - 删除页面（包括HTML文件和多语言支持文件）
-- 跳转到页面生成器创建新页面
 
 ## API
 
@@ -69,4 +68,3 @@ DELETE /page-manager/delete/:pageName
 2. 访问页面：`http://localhost:3000/page-manager`
 3. 在页面列表中查看所有现有页面
 4. 点击删除按钮删除不需要的页面
-5. 点击「创建新页面」按钮跳转到页面生成器创建新页面

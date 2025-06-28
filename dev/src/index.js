@@ -1,6 +1,6 @@
 /**
- * MD to HTML Tool
- * 将Markdown内容转换为HTML页面并与模板结合
+ * Uncle1bo静态站点工具集
+ * 包含站点地图更新器、目录编辑器和页面管理器
  */
 
 const express = require('express');
@@ -12,10 +12,10 @@ const ejs = require('ejs');
 const paths = require('./config/pathConfig');
 
 // 导入工具路由
-const pageGeneratorRoutes = require('./tools/pageGenerator/routes');
 const sitemapUpdaterRoutes = require('./tools/sitemapUpdater/routes');
 const menuEditorRoutes = require('./tools/menuEditor/routes');
 const pageManagerRoutes = require('./tools/pageManager/routes');
+const pageGeneratorRoutes = require('./tools/pageGenerator/routes');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -39,9 +39,9 @@ app.get('/', (req, res) => {
   res.render('tool-selector');
 });
 
-// 页面生成器路由
+// 页面生成器工具路由
 app.get('/page-generator', (req, res) => {
-  res.render('index');
+  res.render('page-generator');
 });
 app.use('/page-generator', pageGeneratorRoutes);
 

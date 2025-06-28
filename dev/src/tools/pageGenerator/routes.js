@@ -6,76 +6,128 @@
 const express = require('express');
 const multer = require('multer');
 const path = require('path');
-
-// 导入配置
-const paths = require('../../config/pathConfig');
+const fs = require('fs-extra');
 
 // 导入服务
-const fileService = require('../../services/fileService');
 const pageGenerator = require('./index');
+const paths = require('../../config/pathConfig');
 
 const router = express.Router();
 
-// 设置文件上传
-const upload = multer({ dest: paths.uploads });
-
-// 处理直接输入的Markdown内容
-router.post('/convert', async (req, res) => {
-  try {
-    const { markdownContent, pageName, pageTitle, pageDescription, i18nConfig } = req.body;
-    
-    if (!markdownContent || !pageName) {
-      return res.status(400).json({ error: '缺少必要参数' });
+// 配置multer用于文件上传
+const upload = multer({
+  dest: paths.uploads,
+  fileFilter: (req, file, cb) => {
+    // 只允许markdown文件
+    if (file.mimetype === 'text/markdown' || path.extname(file.originalname).toLowerCase() === '.md') {
+      cb(null, true);
+    } else {
+      cb(new Error('只支持Markdown文件'), false);
     }
-    
-    // 使用页面生成器服务生成页面
-    const htmlFilePath = await pageGenerator.generatePageFromMarkdown({
-      markdownContent,
-      pageName,
-      pageTitle: pageTitle || '',
-      pageDescription: pageDescription || '',
-      i18nConfig: i18nConfig || null
-    });
-    
-    res.json({ success: true, filePath: htmlFilePath });
-  } catch (error) {
-    console.error('转换失败:', error);
-    res.status(500).json({ error: '转换失败: ' + error.message });
+  },
+  limits: {
+    fileSize: 5 * 1024 * 1024 // 5MB限制
   }
 });
 
-// 处理上传的Markdown文件
-router.post('/upload', upload.single('markdownFile'), async (req, res) => {
+// 生成页面
+router.post('/generate', async (req, res) => {
   try {
-    if (!req.file) {
-      return res.status(400).json({ error: '未上传文件' });
+    const { pageName, pageTitle, content, translations } = req.body;
+    
+    if (!pageName || !pageTitle || !content) {
+      return res.status(400).json({ error: '缺少必要参数' });
     }
     
-    const { pageName, pageTitle, pageDescription, i18nConfig } = req.body;
-    
-    if (!pageName) {
-      return res.status(400).json({ error: '缺少页面名称' });
+    // 验证页面名称
+    if (!pageGenerator.validatePageName(pageName)) {
+      return res.status(400).json({ error: '页面名称只能包含字母、数字和连字符' });
     }
     
-    // 读取上传的文件内容
-    const markdownContent = await fileService.readMarkdownFile(req.file.path);
-    
-    // 使用页面生成器服务生成页面
-    const htmlFilePath = await pageGenerator.generatePageFromMarkdown({
-      markdownContent,
+    const result = await pageGenerator.generatePage({
       pageName,
-      pageTitle: pageTitle || '',
-      pageDescription: pageDescription || '',
-      i18nConfig: i18nConfig ? JSON.parse(i18nConfig) : null
+      pageTitle,
+      content,
+      translations
     });
     
-    // 删除临时上传的文件
-    await fileService.deleteFile(req.file.path);
-    
-    res.json({ success: true, filePath: htmlFilePath });
+    res.json({ success: true, message: '页面生成成功' });
   } catch (error) {
-    console.error('处理上传文件失败:', error);
-    res.status(500).json({ error: '处理上传文件失败: ' + error.message });
+    console.error('生成页面失败:', error);
+    res.status(500).json({ error: '生成页面失败: ' + error.message });
+  }
+});
+
+// 预览页面
+router.post('/preview', (req, res) => {
+  try {
+    const { pageName, pageTitle, content } = req.body;
+    
+    const html = pageGenerator.previewPage({
+      pageName,
+      pageTitle,
+      content
+    });
+    
+    res.send(html);
+  } catch (error) {
+    console.error('预览页面失败:', error);
+    res.status(500).json({ error: '预览页面失败: ' + error.message });
+  }
+});
+
+// 保存草稿
+router.post('/draft/save', async (req, res) => {
+  try {
+    const draft = req.body;
+    await pageGenerator.saveDraft(draft);
+    res.json({ success: true, message: '草稿保存成功' });
+  } catch (error) {
+    console.error('保存草稿失败:', error);
+    res.status(500).json({ error: '保存草稿失败: ' + error.message });
+  }
+});
+
+// 加载草稿
+router.get('/draft/load', async (req, res) => {
+  try {
+    const draft = await pageGenerator.loadDraft();
+    res.json({ success: true, draft });
+  } catch (error) {
+    console.error('加载草稿失败:', error);
+    res.status(500).json({ error: '加载草稿失败: ' + error.message });
+  }
+});
+
+// 上传Markdown文件
+router.post('/upload-markdown', upload.single('markdown'), async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ error: '没有上传文件' });
+    }
+    
+    // 读取文件内容
+    const content = await fs.readFile(req.file.path, 'utf8');
+    
+    // 删除临时文件
+    await fs.remove(req.file.path);
+    
+    res.json({ success: true, content });
+  } catch (error) {
+    console.error('上传文件失败:', error);
+    res.status(500).json({ error: '上传文件失败: ' + error.message });
+  }
+});
+
+// 验证页面名称
+router.post('/validate-name', (req, res) => {
+  try {
+    const { pageName } = req.body;
+    const isValid = pageGenerator.validatePageName(pageName);
+    res.json({ success: true, valid: isValid });
+  } catch (error) {
+    console.error('验证页面名称失败:', error);
+    res.status(500).json({ error: '验证页面名称失败: ' + error.message });
   }
 });
 

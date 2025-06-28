@@ -1,6 +1,36 @@
 # 页面生成器工具
 
-页面生成器是一个用于将Markdown内容转换为HTML页面的工具，它能够自动添加头部和尾部模板，并生成多语言支持文件。
+页面生成器是一个用于创建新网站页面的工具，它提供了完整的页面创建流程，包括多语言支持、模板集成和草稿功能。
+
+## 功能特性
+
+### 1. 页面创建
+- 输入页面名称（只允许字母、数字和连字符）
+- 设置页面标题（支持中英文）
+- 编写页面内容（支持HTML标签）
+- 自动生成符合网站模板的HTML文件
+
+### 2. 多语言支持
+- 中文和英文双语言选项卡
+- 自动翻译填充（留空时使用对应语言内容）
+- 生成对应的语言文件到prod目录
+
+### 3. 内容编辑
+- 支持Markdown格式编写，自动转换为HTML
+- Markdown文件导入功能
+- 实时内容预览
+- 响应式编辑界面
+
+### 4. 草稿功能
+- 自动保存草稿到临时文件
+- 手动保存草稿
+- 页面加载时自动恢复草稿
+- 草稿时间戳记录
+
+### 5. 页面预览
+- 实时预览生成的页面效果
+- 模态框预览界面
+- 完整模板渲染
 
 ## 目录结构
 
@@ -8,107 +38,93 @@
 pageGenerator/
 ├── index.js                # 工具入口点
 ├── pageGeneratorService.js # 页面生成服务
-├── routes.js               # 路由处理
-├── page-generator.js       # 后端使用的页面生成器脚本
-└── README.md               # 说明文档
+├── routes.js              # 路由处理
+└── README.md              # 说明文档
 ```
-
-## 前端脚本结构
-
-```
-tools/pageGenerator/
-├── page-generator.js                    # 页面生成器前端脚本，包含页面生成器的前端交互逻辑
-├── main.js                              # 页面生成器主脚本，负责处理表单提交和文件上传
-└── markdown-parser.js                   # Markdown解析脚本，提供将Markdown转换为HTML的功能
-```
-
-## 功能
-
-### 后端功能
-
-- 将Markdown内容转换为HTML
-- 自动添加头部和尾部模板
-- 生成多语言支持文件
-- 支持直接输入Markdown内容或上传Markdown文件
-
-### 前端功能
-
-- 提供用户友好的界面，支持直接输入和文件上传两种方式
-- 支持Markdown文件导入到编辑器功能
-- 支持多语言配置的动态添加和管理
-- 支持嵌套键名的多语言配置（如 'common.button.submit'）
-- 提供表单提交和结果显示功能
-
-## API
-
-### 直接输入Markdown内容
-
-```
-POST /page-generator/convert
-```
-
-请求参数：
-
-- `markdownContent`: Markdown内容
-- `pageName`: 页面名称（不包含.html后缀）
-- `pageTitle`: 页面标题（可选）
-- `pageDescription`: 页面描述（可选）
-- `i18nConfig`: 多语言配置（可选），格式如下：
-  ```json
-  {
-    "zh": {
-      "common": {
-        "button": {
-          "submit": "提交"
-        }
-      }
-    },
-    "en": {
-      "common": {
-        "button": {
-          "submit": "Submit"
-        }
-      }
-    }
-  }
-  ```
-
-### 上传Markdown文件
-
-```
-POST /page-generator/upload
-```
-
-请求参数（multipart/form-data）：
-
-- `markdownFile`: Markdown文件
-- `pageName`: 页面名称（不包含.html后缀）
-- `pageTitle`: 页面标题（可选）
-- `pageDescription`: 页面描述（可选）
-- `i18nConfig`: 多语言配置（可选，JSON字符串）
 
 ## 使用方法
 
-### 基本使用流程
+1. **访问页面生成器**
+   - 在工具选择页面点击"页面生成器"
+   - 或直接访问 `/page-generator`
 
-1. 启动服务器：`npm run dev`
-2. 访问页面：`http://localhost:3000`
-3. 选择直接输入Markdown内容或上传Markdown文件
-4. 填写必要的信息并提交
-5. 生成的HTML页面将保存在`prod/pages`目录下
+2. **创建新页面**
+   - 输入页面名称（如：my-new-page）
+   - 在中文选项卡输入页面标题
+   - 可选择切换到英文选项卡输入英文标题
+   - 在中文内容选项卡输入Markdown格式的页面内容
+   - 可选择切换到英文选项卡输入英文Markdown内容
 
-### 多语言配置使用
+3. **导入Markdown文件**
+   - 点击"导入Markdown文件"按钮
+   - 选择.md文件
+   - Markdown内容将自动填充到中文内容区域
 
-1. 在表单中找到「多语言配置」部分
-2. 点击「添加多语言字段」按钮添加新的翻译项
-3. 填写翻译键名（支持嵌套键名，如`common.button.submit`）
-4. 填写中文内容（必填）和英文内容（可选）
-5. 可以添加多个多语言字段
-6. 提交表单时，多语言配置将一并发送到服务器
+4. **预览页面**
+   - 点击"预览页面"按钮
+   - 在弹出的模态框中查看页面效果
 
-### Markdown文件导入
+5. **保存草稿**
+   - 点击"保存草稿"按钮手动保存
+   - 页面会自动加载上次的草稿内容
 
-1. 在「上传文件」标签页选择Markdown文件
-2. 点击「导入到编辑器」按钮
-3. 系统会自动切换到「直接输入」标签页并填充文件内容
-4. 可以在编辑器中修改内容后再提交
+6. **生成页面**
+   - 点击"生成页面"按钮
+   - 系统将生成HTML文件和语言文件到prod目录
+
+## 生成的文件
+
+工具会生成以下文件：
+
+- **HTML文件**: `/prod/pages/{pageName}.html`
+- **中文语言文件**: `/prod/locales/zh-CN/{pageName}.json`
+- **英文语言文件**: `/prod/locales/en/{pageName}.json`
+
+## 技术实现
+
+### 后端服务
+- `pageGeneratorService.js`: 核心业务逻辑
+- `routes.js`: HTTP路由处理
+- 集成现有的`templateService`和`i18nService`
+
+### 前端界面
+- Bootstrap 5响应式设计
+- jQuery Ajax交互
+- 选项卡式多语言编辑
+- 文件上传和预览功能
+
+### 模板集成
+- 使用prod目录的header.html和footer.html模板
+- 自动处理模板变量替换
+- 支持多语言国际化标签
+- Markdown内容自动转换为HTML并集成到模板中
+
+## 注意事项
+
+- 页面名称只能包含字母、数字和连字符，不要使用空格和特殊字符
+- 页面内容使用Markdown格式编写，支持标准Markdown语法和GitHub风格扩展
+- Markdown内容会自动转换为HTML，支持标题、列表、链接、粗体、斜体等格式
+- 生成的页面会自动使用网站的样式和脚本
+- 多语言支持文件需要手动编辑以提供更准确的翻译
+- 草稿文件保存在临时目录中，重启服务器后可能丢失
+- 上传的Markdown文件大小限制为5MB
+
+## API接口
+
+### POST /page-generator/generate
+生成新页面
+
+### POST /page-generator/preview
+预览页面
+
+### POST /page-generator/draft/save
+保存草稿
+
+### GET /page-generator/draft/load
+加载草稿
+
+### POST /page-generator/upload-markdown
+上传Markdown文件
+
+### POST /page-generator/validate-name
+验证页面名称

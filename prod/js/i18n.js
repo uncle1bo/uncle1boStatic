@@ -101,6 +101,14 @@ async function loadLanguageResources(lang, pageName = null) {
             basePath += 'locales';
         }
         
+        // 初始化翻译缓存
+        if (!window._i18nCache) {
+            window._i18nCache = {};
+        }
+        if (!window._i18nCache[lang]) {
+            window._i18nCache[lang] = {};
+        }
+        
         // 首先加载公共语言资源（用于页头页脚模板）
         const commonResourceUrl = `${basePath}/${lang}/common.json`;
         console.log('Loading common language resource from:', commonResourceUrl);
@@ -111,11 +119,26 @@ async function loadLanguageResources(lang, pageName = null) {
             if (commonResponse.ok) {
                 commonTranslations = await commonResponse.json();
                 console.log('Common translations loaded successfully');
+                
+                // 缓存公共翻译
+                window._i18nCache[lang]['common'] = commonTranslations;
             } else {
                 console.warn(`Failed to load common language resource: ${commonResponse.status}`);
+                
+                // 如果加载失败且当前语言不是中文，尝试使用中文翻译
+                if (lang !== 'zh-CN' && window._i18nCache['zh-CN'] && window._i18nCache['zh-CN']['common']) {
+                    commonTranslations = window._i18nCache['zh-CN']['common'];
+                    console.log('Using Chinese common translations as fallback');
+                }
             }
         } catch (error) {
             console.warn('Failed to load common language resource:', error);
+            
+            // 如果加载失败且当前语言不是中文，尝试使用中文翻译
+            if (lang !== 'zh-CN' && window._i18nCache['zh-CN'] && window._i18nCache['zh-CN']['common']) {
+                commonTranslations = window._i18nCache['zh-CN']['common'];
+                console.log('Using Chinese common translations as fallback');
+            }
         }
         
         const resourceUrl = `${basePath}/${lang}/${pageName}.json`;
@@ -124,14 +147,48 @@ async function loadLanguageResources(lang, pageName = null) {
         // 获取语言资源
         const response = await fetch(resourceUrl);
         
-        if (!response.ok) {
-            throw new Error(`Failed to load language resource: ${response.status}`);
+        let pageTranslations = {};
+        if (response.ok) {
+            pageTranslations = await response.json();
+            
+            // 缓存页面翻译
+            window._i18nCache[lang][pageName] = pageTranslations;
+        } else {
+            console.warn(`Failed to load language resource: ${response.status}`);
+            
+            // 如果加载失败且当前语言不是中文，尝试使用中文翻译
+            if (lang !== 'zh-CN') {
+                // 尝试加载中文翻译
+                try {
+                    const zhResourceUrl = `${basePath}/zh-CN/${pageName}.json`;
+                    const zhResponse = await fetch(zhResourceUrl);
+                    if (zhResponse.ok) {
+                        pageTranslations = await zhResponse.json();
+                        console.log('Using Chinese translations as fallback');
+                        
+                        // 缓存中文翻译
+                        if (!window._i18nCache['zh-CN']) {
+                            window._i18nCache['zh-CN'] = {};
+                        }
+                        window._i18nCache['zh-CN'][pageName] = pageTranslations;
+                        window._i18nCache[lang][pageName] = pageTranslations; // 同时缓存到当前语言
+                    } else {
+                        throw new Error(`Failed to load Chinese language resource: ${zhResponse.status}`);
+                    }
+                } catch (error) {
+                    console.error('Failed to load Chinese language resource as fallback:', error);
+                    throw new Error(`Failed to load language resource: ${response.status}`);
+                }
+            } else {
+                throw new Error(`Failed to load language resource: ${response.status}`);
+            }
         }
-        
-        const pageTranslations = await response.json();
         
         // 合并公共翻译和页面特定翻译
         const mergedTranslations = mergeTranslations(commonTranslations, pageTranslations);
+        
+        // 缓存合并后的翻译
+        window._i18nCache[lang][`${pageName}_merged`] = mergedTranslations;
         
         // 应用翻译
         applyTranslations(mergedTranslations);
@@ -323,8 +380,42 @@ window.i18n = {
     },
     getTranslation: function(key, defaultValue = '') {
         const lang = this.getCurrentLanguage();
-        // 这里可以实现一个缓存机制来存储已加载的翻译
-        // 目前简单返回默认值，实际使用时应该从已加载的翻译中获取
+        // 获取当前页面名称
+        const pageName = this._getCurrentPageName();
+        
+        // 尝试从缓存中获取翻译
+        if (window._i18nCache && window._i18nCache[lang] && window._i18nCache[lang][pageName]) {
+            const translations = window._i18nCache[lang][pageName];
+            const value = getNestedTranslation(translations, key);
+            if (value) {
+                return value;
+            }
+        }
+        
+        // 如果没有找到翻译，返回默认值
+        // 如果默认值为空且当前语言不是中文，尝试获取中文翻译
+        if (!defaultValue && lang !== 'zh-CN' && window._i18nCache && window._i18nCache['zh-CN'] && window._i18nCache['zh-CN'][pageName]) {
+            const zhTranslations = window._i18nCache['zh-CN'][pageName];
+            const zhValue = getNestedTranslation(zhTranslations, key);
+            if (zhValue) {
+                return zhValue;
+            }
+        }
+        
         return defaultValue;
+    },
+    
+    _getCurrentPageName: function() {
+        const currentPath = window.location.pathname;
+        const pathParts = currentPath.split('/');
+        const lastPart = pathParts[pathParts.length - 1];
+        
+        // 如果URL以/结尾或者是根目录，则使用index
+        if (lastPart === '' || currentPath === '/') {
+            return 'index';
+        }
+        
+        // 否则使用最后一部分，并移除.html扩展名
+        return lastPart.replace('.html', '');
     }
 };

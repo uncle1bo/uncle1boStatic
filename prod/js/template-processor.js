@@ -65,8 +65,7 @@ function getPageInfo() {
         homeActive: pageName === 'index' ? 'active' : '',
         aboutActive: pageName === 'about' ? 'active' : '',
         servicesActive: pageName === 'services' ? 'active' : '',
-        contactActive: pageName === 'contact' ? 'active' : '',
-        'page-generatorActive': pageName === 'page-generator' ? 'active' : ''
+        contactActive: pageName === 'contact' ? 'active' : ''
     };
     
     return {
@@ -103,8 +102,7 @@ async function loadHeaderTemplate(pageInfo) {
                           .replace(/{{homeActive}}/g, pageInfo.homeActive)
                           .replace(/{{aboutActive}}/g, pageInfo.aboutActive)
                           .replace(/{{servicesActive}}/g, pageInfo.servicesActive)
-                          .replace(/{{contactActive}}/g, pageInfo.contactActive)
-                          .replace(/{{page-generatorActive}}/g, pageInfo['page-generatorActive']);
+                          .replace(/{{contactActive}}/g, pageInfo.contactActive);
         
         // 插入模板内容
         headerContainer.innerHTML = template;

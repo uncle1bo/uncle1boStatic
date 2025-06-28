@@ -27,7 +27,6 @@ uncle1boStatic/
 │   ├── js/             # 用户端JavaScript文件
 │   │   ├── main.js     # 主JavaScript
 │   │   ├── i18n.js     # 国际化支持
-│   │   ├── markdown-parser.js # Markdown解析器
 │   │   └── template-processor.js # 模板处理器
 │   ├── locales/        # 语言资源
 │   │   ├── en/         # 英文

@@ -1,7 +1,7 @@
 {
-  "name": "md-to-html-tool",
+  "name": "uncle1bo-static-tools",
   "version": "1.0.0",
-  "description": "将Markdown内容转换为HTML页面并与模板结合",
+  "description": "Uncle1bo静态站点工具集，包含站点地图更新器、目录编辑器和页面管理器",
   "main": "src/index.js",
   "scripts": {
     "dev": "node src/index.js"

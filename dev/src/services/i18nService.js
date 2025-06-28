@@ -16,14 +16,14 @@ const i18nService = {
    * @param {Object} options - 选项
    * @param {string} options.pageName - 页面名称
    * @param {string} options.pageTitle - 页面标题
-   * @param {string} options.pageDescription - 页面描述
+
    * @param {Object} options.customTranslations - 自定义翻译键值对 (可选)
    * @param {Object} options.customTranslations.zh - 中文翻译键值对
    * @param {Object} options.customTranslations.en - 英文翻译键值对
    * @returns {Promise<void>}
    */
   generateI18nFiles: async function(options) {
-    const { pageName, pageTitle, pageDescription, customTranslations } = options;
+    const { pageName, pageTitle, customTranslations } = options;
     
     // 确保临时目录存在
     await this.ensureLocaleDirectories();
@@ -32,7 +32,7 @@ const i18nService = {
     await this.generateLanguageFile('zh-CN', { 
       pageName, 
       pageTitle, 
-      pageDescription, 
+ 
       customTranslations: customTranslations ? customTranslations.zh : null 
     });
     
@@ -40,7 +40,7 @@ const i18nService = {
     await this.generateLanguageFile('en', { 
       pageName, 
       pageTitle, 
-      pageDescription, 
+ 
       customTranslations: customTranslations ? customTranslations.en : null 
     });
   },
@@ -50,8 +50,13 @@ const i18nService = {
    * @returns {Promise<void>}
    */
   ensureLocaleDirectories: async function() {
-    await fs.ensureDir(path.join(paths.temp, 'locales', 'zh-CN'));
-    await fs.ensureDir(path.join(paths.temp, 'locales', 'en'));
+    try {
+      await fs.ensureDir(path.join(paths.temp, 'locales', 'zh-CN'));
+      await fs.ensureDir(path.join(paths.temp, 'locales', 'en'));
+    } catch (error) {
+      console.error('创建多语言目录失败:', error);
+      throw new Error(`创建多语言目录失败: ${error.message}`);
+    }
   },
   
   /**
@@ -60,18 +65,18 @@ const i18nService = {
    * @param {Object} options - 选项
    * @param {string} options.pageName - 页面名称
    * @param {string} options.pageTitle - 页面标题
-   * @param {string} options.pageDescription - 页面描述
+
    * @param {Object} options.customTranslations - 自定义翻译键值对 (可选)
    * @returns {Promise<void>}
    */
   generateLanguageFile: async function(lang, options) {
-    const { pageName, pageTitle, pageDescription, customTranslations } = options;
+    const { pageName, pageTitle, customTranslations } = options;
     
     // 创建语言文件内容
     const content = {
       meta: {
         title: pageTitle || pageName,
-        description: pageDescription || '',
+        description: '',
         keywords: ''
       },
       [`${pageName}`]: {
@@ -79,6 +84,21 @@ const i18nService = {
         content: ''
       }
     };
+    
+    // 如果是英文语言文件，但没有提供英文翻译，使用中文内容作为默认值
+    if (lang === 'en' && (!customTranslations || Object.keys(customTranslations).length === 0)) {
+      // 获取中文内容作为默认值
+      try {
+        const zhFilePath = path.join(paths.temp, 'locales', 'zh-CN', `${pageName}.json`);
+        if (await fs.pathExists(zhFilePath)) {
+          const zhContent = JSON.parse(await fs.readFile(zhFilePath, 'utf8'));
+          // 合并中文内容到英文内容中
+          Object.assign(content, zhContent);
+        }
+      } catch (error) {
+        console.warn(`无法读取中文内容作为英文默认值: ${error.message}`);
+      }
+    }
     
     // 如果有自定义翻译，合并到内容中
     if (customTranslations && typeof customTranslations === 'object') {
@@ -107,8 +127,13 @@ const i18nService = {
     }
     
     // 保存语言文件
-    const filePath = path.join(paths.temp, 'locales', lang, `${pageName}.json`);
-    await fs.writeFile(filePath, JSON.stringify(content, null, 2), 'utf8');
+    try {
+      const filePath = path.join(paths.temp, 'locales', lang, `${pageName}.json`);
+      await fs.writeFile(filePath, JSON.stringify(content, null, 2), 'utf8');
+    } catch (error) {
+      console.error(`保存${lang}语言文件失败:`, error);
+      throw new Error(`保存${lang}语言文件失败: ${error.message}`);
+    }
   }
 };
 
