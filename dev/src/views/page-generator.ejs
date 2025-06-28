@@ -18,9 +18,14 @@
         <div class="card shadow-sm">
           <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
             <h1 class="h3 mb-0">页面生成器</h1>
-            <a href="/" class="btn btn-sm btn-outline-light">
-              <i class="bi bi-house-door me-1"></i>返回首页
-            </a>
+            <div class="btn-group" role="group">
+              <a href="/page-manager" class="btn btn-sm btn-outline-light" id="backToManagerBtn" style="display: none;">
+                <i class="bi bi-arrow-left me-1"></i>返回页面管理器
+              </a>
+              <a href="/" class="btn btn-sm btn-outline-light">
+                <i class="bi bi-house-door me-1"></i>返回首页
+              </a>
+            </div>
           </div>
           <div class="card-body">
             <div class="alert alert-info">
@@ -182,8 +187,22 @@ This is a paragraph.
   <script>
     // 当页面加载完成后执行
     $(document).ready(function() {
-      // 自动加载草稿
-      loadDraft();
+      // 检查URL参数
+      const urlParams = new URLSearchParams(window.location.search);
+      const fromPageManager = urlParams.get('from') === 'page-manager';
+      const editPageName = urlParams.get('edit');
+      
+      if (fromPageManager) {
+        $('#backToManagerBtn').show();
+      }
+      
+      // 如果是编辑模式，加载页面数据
+      if (editPageName) {
+        loadPageForEdit(editPageName);
+      } else {
+        // 否则自动加载草稿
+        loadDraft();
+      }
       
       // 页面名称验证
       $('#pageName').on('input', function() {
@@ -350,19 +369,44 @@ This is a paragraph.
     // 预览页面
     function previewPage() {
       const pageName = $('#pageName').val() || 'preview';
-      const pageTitle = $('#pageTitleZh').val() || '预览页面';
-      const content = $('#pageContentZh').val();
+      const pageTitleZh = $('#pageTitleZh').val() || '预览页面';
+      const pageTitleEn = $('#pageTitleEn').val();
+      const pageContentZh = $('#pageContentZh').val();
+      const pageContentEn = $('#pageContentEn').val();
       
-      if (!content) {
+      if (!pageContentZh) {
         showAlert('warning', '请先输入页面内容');
         return;
       }
+      
+      // 准备翻译数据，与生成页面时保持一致
+      const translations = {
+        'zh-CN': {
+          'meta.title': pageTitleZh,
+          [`${pageName}.title`]: pageTitleZh,
+          [`${pageName}.content`]: pageContentZh,
+          title: pageTitleZh,
+          content: pageContentZh
+        },
+        'en': {
+          'meta.title': pageTitleEn || pageTitleZh,
+          [`${pageName}.title`]: pageTitleEn || pageTitleZh,
+          [`${pageName}.content`]: pageContentEn || pageContentZh,
+          title: pageTitleEn || pageTitleZh,
+          content: pageContentEn || pageContentZh
+        }
+      };
       
       $.ajax({
         url: '/page-generator/preview',
         method: 'POST',
         contentType: 'application/json',
-        data: JSON.stringify({ pageName, pageTitle, content }),
+        data: JSON.stringify({ 
+          pageName, 
+          pageTitle: pageTitleZh, 
+          content: pageContentZh,
+          translations
+        }),
         success: function(html) {
           const iframe = document.getElementById('previewFrame');
           iframe.srcdoc = html;
@@ -391,17 +435,25 @@ This is a paragraph.
       
       // 准备翻译数据
       const translations = {
-        zh: {
+        'zh-CN': {
           'meta.title': pageTitleZh,
           [`${pageName}.title`]: pageTitleZh,
-          [`${pageName}.content`]: pageContentZh
+          [`${pageName}.content`]: pageContentZh,
+          title: pageTitleZh,
+          content: pageContentZh
         },
-        en: {
+        'en': {
           'meta.title': pageTitleEn || pageTitleZh,
           [`${pageName}.title`]: pageTitleEn || pageTitleZh,
-          [`${pageName}.content`]: pageContentEn || pageContentZh
+          [`${pageName}.content`]: pageContentEn || pageContentZh,
+          title: pageTitleEn || pageTitleZh,
+          content: pageContentEn || pageContentZh
         }
       };
+      
+      // 检测是否为编辑模式
+      const urlParams = new URLSearchParams(window.location.search);
+      const isEdit = urlParams.get('edit') !== null;
       
       $.ajax({
         url: '/page-generator/generate',
@@ -411,14 +463,40 @@ This is a paragraph.
           pageName,
           pageTitle: pageTitleZh,
           content: pageContentZh,
-          translations
+          translations,
+          isEdit
         }),
         success: function(response) {
           if (response.success) {
-            showAlert('success', `页面 "${pageName}" 生成成功！您可以在页面管理器中查看。`);
-            // 清空表单
-            $('#pageGeneratorForm')[0].reset();
-            $('#pageName').removeClass('is-valid is-invalid');
+            // 检查是否来自页面管理器
+            const urlParams = new URLSearchParams(window.location.search);
+            const fromPageManager = urlParams.get('from') === 'page-manager';
+            
+            let successMessage = `页面 "${pageName}" 生成成功！`;
+            let actionButtons = '';
+            
+            if (fromPageManager) {
+              actionButtons = `
+                <div class="mt-3">
+                  <a href="/page-manager" class="btn btn-primary me-2">
+                    <i class="bi bi-arrow-left me-1"></i>返回页面管理器
+                  </a>
+                  <button type="button" class="btn btn-success" onclick="$('.alert').alert('close'); $('#pageGeneratorForm')[0].reset(); $('#pageName').removeClass('is-valid is-invalid');">
+                    <i class="bi bi-plus-circle me-1"></i>继续创建
+                  </button>
+                </div>
+              `;
+            } else {
+              successMessage += ' 您可以在页面管理器中查看。';
+            }
+            
+            showAlert('success', successMessage + actionButtons);
+            
+            // 如果不是来自页面管理器，清空表单
+            if (!fromPageManager) {
+              $('#pageGeneratorForm')[0].reset();
+              $('#pageName').removeClass('is-valid is-invalid');
+            }
           } else {
             showAlert('danger', '生成失败: ' + (response.error || '未知错误'));
           }
@@ -429,6 +507,53 @@ This is a paragraph.
       });
     }
     
+    // 加载页面数据进行编辑
+    function loadPageForEdit(pageName) {
+      $.ajax({
+        url: `/page-generator/load-page/${pageName}`,
+        method: 'GET',
+        success: function(response) {
+          if (response.success && response.pageData) {
+            const data = response.pageData;
+            
+            // 填充表单数据
+            $('#pageName').val(data.pageName).prop('readonly', true); // 编辑模式下页面名称不可修改
+            
+            // 填充多语言数据
+            if (data.translations) {
+              if (data.translations['zh-CN']) {
+                $('#pageTitleZh').val(data.translations['zh-CN'].title || data.translations['zh-CN'][`${data.pageName}.title`] || '');
+                $('#pageContentZh').val(data.translations['zh-CN'].content || data.translations['zh-CN'][`${data.pageName}.content`] || '');
+              }
+              if (data.translations['en']) {
+                $('#pageTitleEn').val(data.translations['en'].title || data.translations['en'][`${data.pageName}.title`] || '');
+                $('#pageContentEn').val(data.translations['en'].content || data.translations['en'][`${data.pageName}.content`] || '');
+              }
+            }
+            
+            // 如果没有多语言数据，使用原始数据
+            if (data.pageTitle && !$('#pageTitleZh').val()) {
+              $('#pageTitleZh').val(data.pageTitle);
+            }
+            if (data.content && !$('#pageContentZh').val()) {
+              $('#pageContentZh').val(data.content);
+            }
+            
+            // 显示编辑模式提示
+            showAlert('info', `<i class="bi bi-pencil me-2"></i>正在编辑页面：<strong>${data.pageName}</strong>`);
+            
+            // 修改按钮文本
+            $('#pageGeneratorForm button[type="submit"]').html('<i class="bi bi-check-circle me-1"></i>更新页面');
+          } else {
+            showAlert('danger', '加载页面数据失败: ' + (response.error || '页面不存在或不可编辑'));
+          }
+        },
+        error: function(xhr) {
+          showAlert('danger', '加载页面数据失败: ' + (xhr.responseJSON?.error || '服务器错误'));
+        }
+      });
+    }
+
     // 显示提示信息
     function showAlert(type, message) {
       const alertHtml = `

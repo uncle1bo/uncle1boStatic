@@ -47,6 +47,19 @@ const paths = {
   // 获取临时目录下的多语言文件路径
   getTempLocalesPath: function(lang) {
     return path.join(this.temp, 'locales', lang);
+  },
+  
+  // 数据目录
+  data: path.join(ROOT_DIR, 'src', 'data'),
+  
+  // 获取页面数据路径
+  getPagesDataPath: function() {
+    return path.join(this.data, 'pages');
+  },
+  
+  // 获取单个页面数据文件路径
+  getPageDataFile: function(pageName) {
+    return path.join(this.data, 'pages', `${pageName}.json`);
   }
 };
 

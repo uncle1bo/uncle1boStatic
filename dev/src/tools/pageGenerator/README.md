@@ -108,6 +108,7 @@ pageGenerator/
 - 多语言支持文件需要手动编辑以提供更准确的翻译
 - 草稿文件保存在临时目录中，重启服务器后可能丢失
 - 上传的Markdown文件大小限制为5MB
+- **页面生成完成后会自动清理临时文件，释放磁盘空间**
 
 ## API接口
 
@@ -128,3 +129,18 @@ pageGenerator/
 
 ### POST /page-generator/validate-name
 验证页面名称
+
+### 临时文件清理功能
+
+页面生成器提供了完善的临时文件清理机制：
+
+- **自动清理**: 页面生成完成后自动删除临时多语言文件
+- **智能清理**: 自动清理空的临时目录，避免目录结构冗余
+- **错误处理**: 即使页面生成失败，也会尝试清理已创建的临时文件
+- **手动清理**: 提供API接口支持手动清理临时文件和草稿
+
+#### 清理功能API
+
+- `cleanupTempFiles(pageName)`: 清理指定页面的临时文件
+- `cleanupDraftFile()`: 清理草稿文件
+- `cleanupAllTempFiles(pageName, includeDraft)`: 清理所有临时文件

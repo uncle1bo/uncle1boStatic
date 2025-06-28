@@ -6,6 +6,7 @@
 const fs = require('fs-extra');
 const path = require('path');
 const paths = require('../../config/pathConfig');
+const pageGenerator = require('../pageGenerator');
 
 /**
  * 页面管理器服务
@@ -57,6 +58,9 @@ const pageManagerService = {
             console.error(`读取语言文件失败: ${pageName}`, error);
           }
           
+          // 检查页面是否可编辑
+      const editable = await pageGenerator.isPageEditable(pageName);
+          
           pages.push({
             name: pageName,
             file: file,
@@ -64,7 +68,8 @@ const pageManagerService = {
             size: stats.size,
             modified: stats.mtime,
             zhTitle,
-            enTitle
+            enTitle,
+            editable
           });
         }
       }
@@ -102,6 +107,12 @@ const pageManagerService = {
       const enLocaleFile = path.join(paths.getLocalesPath('en'), `${pageName}.json`);
       if (await fs.pathExists(enLocaleFile)) {
         await fs.remove(enLocaleFile);
+      }
+      
+      // 删除页面源数据文件
+      const dataFile = paths.getPageDataFile(pageName);
+      if (await fs.pathExists(dataFile)) {
+        await fs.remove(dataFile);
       }
       
       return true;

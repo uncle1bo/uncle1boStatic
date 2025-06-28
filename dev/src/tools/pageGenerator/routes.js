@@ -33,7 +33,7 @@ const upload = multer({
 // 生成页面
 router.post('/generate', async (req, res) => {
   try {
-    const { pageName, pageTitle, content, translations } = req.body;
+    const { pageName, pageTitle, content, translations, isEdit = false } = req.body;
     
     if (!pageName || !pageTitle || !content) {
       return res.status(400).json({ error: '缺少必要参数' });
@@ -48,7 +48,8 @@ router.post('/generate', async (req, res) => {
       pageName,
       pageTitle,
       content,
-      translations
+      translations,
+      isEdit
     });
     
     res.json({ success: true, message: '页面生成成功' });
@@ -128,6 +129,35 @@ router.post('/validate-name', (req, res) => {
   } catch (error) {
     console.error('验证页面名称失败:', error);
     res.status(500).json({ error: '验证页面名称失败: ' + error.message });
+  }
+});
+
+// 检查页面是否可编辑
+router.get('/check-editable/:pageName', async (req, res) => {
+  try {
+    const { pageName } = req.params;
+    const editable = await pageGenerator.isPageEditable(pageName);
+    res.json({ success: true, editable });
+  } catch (error) {
+    console.error('检查页面是否可编辑失败:', error);
+    res.status(500).json({ error: '检查页面是否可编辑失败: ' + error.message });
+  }
+});
+
+// 加载页面数据进行编辑
+router.get('/load-page/:pageName', async (req, res) => {
+  try {
+    const { pageName } = req.params;
+    const pageData = await pageGenerator.loadPageData('edit', pageName);
+    
+    if (!pageData || !pageData.editable) {
+      return res.status(404).json({ success: false, error: '页面不存在或不可编辑' });
+    }
+    
+    res.json({ success: true, pageData });
+  } catch (error) {
+    console.error('加载页面数据失败:', error);
+    res.status(500).json({ success: false, error: '服务器内部错误' });
   }
 });
 

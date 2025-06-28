@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" data-i18n="meta.description" content="">
+    <meta name="keywords" content="" data-i18n="meta.keywords">
+    <title data-i18n="meta.title">测试123</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="../css/styles.css">
+    <!-- Template Processor -->
+    <script src="../js/template-processor.js"></script>
+</head>
+<body>
+    <!-- 头部模板 -->
+    <div id="header-template"></div>
+
+    <!-- Content Section -->
+    <div class="container mt-5">
+        <div class="row">
+            <div class="col-md-12">
+                <h1 class="display-4" data-i18n="test.title">测试123</h1>
+                <hr class="my-4">
+                <div class="content" data-i18n="test.content">
+                    <h1>Uncle1bo 静态网站项目</h1>
+<p><a href="docs/README.en.md">English</a> | <a href="#">简体中文</a></p>
+<p>这是一个纯静态网站项目，使用Bootstrap框架构建，计划部署在Cloudflare Pages上。</p>
+<h2>项目结构</h2>
+<pre><code>uncle1boStatic/
+├── README.md           # 项目说明文档（中文）
+├── docs/               # 文档目录
+│   └── README.en.md    # 项目说明文档（英文）
+├── dev/                # 开发环境目录
+├── prod/               # 生产环境目录
+│   ├── index.html      # 主页面
+│   ├── pages/          # 用户页面
+│   │   ├── about.html  # 关于页面
+│   │   ├── services.html # 服务页面
+│   │   └── contact.html # 联系我们页面
+│   ├── assets/         # 静态资源
+│   │   ├── images/     # 图片资源
+│   │   ├── fonts/      # 字体文件
+│   │   └── icons/      # 图标文件
+│   ├── css/            # CSS样式
+│   │   └── styles.css  # 自定义样式
+│   ├── js/             # 用户端JavaScript文件
+│   │   ├── main.js     # 主JavaScript
+│   │   ├── i18n.js     # 国际化支持
+│   │   └── template-processor.js # 模板处理器
+│   ├── locales/        # 语言资源
+│   │   ├── en/         # 英文
+│   │   └── zh-CN/      # 简体中文
+│   ├── templates/      # 页面模板
+│   │   ├── header.html # 头部模板
+│   │   └── footer.html # 底部模板
+│   ├── robots.txt      # 搜索引擎爬虫配置
+│   ├── sitemap.xml     # 网站地图
+│   ├── 404.html        # 404错误页面
+│   ├── _headers        # 安全头配置
+│   ├── .nojekyll       # 禁用GitHub Pages的Jekyll处理
+│   ├── .gitignore      # Git忽略文件配置
+│   └── _redirects      # 重定向配置
+├── locall.bat          # 本地开发服务器启动脚本
+├── package.json        # 项目依赖配置
+└── package-lock.json   # 依赖版本锁定文件
+</code></pre>
+<h2>技术栈</h2>
+<ul>
+<li>HTML5</li>
+<li>CSS3</li>
+<li>JavaScript</li>
+<li>Bootstrap 5</li>
+<li>Node.js (用于本地开发服务器)</li>
+</ul>
+<h2>特性</h2>
+<ul>
+<li>响应式设计，适用于所有设备</li>
+<li>多语言支持（英文、简体中文）</li>
+<li>快速加载和优化性能</li>
+<li>自定义404错误页面</li>
+<li>对搜索引擎友好</li>
+</ul>
+<h2>开始使用</h2>
+<h3>前提条件</h3>
+<p>运行此项目不需要特殊的前提条件。您只需要一个现代的网络浏览器。</p>
+<h3>本地开发</h3>
+<ol>
+<li><p>克隆存储库：</p>
+<pre><code>git clone https://github.com/yourusername/uncle1boStatic.git
+cd uncle1boStatic
+</code></pre>
+</li>
+<li><p>安装依赖：</p>
+<pre><code>npm install
+</code></pre>
+</li>
+<li><p>启动本地开发服务器：</p>
+<ul>
+<li><p>使用提供的批处理文件启动服务器：</p>
+<pre><code>locall.bat
+</code></pre>
+</li>
+<li><p>或者直接使用npm命令：</p>
+<pre><code>npm start
+</code></pre>
+</li>
+<li><p>浏览器将自动打开并导航至：<code>http://localhost:8000</code></p>
+</li>
+</ul>
+</li>
+</ol>
+<h2>404页面配置</h2>
+<p>本项目包含自定义404错误页面，当用户访问不存在的页面时会自动重定向到此页面。</p>
+<ul>
+<li>本地开发环境：使用http-server提供404页面支持</li>
+<li>Cloudflare Pages部署：通过<code>_redirects</code>文件配置404重定向规则</li>
+</ul>
+<p>如果您使用其他托管服务，可能需要根据该服务的要求调整404页面配置。</p>
+<h2>部署</h2>
+<p>此项目设计为部署在Cloudflare Pages上，但可以托管在任何静态站点托管服务上。</p>
+<h3>部署到Cloudflare Pages</h3>
+<ol>
+<li>将您的代码推送到GitHub存储库</li>
+<li>登录到您的Cloudflare仪表板</li>
+<li>转到Pages &gt; 创建项目</li>
+<li>连接您的GitHub存储库</li>
+<li>配置您的构建设置：<ul>
+<li>构建命令：（静态站点留空）</li>
+<li>构建输出目录：/（根目录）</li>
+</ul>
+</li>
+<li>部署</li>
+</ol>
+<h2>多语言支持</h2>
+<p>网站通过<code>i18n.js</code>模块支持多种语言。语言资源存储在<code>locales</code>目录中的JSON文件中。</p>
+<p>要添加新语言：</p>
+<ol>
+<li>在<code>locales/</code>中创建一个带有语言代码的新目录</li>
+<li>从现有语言目录复制JSON文件</li>
+<li>翻译JSON文件中的值</li>
+</ol>
+<h2>贡献</h2>
+<p>欢迎贡献！请随时提交拉取请求。</p>
+<h2>许可证</h2>
+<p>此项目根据MIT许可证授权，如package.json中所声明。</p>
+<h2>致谢</h2>
+<ul>
+<li>Bootstrap提供响应式框架</li>
+<li>Cloudflare Pages提供托管服务</li>
+</ul>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 底部模板 -->
+    <div id="footer-template"></div>
+    
+    <!-- Bootstrap JS Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Custom JavaScript -->
+    <script src="../js/main.js"></script>
+    <!-- 多语言支持 -->
+    <script src="../js/i18n.js"></script>
+    <script>
+        // 初始化多语言支持
+        document.addEventListener('DOMContentLoaded', function() {
+            // 初始化多语言支持，指定当前页面名称
+            initI18n('test');
+        });
+    </script>
+</body>
+</html>

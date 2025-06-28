@@ -32,10 +32,9 @@
             
             <!-- 创建新页面按钮 -->
             <div class="mb-4 text-end">
-              <!-- 页面生成器已移除 -->
-              <button class="btn btn-secondary" disabled>
-                <i class="bi bi-info-circle me-2"></i>页面生成器功能已移除
-              </button>
+              <a href="/page-generator?from=page-manager" class="btn btn-success">
+                <i class="bi bi-plus-circle me-2"></i>创建新页面
+              </a>
             </div>
             
             <!-- 页面列表 -->
@@ -119,16 +118,28 @@
             data: null,
             orderable: false,
             render: function(data) {
-              return `
+              let buttons = `
                 <div class="btn-group btn-group-sm" role="group">
                   <a href="/prod/pages/${data.file}" target="_blank" class="btn btn-outline-primary" title="查看页面">
                     <i class="bi bi-eye"></i>
-                  </a>
+                  </a>`;
+              
+              // 如果页面可编辑，添加编辑按钮
+              if (data.editable) {
+                buttons += `
+                  <a href="/page-generator?edit=${data.name}&from=page-manager" class="btn btn-outline-success" title="编辑页面">
+                    <i class="bi bi-pencil"></i>
+                  </a>`;
+              }
+              
+              buttons += `
                   <button type="button" class="btn btn-outline-danger delete-page" data-page-name="${data.name}" title="删除页面">
                     <i class="bi bi-trash"></i>
                   </button>
                 </div>
               `;
+              
+              return buttons;
             }
           }
         ]
