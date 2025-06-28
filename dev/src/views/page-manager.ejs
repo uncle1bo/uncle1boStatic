@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>页面管理器 - Uncle1bo静态站点工具集</title>
+  <!-- Bootstrap CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Bootstrap Icons -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+  <!-- DataTables CSS -->
+  <link rel="stylesheet" href="https://cdn.datatables.net/1.13.4/css/dataTables.bootstrap5.min.css">
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+  <div class="container mt-5">
+    <div class="row justify-content-center">
+      <div class="col-md-10">
+        <div class="card shadow-sm">
+          <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+            <h1 class="h3 mb-0">页面管理器</h1>
+            <a href="/" class="btn btn-sm btn-outline-light">
+              <i class="bi bi-house-door me-1"></i>返回首页
+            </a>
+          </div>
+          <div class="card-body">
+            <div class="alert alert-info">
+              <i class="bi bi-info-circle-fill me-2"></i>
+              在这里您可以查看、删除和创建网站页面。
+            </div>
+            
+            <!-- 创建新页面按钮 -->
+            <div class="mb-4 text-end">
+              <a href="/page-generator" class="btn btn-success">
+                <i class="bi bi-plus-circle me-2"></i>创建新页面
+              </a>
+            </div>
+            
+            <!-- 页面列表 -->
+            <div class="table-responsive">
+              <table id="pagesTable" class="table table-striped table-hover">
+                <thead>
+                  <tr>
+                    <th>页面名称</th>
+                    <th>中文标题</th>
+                    <th>英文标题</th>
+                    <th>最后修改时间</th>
+                    <th>操作</th>
+                  </tr>
+                </thead>
+                <tbody id="pagesList">
+                  <!-- 页面列表将通过JavaScript动态加载 -->
+                  <tr>
+                    <td>加载中...</td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- 删除确认模态框 -->
+  <div class="modal fade" id="deleteConfirmModal" tabindex="-1" aria-labelledby="deleteConfirmModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header bg-danger text-white">
+          <h5 class="modal-title" id="deleteConfirmModalLabel">确认删除</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <p>您确定要删除页面 <strong id="deletePageName"></strong> 吗？</p>
+          <p class="text-danger"><i class="bi bi-exclamation-triangle-fill me-2"></i>此操作不可撤销！</p>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+          <button type="button" class="btn btn-danger" id="confirmDeleteBtn">删除</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Bootstrap JS Bundle with Popper -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <!-- jQuery -->
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <!-- DataTables JS -->
+  <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
+  <script src="https://cdn.datatables.net/1.13.4/js/dataTables.bootstrap5.min.js"></script>
+  
+  <script>
+    // 当页面加载完成后执行
+    $(document).ready(function() {
+      // 初始化DataTable
+      const table = $('#pagesTable').DataTable({
+        language: {
+          url: '//cdn.datatables.net/plug-ins/1.13.4/i18n/zh.json'
+        },
+        order: [[3, 'desc']], // 默认按最后修改时间降序排序
+        columns: [
+          { data: 'name' },
+          { data: 'zhTitle' },
+          { data: 'enTitle' },
+          { 
+            data: 'modified',
+            render: function(data) {
+              return new Date(data).toLocaleString('zh-CN');
+            }
+          },
+          {
+            data: null,
+            orderable: false,
+            render: function(data) {
+              return `
+                <div class="btn-group btn-group-sm" role="group">
+                  <a href="/prod/pages/${data.file}" target="_blank" class="btn btn-outline-primary" title="查看页面">
+                    <i class="bi bi-eye"></i>
+                  </a>
+                  <button type="button" class="btn btn-outline-danger delete-page" data-page-name="${data.name}" title="删除页面">
+                    <i class="bi bi-trash"></i>
+                  </button>
+                </div>
+              `;
+            }
+          }
+        ]
+      });
+      
+      // 加载页面列表
+      function loadPages() {
+        $.ajax({
+          url: '/page-manager/list',
+          method: 'GET',
+          success: function(response) {
+            if (response.success) {
+              // 清空表格并添加新数据
+              table.clear().rows.add(response.pages).draw();
+            } else {
+              showAlert('danger', '加载页面列表失败: ' + (response.error || '未知错误'));
+            }
+          },
+          error: function(xhr) {
+            showAlert('danger', '加载页面列表失败: ' + (xhr.responseJSON?.error || '服务器错误'));
+          }
+        });
+      }
+      
+      // 初始加载页面列表
+      loadPages();
+      
+      // 删除确认模态框
+      const deleteConfirmModal = new bootstrap.Modal(document.getElementById('deleteConfirmModal'));
+      let pageToDelete = '';
+      
+      // 点击删除按钮
+      $('#pagesTable').on('click', '.delete-page', function() {
+        pageToDelete = $(this).data('page-name');
+        $('#deletePageName').text(pageToDelete);
+        deleteConfirmModal.show();
+      });
+      
+      // 确认删除
+      $('#confirmDeleteBtn').on('click', function() {
+        if (!pageToDelete) return;
+        
+        $.ajax({
+          url: `/page-manager/delete/${pageToDelete}`,
+          method: 'DELETE',
+          success: function(response) {
+            if (response.success) {
+              showAlert('success', `页面 ${pageToDelete} 已成功删除`);
+              loadPages(); // 重新加载页面列表
+            } else {
+              showAlert('danger', '删除页面失败: ' + (response.error || '未知错误'));
+            }
+          },
+          error: function(xhr) {
+            showAlert('danger', '删除页面失败: ' + (xhr.responseJSON?.error || '服务器错误'));
+          },
+          complete: function() {
+            deleteConfirmModal.hide();
+            pageToDelete = '';
+          }
+        });
+      });
+      
+      // 显示提示信息
+      function showAlert(type, message) {
+        const alertHtml = `
+          <div class="alert alert-${type} alert-dismissible fade show" role="alert">
+            ${message}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+          </div>
+        `;
+        
+        // 移除现有的提示
+        $('.alert-dismissible').remove();
+        
+        // 添加新提示
+        $('.card-body').prepend(alertHtml);
+        
+        // 5秒后自动关闭
+        setTimeout(() => {
+          $('.alert-dismissible').alert('close');
+        }, 5000);
+      }
+    });
+  </script>
+</body>
+</html>

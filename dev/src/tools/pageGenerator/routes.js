@@ -22,7 +22,7 @@ const upload = multer({ dest: paths.uploads });
 // 处理直接输入的Markdown内容
 router.post('/convert', async (req, res) => {
   try {
-    const { markdownContent, pageName, pageTitle, pageDescription } = req.body;
+    const { markdownContent, pageName, pageTitle, pageDescription, i18nConfig } = req.body;
     
     if (!markdownContent || !pageName) {
       return res.status(400).json({ error: '缺少必要参数' });
@@ -33,7 +33,8 @@ router.post('/convert', async (req, res) => {
       markdownContent,
       pageName,
       pageTitle: pageTitle || '',
-      pageDescription: pageDescription || ''
+      pageDescription: pageDescription || '',
+      i18nConfig: i18nConfig || null
     });
     
     res.json({ success: true, filePath: htmlFilePath });
@@ -50,7 +51,7 @@ router.post('/upload', upload.single('markdownFile'), async (req, res) => {
       return res.status(400).json({ error: '未上传文件' });
     }
     
-    const { pageName, pageTitle, pageDescription } = req.body;
+    const { pageName, pageTitle, pageDescription, i18nConfig } = req.body;
     
     if (!pageName) {
       return res.status(400).json({ error: '缺少页面名称' });
@@ -64,7 +65,8 @@ router.post('/upload', upload.single('markdownFile'), async (req, res) => {
       markdownContent,
       pageName,
       pageTitle: pageTitle || '',
-      pageDescription: pageDescription || ''
+      pageDescription: pageDescription || '',
+      i18nConfig: i18nConfig ? JSON.parse(i18nConfig) : null
     });
     
     // 删除临时上传的文件

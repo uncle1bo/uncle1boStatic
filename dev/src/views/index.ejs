@@ -10,6 +10,20 @@
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
   <!-- Custom CSS -->
   <link rel="stylesheet" href="/css/styles.css">
+  <style>
+    .i18n-config-section {
+      border-top: 1px solid #dee2e6;
+      padding-top: 1.5rem;
+      margin-top: 1.5rem;
+    }
+    .i18n-field-group {
+      animation: fadeIn 0.3s;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
 </head>
 <body>
   <div class="container mt-5">
@@ -67,7 +81,36 @@
                     <textarea class="form-control" id="markdownContent" name="markdownContent" rows="10" required placeholder="# 标题\n\n这是一段Markdown内容..."></textarea>
                   </div>
                   
-                  <div class="d-grid gap-2">
+                  <!-- 多语言配置部分 -->
+                  <div class="i18n-config-section" id="i18nConfigInput">
+                    <h5 class="mb-3"><i class="bi bi-translate me-2"></i>多语言翻译配置</h5>
+                    <p class="text-muted small mb-3">添加页面中需要多语言支持的文本内容，这些内容将被保存到对应的语言文件中</p>
+                    
+                    <div class="mb-3">
+                      <div class="row mb-2">
+                        <div class="col-md-3">
+                          <label class="form-label">翻译键名</label>
+                        </div>
+                        <div class="col-md-4">
+                          <label class="form-label">中文内容</label>
+                        </div>
+                        <div class="col-md-4">
+                          <label class="form-label">英文内容</label>
+                        </div>
+                        <div class="col-md-1">
+                          <button type="button" class="btn btn-sm btn-outline-primary" id="addI18nFieldInput">
+                            <i class="bi bi-plus"></i>
+                          </button>
+                        </div>
+                      </div>
+                      
+                      <div id="i18nFieldsInput">
+                        <!-- 动态添加的多语言字段将显示在这里 -->
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div class="d-grid gap-2 mt-4">
                     <button type="submit" class="btn btn-primary">
                       <i class="bi bi-arrow-right-circle me-1"></i> 转换并生成页面
                     </button>
@@ -97,10 +140,45 @@
                   
                   <div class="mb-3">
                     <label for="markdownFile" class="form-label">Markdown文件 <span class="text-danger">*</span></label>
-                    <input class="form-control" type="file" id="markdownFile" name="markdownFile" accept=".md,.markdown,text/markdown">
+                    <div class="input-group">
+                      <input class="form-control" type="file" id="markdownFile" name="markdownFile" accept=".md,.markdown,text/markdown">
+                      <button class="btn btn-outline-secondary" type="button" id="importToEditor">
+                        <i class="bi bi-arrow-left-right me-1"></i> 导入到编辑器
+                      </button>
+                    </div>
+                    <div class="form-text">您可以选择上传文件后直接生成页面，或者先导入到编辑器中进行修改</div>
                   </div>
                   
-                  <div class="d-grid gap-2">
+                  <!-- 多语言配置部分 -->
+                  <div class="i18n-config-section" id="i18nConfig">
+                    <h5 class="mb-3"><i class="bi bi-translate me-2"></i>多语言翻译配置</h5>
+                    <p class="text-muted small mb-3">添加页面中需要多语言支持的文本内容，这些内容将被保存到对应的语言文件中</p>
+                    
+                    <div class="mb-3">
+                      <div class="row mb-2">
+                        <div class="col-md-3">
+                          <label class="form-label">翻译键名</label>
+                        </div>
+                        <div class="col-md-4">
+                          <label class="form-label">中文内容</label>
+                        </div>
+                        <div class="col-md-4">
+                          <label class="form-label">英文内容</label>
+                        </div>
+                        <div class="col-md-1">
+                          <button type="button" class="btn btn-sm btn-outline-primary" id="addI18nField">
+                            <i class="bi bi-plus"></i>
+                          </button>
+                        </div>
+                      </div>
+                      
+                      <div id="i18nFields">
+                        <!-- 动态添加的多语言字段将显示在这里 -->
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div class="d-grid gap-2 mt-4">
                     <button type="submit" class="btn btn-primary">
                       <i class="bi bi-cloud-upload me-1"></i> 上传并生成页面
                     </button>
@@ -130,6 +208,8 @@
   <!-- Bootstrap JS Bundle with Popper -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
   <!-- Custom JavaScript -->
-  <script src="/js/main.js"></script>
+  <!-- 页面生成器脚本 -->
+  <script src="/tools/pageGenerator/main.js"></script>
+  <script src="/tools/pageGenerator/page-generator.js"></script>
 </body>
 </html>

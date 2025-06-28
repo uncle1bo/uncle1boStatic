@@ -13,17 +13,20 @@ const fileService = require('../../services/fileService');
  */
 const pageGeneratorService = {
   /**
-   * 从Markdown内容生成页面
-   * @param {Object} options - 选项
-   * @param {string} options.markdownContent - Markdown内容
-   * @param {string} options.pageName - 页面名称
-   * @param {string} options.pageTitle - 页面标题 (可选)
-   * @param {string} options.pageDescription - 页面描述 (可选)
-   * @returns {Promise<string>} 生成的HTML文件路径
-   */
+ * 从Markdown内容生成页面
+ * @param {Object} options - 选项
+ * @param {string} options.markdownContent - Markdown内容
+ * @param {string} options.pageName - 页面名称
+ * @param {string} options.pageTitle - 页面标题 (可选)
+ * @param {string} options.pageDescription - 页面描述 (可选)
+ * @param {Object} options.i18nConfig - 多语言翻译配置 (可选)
+ * @param {Object} options.i18nConfig.zh - 中文翻译键值对
+ * @param {Object} options.i18nConfig.en - 英文翻译键值对
+ * @returns {Promise<string>} 生成的HTML文件路径
+ */
   generatePageFromMarkdown: async function(options) {
     const { markdownContent, pageName } = options;
-    let { pageTitle, pageDescription } = options;
+    let { pageTitle, pageDescription, i18nConfig } = options;
     
     // 如果没有提供标题或描述，尝试从Markdown内容中提取
     if (!pageTitle) {
@@ -48,12 +51,20 @@ const pageGeneratorService = {
     // 保存HTML文件
     const htmlFilePath = await fileService.saveHtmlFile(fullHtml, pageName);
     
-    // 生成多语言文件
-    await i18nService.generateI18nFiles({
+    // 准备多语言配置
+    const i18nData = {
       pageName,
       pageTitle,
       pageDescription
-    });
+    };
+    
+    // 如果提供了自定义的多语言配置，则合并到i18nData中
+    if (i18nConfig) {
+      i18nData.customTranslations = i18nConfig;
+    }
+    
+    // 生成多语言文件
+    await i18nService.generateI18nFiles(i18nData);
     
     // 复制文件到prod目录
     await fileService.copyFilesToProd(pageName);

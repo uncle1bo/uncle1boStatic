@@ -99,6 +99,8 @@ dev/
 │   │       ├── routes.js        # 路由处理
 │   │       └── README.md        # 说明文档
 │   ├── public/           # 静态资源
+│   │   ├── css/          # 样式文件
+│   │   └── js/           # 全站共用前端脚本
 │   ├── uploads/          # 上传文件临时目录
 │   ├── views/            # 视图模板
 │   └── index.js          # 应用入口
@@ -118,3 +120,11 @@ dev/
 ### 工具模块
 
 - **pageGenerator**: 页面生成器工具，整合各种服务，完成页面生成的完整流程
+  - 后端服务：处理API请求，转换Markdown，生成HTML和多语言文件
+  - 前端脚本：提供用户界面交互，包括文件导入、多语言配置和表单提交
+
+### 前端脚本结构
+
+- **page-generator.js** (tools/pageGenerator/): 页面生成器前端脚本，包含页面生成器的前端交互逻辑
+- **main.js** (tools/pageGenerator/): 页面生成器主脚本，负责处理表单提交和文件上传
+- **markdown-parser.js** (tools/pageGenerator/): Markdown解析脚本，提供将Markdown转换为HTML的功能

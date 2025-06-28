@@ -15,6 +15,7 @@ const paths = require('./config/pathConfig');
 const pageGeneratorRoutes = require('./tools/pageGenerator/routes');
 const sitemapUpdaterRoutes = require('./tools/sitemapUpdater/routes');
 const menuEditorRoutes = require('./tools/menuEditor/routes');
+const pageManagerRoutes = require('./tools/pageManager/routes');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -55,6 +56,12 @@ app.get('/menu-editor', (req, res) => {
   res.render('menu-editor');
 });
 app.use('/menu-editor', menuEditorRoutes);
+
+// 页面管理器工具路由
+app.get('/page-manager', (req, res) => {
+  res.render('page-manager');
+});
+app.use('/page-manager', pageManagerRoutes);
 
 // 这里可以添加其他工具的路由
 // app.use('/other-tool', otherToolRoutes);
