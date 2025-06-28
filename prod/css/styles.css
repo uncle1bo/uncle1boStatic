@@ -15,6 +15,7 @@ html, body {
 body {
     display: flex;
     flex-direction: column;
+    min-height: 100vh; /* 确保body至少有视口的高度 */
 }
 
 /* 导航栏自定义样式 */
@@ -31,6 +32,14 @@ body {
 .display-4 {
     font-weight: 600;
     margin-bottom: 20px;
+}
+
+/* 主内容区域样式 */
+.container.mt-5 {
+    flex: 1 0 auto; /* 自动扩展填充可用空间 */
+    display: flex;
+    flex-direction: column;
+    justify-content: center; /* 垂直居中内容 */
 }
 
 /* 卡片样式 */
@@ -61,7 +70,7 @@ body {
 /* 页脚样式 */
 footer {
     border-top: 1px solid #eee;
-    margin-top: auto;
+    margin-top: auto; /* 自动将页脚推到底部 */
     width: 100%;
 }
 

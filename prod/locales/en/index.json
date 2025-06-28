@@ -7,46 +7,5 @@
   "hero": {
     "title": "Under Development",
     "subtitle": "Website is under development, stay tuned"
-  },
-  "features": {
-    "title": "Features",
-    "subtitle": "What makes our static website special",
-    "speed": {
-      "title": "Fast Loading",
-      "description": "Static websites load quickly because they don't require server-side processing."
-    },
-    "security": {
-      "title": "Secure",
-      "description": "With no databases or server-side code, static websites have fewer security vulnerabilities."
-    },
-    "responsive": {
-      "title": "Responsive",
-      "description": "Our templates are designed to look great on all devices, from mobile to desktop."
-    }
-  },
-  "about": {
-    "title": "About Us",
-    "subtitle": "We are a team of web developers passionate about creating fast, secure, and beautiful static websites.",
-    "description": "Our mission is to help businesses and individuals establish a strong online presence through well-crafted static websites that are both aesthetically pleasing and technically sound."
-  },
-  "contact": {
-    "title": "Contact Us",
-    "subtitle": "Have questions? We have answers.",
-    "description": "Email us at info@uncle1bo.com or call us at +1 (234) 567-890."
-  },
-
-  "social": {
-    "facebook": {
-      "title": "Facebook"
-    },
-    "twitter": {
-      "title": "Twitter"
-    },
-    "instagram": {
-      "title": "Instagram"
-    },
-    "linkedin": {
-      "title": "LinkedIn"
-    }
   }
 }

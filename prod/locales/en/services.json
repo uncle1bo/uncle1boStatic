@@ -5,6 +5,7 @@
   },
 
   "services": {
-    "title": "Our Services"
+    "title": "Our Services",
+    "placeholder": "Under Development"
   }
 }

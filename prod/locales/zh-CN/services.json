@@ -5,6 +5,7 @@
   },
 
   "services": {
-    "title": "我们的服务"
+    "title": "我们的服务",
+    "placeholder": "待开发"
   }
 }
