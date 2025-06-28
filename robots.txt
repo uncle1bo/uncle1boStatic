@@ -1,0 +1,5 @@
+# robots.txt for Uncle1bo Static Website
+User-agent: *
+Allow: /
+
+Sitemap: https://www.example.com/sitemap.xml
