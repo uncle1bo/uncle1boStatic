@@ -37,18 +37,23 @@ const menuEditorService = {
           return;
         }
         
+        // 检查是否是黑暗模式切换器
+        if ($(element).find('#themeToggle').length > 0) {
+          // 跳过黑暗模式切换器
+          return;
+        }
+        
         // 检查是否是下拉菜单
         if ($(element).hasClass('dropdown')) {
           // 处理下拉菜单（父菜单）
           const dropdownToggle = $(element).find('.dropdown-toggle');
           const menuName = dropdownToggle.text().trim();
-          const i18nKey = dropdownToggle.attr('data-i18n') || '';
           
           const parentItem = {
             id: `menu-${index}`,
-            name: menuName,
+            name: menuName, // 保持字符串格式，前端会转换为多语言对象
             link: dropdownToggle.attr('href') || '#',
-            i18nKey: i18nKey,
+            locked: false,
             children: []
           };
           
@@ -60,13 +65,12 @@ const menuEditorService = {
             }
             
             const childName = $(childElement).text().trim();
-            const childI18nKey = $(childElement).attr('data-i18n') || '';
-            
+            const childLink = $(childElement).attr('href') || '#';
             parentItem.children.push({
               id: `menu-${index}-${childIndex}`,
-              name: childName,
-              link: $(childElement).attr('href') || '#',
-              i18nKey: childI18nKey,
+              name: childName, // 保持字符串格式，前端会转换为多语言对象
+              link: childLink,
+              locked: childLink.includes('index.html'),
               parent: parentItem.id
             });
           });
@@ -76,24 +80,24 @@ const menuEditorService = {
           // 处理普通菜单项
           const link = $(element).find('.nav-link');
           const menuName = link.text().trim();
-          const i18nKey = link.attr('data-i18n') || '';
           const activeClass = link.attr('class') || '';
           
           // 提取活动状态占位符
           let activePlaceholder = '';
           if (activeClass.includes('{{')) {
-            const match = activeClass.match(/{{([^}]+)}}/);
+            const match = activeClass.match(/{{([^}]+)}}/); 
             if (match && match[1]) {
               activePlaceholder = match[1];
             }
           }
           
+          const menuLink = link.attr('href') || '#';
           menuItems.push({
             id: `menu-${index}`,
-            name: menuName,
-            link: link.attr('href') || '#',
-            i18nKey: i18nKey,
+            name: menuName, // 保持字符串格式，前端会转换为多语言对象
+            link: menuLink,
             activePlaceholder: activePlaceholder,
+            locked: menuLink.includes('index.html'),
             children: []
           });
         }
@@ -141,7 +145,7 @@ const menuEditorService = {
       // 使用cheerio解析HTML
       const $ = cheerio.load(headerContent, { decodeEntities: false });
       
-      // 清除现有的导航菜单项（保留语言选择器）
+      // 清除现有的导航菜单项（保留语言选择器和黑暗模式切换器）
       $('.navbar-nav > li.nav-item').each((index, element) => {
         // 检查是否是语言选择器
         if ($(element).find('.dropdown-toggle[data-bs-toggle="dropdown"]').length > 0 && 
@@ -150,30 +154,49 @@ const menuEditorService = {
           return;
         }
         
+        // 检查是否是黑暗模式切换器
+        if ($(element).find('#themeToggle').length > 0) {
+          // 保留黑暗模式切换器
+          return;
+        }
+        
         // 移除其他菜单项
         $(element).remove();
       });
       
-      // 获取语言选择器元素
+      // 获取语言选择器和黑暗模式切换器元素
       const languageSelector = $('.navbar-nav > li.nav-item').filter((index, element) => {
         return $(element).find('[data-i18n="nav.language"]').length > 0;
       });
       
-      // 临时移除语言选择器
+      const themeToggle = $('.navbar-nav > li.nav-item').filter((index, element) => {
+        return $(element).find('#themeToggle').length > 0;
+      });
+      
+      // 临时移除语言选择器和黑暗模式切换器
       languageSelector.remove();
+      themeToggle.remove();
       
       // 添加新的菜单项
       menuData.menuItems.forEach(item => {
+        // 获取显示名称（优先使用中文）
+        const getDisplayName = (nameObj) => {
+          if (typeof nameObj === 'object' && nameObj !== null) {
+            return nameObj.zh || nameObj.nameZh || nameObj.en || nameObj.nameEn || '';
+          }
+          return nameObj || '';
+        };
+        
         if (item.children && item.children.length > 0) {
           // 创建下拉菜单
           const dropdownHtml = `
             <li class="nav-item dropdown">
-              <a class="nav-link dropdown-toggle" href="${item.link || '#'}" id="${item.id}" role="button" data-bs-toggle="dropdown" aria-expanded="false" ${item.i18nKey ? `data-i18n="${item.i18nKey}"` : ''}>
-                ${item.name}
+              <a class="nav-link dropdown-toggle" href="${item.link || '#'}" id="${item.id}" role="button" data-bs-toggle="dropdown" aria-expanded="false" data-i18n="${item.i18nKey}">
+                ${getDisplayName(item.name)}
               </a>
               <ul class="dropdown-menu" aria-labelledby="${item.id}">
                 ${item.children.map(child => `
-                  <li><a class="dropdown-item" href="${child.link || '#'}" ${child.i18nKey ? `data-i18n="${child.i18nKey}"` : ''}>${child.name}</a></li>
+                  <li><a class="dropdown-item" href="${child.link || '#'}" data-i18n="${child.i18nKey}">${getDisplayName(child.name)}</a></li>
                 `).join('')}
               </ul>
             </li>
@@ -186,14 +209,15 @@ const menuEditorService = {
           
           const menuItemHtml = `
             <li class="nav-item">
-              <a class="nav-link ${activePlaceholder}" ${ariaCurrent} href="${item.link || '#'}" ${item.i18nKey ? `data-i18n="${item.i18nKey}"` : ''}>${item.name}</a>
+              <a class="nav-link ${activePlaceholder}" ${ariaCurrent} href="${item.link || '#'}" data-i18n="${item.i18nKey}">${getDisplayName(item.name)}</a>
             </li>
           `;
           $('.navbar-nav').append(menuItemHtml);
         }
       });
       
-      // 重新添加语言选择器
+      // 重新添加黑暗模式切换器和语言选择器
+      $('.navbar-nav').append(themeToggle);
       $('.navbar-nav').append(languageSelector);
       
       // 保存更新后的header.html文件
@@ -221,20 +245,46 @@ const menuEditorService = {
    * @returns {Promise<void>}
    */
   updateI18nFiles: async function(menuItems) {
-    // 收集所有菜单项的i18n键和值
-    const i18nData = {};
+    // 收集所有菜单项的多语言数据
+    const i18nData = {
+      'zh-CN': {},
+      'en': {}
+    };
     
-    const processItem = (item) => {
-      if (item.i18nKey && item.name) {
-        i18nData[item.i18nKey] = item.name;
+    const processItem = (item, index, parentIndex = null) => {
+      // 自动生成i18n键
+      let i18nKey;
+      if (parentIndex !== null) {
+        i18nKey = `menu_${parentIndex}_${index}`;
+      } else {
+        i18nKey = `menu_${index}`;
       }
       
+      // 处理多语言名称
+      if (typeof item.name === 'object' && item.name !== null) {
+        // 新的多语言对象格式
+        i18nData['zh-CN'][i18nKey] = item.name.zh || item.name.nameZh || '';
+        i18nData['en'][i18nKey] = item.name.en || item.name.nameEn || item.name.zh || item.name.nameZh || '';
+      } else if (typeof item.name === 'string') {
+        // 字符串格式，默认作为中文，英文使用相同值
+        i18nData['zh-CN'][i18nKey] = item.name;
+        i18nData['en'][i18nKey] = item.name;
+      }
+      
+      // 更新item的i18nKey为自动生成的键（用于HTML生成）
+      item.i18nKey = `nav.${i18nKey}`;
+      
+      // 处理子菜单
       if (item.children && item.children.length > 0) {
-        item.children.forEach(processItem);
+        item.children.forEach((child, childIndex) => {
+          processItem(child, childIndex, index);
+        });
       }
     };
     
-    menuItems.forEach(processItem);
+    menuItems.forEach((item, index) => {
+      processItem(item, index);
+    });
     
     // 更新中文和英文的common.json文件
     const languages = ['zh-CN', 'en'];
@@ -244,25 +294,33 @@ const menuEditorService = {
       
       try {
         // 读取现有的common.json文件
-        const commonContent = await fs.readFile(commonPath, 'utf8');
-        const commonData = JSON.parse(commonContent);
-        
-        // 更新导航菜单项
-        if (!commonData.nav) {
-          commonData.nav = {};
+        let commonData = {};
+        try {
+          const commonContent = await fs.readFile(commonPath, 'utf8');
+          commonData = JSON.parse(commonContent);
+        } catch (readError) {
+          console.log(`创建新的${lang}多语言文件`);
         }
         
-        // 更新i18n键值对
-        for (const [key, value] of Object.entries(i18nData)) {
-          // 处理形如 nav.home 的键
-          if (key.startsWith('nav.')) {
-            const navKey = key.replace('nav.', '');
-            commonData.nav[navKey] = value;
+        // 清理旧的导航菜单项，重新生成
+        commonData.nav = commonData.nav || {};
+        
+        // 移除所有以menu_开头的旧键和传统键（home, about等）
+        const keysToRemove = Object.keys(commonData.nav).filter(key => 
+          key.startsWith('menu_') || ['home', 'about', 'services', 'contact'].includes(key)
+        );
+        keysToRemove.forEach(key => delete commonData.nav[key]);
+        
+        // 添加新的菜单项
+        for (const [key, value] of Object.entries(i18nData[lang])) {
+          if (value && value.trim()) {
+            commonData.nav[key] = value;
           }
         }
         
         // 保存更新后的common.json文件
         await fs.writeFile(commonPath, JSON.stringify(commonData, null, 2), 'utf8');
+        console.log(`已更新${lang}多语言文件，清理了旧键并添加了新的菜单项`);
       } catch (error) {
         console.error(`更新${lang}多语言文件失败:`, error);
         // 继续处理其他语言文件

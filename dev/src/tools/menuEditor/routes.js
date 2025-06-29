@@ -3,6 +3,7 @@
  */
 
 const express = require('express');
+const path = require('path');
 const router = express.Router();
 const menuEditor = require('./index');
 
@@ -49,6 +50,25 @@ router.post('/save', async (req, res) => {
       error: error.message || '保存导航菜单结构失败'
     });
   }
+});
+
+/**
+ * 提供菜单编辑器JavaScript模块文件
+ */
+router.get('/menu-editor-core.js', (req, res) => {
+  res.sendFile(path.join(__dirname, 'menu-editor-core.js'));
+});
+
+router.get('/menu-editor-drag.js', (req, res) => {
+  res.sendFile(path.join(__dirname, 'menu-editor-drag.js'));
+});
+
+router.get('/menu-editor-operations.js', (req, res) => {
+  res.sendFile(path.join(__dirname, 'menu-editor-operations.js'));
+});
+
+router.get('/menu-editor-main.js', (req, res) => {
+  res.sendFile(path.join(__dirname, 'menu-editor-main.js'));
 });
 
 module.exports = router;

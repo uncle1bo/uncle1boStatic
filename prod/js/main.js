@@ -15,7 +15,26 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // 添加动画效果
     initAnimations();
+    
+    // 检查是否有模板处理器，如果有则等待模板加载完成
+    if (window.templateProcessor) {
+        // 监听模板加载完成事件
+        document.addEventListener('templatesLoaded', function() {
+            console.log('Templates loaded, initializing theme manager');
+            window.ThemeManager.init();
+        });
+    } else {
+        // 直接初始化主题管理器（用于静态页面）
+        window.ThemeManager.init();
+    }
 });
+
+// 为菜单编辑器提供重新初始化主题切换的全局函数
+window.reinitThemeToggle = function() {
+    if (window.ThemeManager) {
+        window.ThemeManager.initThemeToggle();
+    }
+};
 
 /**
  * 初始化Bootstrap工具提示
@@ -104,4 +123,119 @@ function loadDynamicContent(containerId, contentUrl) {
     //         // 处理数据并更新DOM
     //     })
     //     .catch(error => console.error('Error loading content:', error));
+}
+
+// 全局主题状态管理
+window.ThemeManager = {
+    currentTheme: null,
+    htmlElement: document.documentElement,
+    
+    /**
+     * 初始化主题管理器
+     */
+    init: function() {
+        // 从localStorage获取保存的主题偏好
+        const savedTheme = localStorage.getItem('preferredTheme');
+        const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        
+        // 确定初始主题
+        this.currentTheme = savedTheme || (systemPrefersDark ? 'dark' : 'light');
+        
+        // 应用初始主题
+        this.setTheme(this.currentTheme);
+        
+        // 监听系统主题变化
+        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
+            if (!localStorage.getItem('preferredTheme')) {
+                this.currentTheme = e.matches ? 'dark' : 'light';
+                this.setTheme(this.currentTheme);
+            }
+        });
+        
+        // 初始化主题切换按钮
+        this.initThemeToggle();
+    },
+    
+    /**
+     * 设置主题
+     * @param {string} theme - 主题名称 ('light' 或 'dark')
+     */
+    setTheme: function(theme) {
+        this.currentTheme = theme;
+        
+        if (theme === 'dark') {
+            this.htmlElement.setAttribute('data-bs-theme', 'dark');
+        } else {
+            this.htmlElement.setAttribute('data-bs-theme', 'light');
+        }
+        
+        // 更新按钮状态
+        this.updateToggleButton();
+    },
+    
+    /**
+     * 切换主题
+     */
+    toggleTheme: function() {
+        const newTheme = this.currentTheme === 'light' ? 'dark' : 'light';
+        this.setTheme(newTheme);
+        localStorage.setItem('preferredTheme', newTheme);
+    },
+    
+    /**
+     * 更新切换按钮的状态
+     */
+    updateToggleButton: function() {
+        const themeIcon = document.getElementById('themeIcon');
+        const themeToggle = document.getElementById('themeToggle');
+        
+        if (themeIcon && themeToggle) {
+            if (this.currentTheme === 'dark') {
+                themeIcon.className = 'bi bi-moon-fill';
+                themeToggle.title = '切换到浅色模式';
+            } else {
+                themeIcon.className = 'bi bi-sun-fill';
+                themeToggle.title = '切换到深色模式';
+            }
+        }
+    },
+    
+    /**
+     * 初始化主题切换按钮（可重复调用）
+     */
+    initThemeToggle: function() {
+        // 移除旧的事件监听器（如果存在）
+        const oldToggle = document.getElementById('themeToggle');
+        if (oldToggle) {
+            // 克隆元素以移除所有事件监听器
+            const newToggle = oldToggle.cloneNode(true);
+            oldToggle.parentNode.replaceChild(newToggle, oldToggle);
+        }
+        
+        // 重新获取元素并添加事件监听器
+        const themeToggle = document.getElementById('themeToggle');
+        const themeIcon = document.getElementById('themeIcon');
+        
+        if (!themeToggle || !themeIcon) {
+            console.warn('Theme toggle elements not found');
+            return;
+        }
+        
+        // 添加点击事件监听器
+        themeToggle.addEventListener('click', () => {
+            this.toggleTheme();
+        });
+        
+        // 更新按钮状态
+        this.updateToggleButton();
+        
+        console.log('Theme toggle initialized successfully');
+    }
+};
+
+/**
+ * 初始化黑暗模式切换功能（向后兼容）
+ */
+function initThemeToggle() {
+    window.ThemeManager.initThemeToggle();
 }

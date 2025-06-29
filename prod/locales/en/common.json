@@ -1,9 +1,7 @@
 {
   "nav": {
-    "home": "首页",
-    "about": "关于",
-    "services": "Services",
-    "contact": "Contact Us",
+    "menu_0": "Home",
+    "menu_1": "About",
     "language": "Language"
   },
   "footer": {
