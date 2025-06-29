@@ -97,8 +97,31 @@ uncle1boStatic/
 - 对搜索引擎友好
 - 模板化页面结构
 
+### 🚀 CDN竞争性备选功能
+
+本项目已集成了先进的CDN竞争性备选功能，为所有外部资源提供多CDN源的自动切换和负载均衡，显著提升网站的加载速度、可靠性和全球访问性能。
+
+#### 核心特性
+- **多CDN源支持**: 每个资源配置多个备选CDN链接
+- **自动故障切换**: 主CDN失败时自动切换到备选CDN
+- **智能负载均衡**: 根据响应速度自动选择最佳CDN
+- **偏好记忆**: 自动记住表现最佳的CDN并优先使用
+- **超时保护**: 防止CDN响应过慢影响页面加载
+
+#### 支持的CDN资源
+- **Bootstrap框架**: jsDelivr, cdnjs, Staticfile, BootCDN等
+- **jQuery相关**: jsDelivr, Google CDN, Microsoft CDN, cdnjs, Baidu CDN
+- **代码高亮 (Prism.js)**: jsDelivr, cdnjs
+- **数学公式 (KaTeX)**: jsDelivr, BootCDN
+- **图表库 (Mermaid)**: jsDelivr, cdnjs
+
+#### 环境分离
+- **生产环境** (`prod/`): 轻量级CDN自动切换逻辑
+- **开发环境** (`dev/`): 完整的CDN网络性能检测工具
+
 ### 🛠️ 开发工具集
 - **站点地图更新器**：自动扫描页面并生成sitemap.xml
+- **CDN网络性能检测工具**：多线程并发测试和分析CDN资源的响应速度和可用性，支持SSL证书验证配置
 - **目录编辑器**：可视化编辑导航菜单结构，支持拖拽排序
 - **页面生成器**：支持Markdown编写，自动转换为HTML页面
 - **页面管理器**：管理现有页面，支持查看和删除操作

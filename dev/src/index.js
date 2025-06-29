@@ -17,6 +17,7 @@ const menuEditorRoutes = require('./tools/menuEditor/routes');
 const pageManagerRoutes = require('./tools/pageManager/routes');
 const pageGeneratorRoutes = require('./tools/pageGenerator/routes');
 const themeManagerRoutes = require('./tools/themeManager/routes');
+const cdnTesterRoutes = require('./tools/cdnTester/routes');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -41,35 +42,14 @@ app.get('/', (req, res) => {
   res.render('tool-selector');
 });
 
-// 页面生成器工具路由
-app.get('/page-generator', (req, res) => {
-  res.render('page-generator');
-});
-app.use('/page-generator', pageGeneratorRoutes);
-
-// 站点地图更新工具路由
-app.get('/sitemap-updater', (req, res) => {
-  res.render('sitemap-updater');
-});
-app.use('/sitemap-updater', sitemapUpdaterRoutes);
-
-// 目录编辑器工具路由
-app.get('/menu-editor', (req, res) => {
-  res.render('menu-editor');
-});
-app.use('/menu-editor', menuEditorRoutes);
-
-// 页面管理器工具路由
-app.get('/page-manager', (req, res) => {
-  res.render('page-manager');
-});
-app.use('/page-manager', pageManagerRoutes);
-
-// 主题管理器工具路由
-app.get('/theme-manager', (req, res) => {
-  res.render('theme-manager');
-});
-app.use('/theme-manager', themeManagerRoutes);
+// 工具路由
+app.use('/tools/page-generator', require('./tools/pageGenerator/routes'));
+app.use('/tools/sitemap-updater', require('./tools/sitemapUpdater/routes'));
+// app.use('/tools/directory-editor', require('./tools/directoryEditor/routes')); // 目录不存在，暂时注释
+app.use('/tools/menu-editor', require('./tools/menuEditor/routes'));
+app.use('/tools/page-manager', require('./tools/pageManager/routes'));
+app.use('/tools/theme-manager', require('./tools/themeManager/routes'));
+app.use('/tools/cdn-tester', require('./tools/cdnTester/routes'));
 
 // 这里可以添加其他工具的路由
 // app.use('/other-tool', otherToolRoutes);

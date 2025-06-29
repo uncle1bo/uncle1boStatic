@@ -92,6 +92,8 @@ const templateService = {
     <meta name="description" data-i18n="meta.description" content="">
     <meta name="keywords" content="" data-i18n="meta.keywords">
     <title data-i18n="meta.title">${tabTitle || pageTitle || pageName}</title>
+    <!-- CDN自动切换逻辑 -->
+    <script src="../js/cdn-fallback.js"></script>
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- Bootstrap Icons -->
