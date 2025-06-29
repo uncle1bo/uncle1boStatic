@@ -201,7 +201,7 @@ $</div></p>
     G --&gt; K[完成]
     H --&gt; K
     I --&gt; K
-    J --&gt; K" data-diagram-id="mermaid-nh0guppgp">
+    J --&gt; K" data-diagram-id="mermaid-jitouy9yc">
             <pre><code class="language-mermaid">graph TD
     A[开始] --&gt; B{检测文件类型}
     B --&gt;|XML| C[XML预览]
@@ -229,7 +229,7 @@ $</div></p>
     S--&gt;&gt;W: 返回模板内容
     W-&gt;&gt;W: 渲染页面内容
     W--&gt;&gt;B: 显示生成界面
-    B--&gt;&gt;U: 展示页面工具" data-diagram-id="mermaid-2gx64inwh">
+    B--&gt;&gt;U: 展示页面工具" data-diagram-id="mermaid-go2pjc2i5">
             <pre><code class="language-mermaid">sequenceDiagram
     participant U as 用户
     participant B as 浏览器
@@ -259,7 +259,7 @@ $</div></p>
     section 测试优化
     功能测试        :active, test, 2024-01-12, 2024-01-14
     性能优化        :optimize, 2024-01-14, 2024-01-16
-    文档完善        :docs, 2024-01-16, 2024-01-17" data-diagram-id="mermaid-jdx3f0yks">
+    文档完善        :docs, 2024-01-16, 2024-01-17" data-diagram-id="mermaid-dmo5clegt">
             <pre><code class="language-mermaid">gantt
     title 网站工具开发计划
     dateFormat  YYYY-MM-DD
@@ -342,42 +342,53 @@ $</div></p>
             
             // 初始化增强Markdown渲染
             initEnhancedMarkdown();
+            
+            // 监听主题变化事件
+            document.addEventListener('themeChanged', function(event) {
+                // 重新高亮所有代码块
+                if (window.Prism) {
+                    Prism.highlightAll();
+                }
+            });
         });
         
-        // 加载代码高亮主题
-        function loadCodeTheme() {
+        // 加载完整主题配置
+        function loadThemeConfig() {
             try {
                 // 获取当前主题模式
                 const currentTheme = document.documentElement.getAttribute('data-bs-theme') || 'light';
                 
-                // 从localStorage获取主题配置
-                const themeConfig = JSON.parse(localStorage.getItem('themeConfig') || '{}');
-                
-                if (themeConfig[currentTheme] && themeConfig[currentTheme].codeTheme) {
-                    const codeTheme = themeConfig[currentTheme].codeTheme;
-                    
-                    // 移除现有的Prism主题
-                    const existingTheme = document.querySelector('link[data-prism-theme]');
-                    if (existingTheme) {
-                        existingTheme.remove();
-                    }
-                    
-                    // 添加新的Prism主题
-                    if (codeTheme && codeTheme !== 'default') {
-                        const link = document.createElement('link');
-                        link.rel = 'stylesheet';
-                        link.href = 'https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-' + codeTheme + '.min.css';
-                        link.setAttribute('data-prism-theme', codeTheme);
-                        document.head.appendChild(link);
-                    }
-                }
+                // 从theme-config.json文件获取主题配置
+                fetch('../theme-config.json')
+                    .then(response => response.json())
+                    .then(themeConfig => {
+                        if (themeConfig && themeConfig[currentTheme]) {
+                            const config = themeConfig[currentTheme];
+                            
+                            // 应用CSS变量
+                            const root = document.documentElement;
+                            Object.keys(config).forEach(key => {
+                                if (key !== 'codeTheme') {
+                                    // 将驼峰命名转换为CSS变量格式
+                                    const cssVar = '--' + key.replace(/([A-Z])/g, '-$1').toLowerCase();
+                                    root.style.setProperty(cssVar, config[key]);
+                                }
+                            });
+                        }
+                    })
+                    .catch(error => {
+                        console.warn('加载主题配置失败:', error);
+                    });
             } catch (error) {
-                console.warn('加载代码主题失败:', error);
+                console.warn('应用主题配置失败:', error);
             }
         }
         
         // 增强Markdown渲染初始化函数
         function initEnhancedMarkdown() {
+            // 加载完整主题配置
+            loadThemeConfig();
+            
             // 加载代码高亮主题
             loadCodeTheme();
             

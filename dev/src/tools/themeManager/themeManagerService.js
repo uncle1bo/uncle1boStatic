@@ -129,13 +129,30 @@ class ThemeManagerService {
       // 保存配置文件到dev环境
       await fs.writeJson(this.configPath, config, { spaces: 2 });
       
-      // 生成CSS文件到prod环境
-      await this.generateCSS(config);
+      // 同步完整主题配置到prod环境
+      await this.syncConfigToProd(config);
       
       return { success: true, message: '主题配置保存成功' };
     } catch (error) {
       console.error('保存主题配置失败:', error);
       return { success: false, message: '保存失败: ' + error.message };
+    }
+  }
+
+  /**
+   * 同步完整主题配置到prod环境
+   */
+  async syncConfigToProd(config) {
+    try {
+      const prodConfigPath = path.join(paths.prod, 'theme-config.json');
+      
+      // 保存完整主题配置到prod目录
+      await fs.writeJson(prodConfigPath, config, { spaces: 2 });
+      
+      console.log('完整主题配置已同步到prod环境');
+    } catch (error) {
+      console.error('同步主题配置到prod失败:', error);
+      throw error;
     }
   }
 

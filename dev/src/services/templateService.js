@@ -156,9 +156,6 @@ const templateService = {
             
             // 监听主题变化事件
             document.addEventListener('themeChanged', function(event) {
-                // 重新加载代码高亮主题
-                loadCodeTheme();
-                
                 // 重新高亮所有代码块
                 if (window.Prism) {
                     Prism.highlightAll();
@@ -166,8 +163,8 @@ const templateService = {
             });
         });
         
-        // 加载代码高亮主题
-        function loadCodeTheme() {
+        // 加载完整主题配置
+        function loadThemeConfig() {
             try {
                 // 获取当前主题模式
                 const currentTheme = document.documentElement.getAttribute('data-bs-theme') || 'light';
@@ -176,35 +173,33 @@ const templateService = {
                 fetch('../theme-config.json')
                     .then(response => response.json())
                     .then(themeConfig => {
-                        if (themeConfig && themeConfig.codeTheme) {
-                            const codeTheme = themeConfig.codeTheme;
+                        if (themeConfig && themeConfig[currentTheme]) {
+                            const config = themeConfig[currentTheme];
                             
-                            // 移除现有的Prism主题
-                            const existingTheme = document.querySelector('link[data-prism-theme]');
-                            if (existingTheme) {
-                                existingTheme.remove();
-                            }
-                            
-                            // 添加新的Prism主题
-                            if (codeTheme && codeTheme !== 'default') {
-                                const link = document.createElement('link');
-                                link.rel = 'stylesheet';
-                                link.href = 'https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-' + codeTheme + '.min.css';
-                                link.setAttribute('data-prism-theme', codeTheme);
-                                document.head.appendChild(link);
-                            }
+                            // 应用CSS变量
+                            const root = document.documentElement;
+                            Object.keys(config).forEach(key => {
+                                if (key !== 'codeTheme') {
+                                    // 将驼峰命名转换为CSS变量格式
+                                    const cssVar = '--' + key.replace(/([A-Z])/g, '-$1').toLowerCase();
+                                    root.style.setProperty(cssVar, config[key]);
+                                }
+                            });
                         }
                     })
                     .catch(error => {
                         console.warn('加载主题配置失败:', error);
                     });
             } catch (error) {
-                console.warn('加载代码主题失败:', error);
+                console.warn('应用主题配置失败:', error);
             }
         }
         
         // 增强Markdown渲染初始化函数
         function initEnhancedMarkdown() {
+            // 加载完整主题配置
+            loadThemeConfig();
+            
             // 加载代码高亮主题
             loadCodeTheme();
             

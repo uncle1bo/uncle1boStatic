@@ -172,6 +172,9 @@ window.ThemeManager = {
             this.htmlElement.setAttribute('data-bs-theme', 'light');
         }
         
+        // 加载主题配置
+        this.loadThemeConfig(theme);
+        
         // 更新按钮状态
         this.updateToggleButton();
         
@@ -180,6 +183,72 @@ window.ThemeManager = {
             detail: { theme: theme }
         });
         document.dispatchEvent(themeChangeEvent);
+    },
+    
+    /**
+     * 加载主题配置
+     * @param {string} theme - 主题名称
+     */
+    loadThemeConfig: function(theme) {
+        try {
+            fetch('./theme-config.json')
+                .then(response => response.json())
+                .then(themeConfig => {
+                    if (themeConfig && themeConfig[theme]) {
+                        const config = themeConfig[theme];
+                        
+                        // 应用CSS变量
+                        const root = document.documentElement;
+                        Object.keys(config).forEach(key => {
+                            if (key !== 'codeTheme') {
+                                // 将驼峰命名转换为CSS变量格式
+                                const cssVar = '--' + key.replace(/([A-Z])/g, '-$1').toLowerCase();
+                                root.style.setProperty(cssVar, config[key]);
+                            }
+                        });
+                        
+                        // 处理代码高亮主题
+                        this.loadCodeTheme(config.codeTheme);
+                    }
+                })
+                .catch(error => {
+                    console.warn('加载主题配置失败:', error);
+                });
+        } catch (error) {
+            console.warn('应用主题配置失败:', error);
+        }
+    },
+    
+    /**
+     * 加载代码高亮主题
+     * @param {string} codeTheme - 代码主题名称
+     */
+    loadCodeTheme: function(codeTheme) {
+        try {
+            // 移除现有的Prism主题
+            const existingTheme = document.querySelector('link[data-prism-theme]');
+            if (existingTheme) {
+                existingTheme.remove();
+            }
+            
+            // 添加新的Prism主题
+            if (codeTheme && codeTheme !== 'default') {
+                const link = document.createElement('link');
+                link.rel = 'stylesheet';
+                link.href = 'https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-' + codeTheme + '.min.css';
+                link.setAttribute('data-prism-theme', codeTheme);
+                document.head.appendChild(link);
+                
+                // 重新高亮代码
+                if (window.Prism) {
+                    setTimeout(() => {
+                        Prism.highlightAll();
+                    }, 100);
+                }
+            }
+        } catch (error) {
+            console.warn('加载代码主题失败:', error);
+        }
     },
     
     /**
