@@ -74,16 +74,30 @@
             const fileInfo = previewer.detectFilePreview();
             
             if (fileInfo) {
-                // 如果是文件预览请求，显示预览界面
-                document.title = `${fileInfo.filename} - 文件预览`;
-                
-                // 替换页面内容为预览界面
-                const mainContent = document.querySelector('.main-content');
-                if (mainContent) {
-                    mainContent.innerHTML = previewer.createPreviewInterface(fileInfo);
+                try {
+                    // 先检查文件是否存在
+                    const response = await fetch(fileInfo.fullPath, { method: 'HEAD' });
                     
-                    // 开始预览文件
-                    await previewer.preview(fileInfo);
+                    if (response.ok) {
+                        // 文件存在，显示预览界面
+                        document.title = `${fileInfo.filename} - 文件预览`;
+                        
+                        // 替换页面内容为预览界面
+                        const mainContent = document.querySelector('.main-content');
+                        if (mainContent) {
+                            mainContent.innerHTML = previewer.createPreviewInterface(fileInfo);
+                            
+                            // 开始预览文件
+                            await previewer.preview(fileInfo);
+                        }
+                    } else {
+                        // 文件不存在，显示404页面
+                        throw new Error('File not found');
+                    }
+                } catch (error) {
+                    // 文件不存在或网络错误，显示404页面
+                    console.log('File preview failed, showing 404 page:', error.message);
+                    initI18n('404');
                 }
             } else {
                 // 如果不是文件预览请求，显示正常的404页面

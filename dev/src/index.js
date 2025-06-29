@@ -29,8 +29,70 @@ app.set('views', paths.views);
 app.use(express.static(paths.public));
 app.use('/tools', express.static(path.join(__dirname, 'tools')));
 
+// 支持的文件预览格式
+const PREVIEW_EXTENSIONS = ['xml', 'md', 'json', 'txt', 'css', 'js', 'html', 'jpg', 'jpeg', 'png', 'gif', 'webp', 'svg'];
+
+// MIME类型映射
+const MIME_TYPES = {
+    'xml': 'application/xml',
+    'md': 'text/markdown',
+    'json': 'application/json',
+    'txt': 'text/plain',
+    'css': 'text/css',
+    'js': 'application/javascript',
+    'html': 'text/html',
+    'jpg': 'image/jpeg',
+    'jpeg': 'image/jpeg',
+    'png': 'image/png',
+    'gif': 'image/gif',
+    'webp': 'image/webp',
+    'svg': 'image/svg+xml'
+};
+
+// 检查文件扩展名是否支持预览
+function isPreviewableFile(filePath) {
+    const ext = path.extname(filePath).toLowerCase().slice(1);
+    return PREVIEW_EXTENSIONS.includes(ext);
+}
+
+// 自定义中间件：处理/prod路径下的文件预览请求
+app.use('/prod', (req, res, next) => {
+    const requestPath = req.path;
+    const fullPath = path.join(paths.prod, requestPath);
+    
+    // 如果是可预览的文件格式
+    if (isPreviewableFile(requestPath)) {
+        // 检查文件是否存在
+        if (fs.existsSync(fullPath)) {
+            // 文件存在，继续正常的静态文件服务
+            next();
+        } else {
+            // 文件不存在，返回404.html进行处理
+            res.status(404).sendFile(path.join(paths.prod, '404.html'));
+        }
+    } else {
+        // 不是预览格式，继续正常处理
+        next();
+    }
+});
+
 // 设置prod目录为静态文件目录，方便预览生成的页面
-app.use('/prod', express.static(paths.prod));
+app.use('/prod', express.static(paths.prod, {
+    // 设置缓存控制和正确的Content-Type
+    setHeaders: (res, filePath) => {
+        const ext = path.extname(filePath).toLowerCase().slice(1);
+        if (PREVIEW_EXTENSIONS.includes(ext)) {
+            // 设置正确的MIME类型
+            if (MIME_TYPES[ext]) {
+                res.setHeader('Content-Type', MIME_TYPES[ext] + '; charset=utf-8');
+            }
+            // 确保浏览器不会直接下载这些文件
+            res.setHeader('Content-Disposition', 'inline');
+            // 允许跨域访问（用于文件预览）
+            res.setHeader('Access-Control-Allow-Origin', '*');
+        }
+    }
+}));
 
 // 设置body解析器
 app.use(express.json());
