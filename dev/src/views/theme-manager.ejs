@@ -317,6 +317,282 @@
                     </div>
                   </div>
                 </div>
+
+                <!-- Markdown 内容样式组 -->
+                <div class="color-group">
+                  <h6 class="fw-bold mb-3">
+                    <i class="bi bi-markdown me-2"></i>Markdown 标题样式
+                  </h6>
+                  <div class="row">
+                    <div class="col-md-6 mb-3">
+                      <label class="form-label">一级标题</label>
+                      <div class="d-flex align-items-center">
+                        <div class="color-picker-container">
+                          <div class="color-preview" id="mdH1-preview"></div>
+                          <input type="color" class="color-input" id="mdH1-color" data-key="mdH1">
+                        </div>
+                        <input type="text" class="form-control" id="mdH1-text" placeholder="#1a1a1a">
+                      </div>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                      <label class="form-label">二级标题</label>
+                      <div class="d-flex align-items-center">
+                        <div class="color-picker-container">
+                          <div class="color-preview" id="mdH2-preview"></div>
+                          <input type="color" class="color-input" id="mdH2-color" data-key="mdH2">
+                        </div>
+                        <input type="text" class="form-control" id="mdH2-text" placeholder="#2d2d2d">
+                      </div>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                      <label class="form-label">三级标题</label>
+                      <div class="d-flex align-items-center">
+                        <div class="color-picker-container">
+                          <div class="color-preview" id="mdH3-preview"></div>
+                          <input type="color" class="color-input" id="mdH3-color" data-key="mdH3">
+                        </div>
+                        <input type="text" class="form-control" id="mdH3-text" placeholder="#404040">
+                      </div>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                      <label class="form-label">四级标题</label>
+                      <div class="d-flex align-items-center">
+                        <div class="color-picker-container">
+                          <div class="color-preview" id="mdH4-preview"></div>
+                          <input type="color" class="color-input" id="mdH4-color" data-key="mdH4">
+                        </div>
+                        <input type="text" class="form-control" id="mdH4-text" placeholder="#525252">
+                      </div>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                      <label class="form-label">五级标题</label>
+                      <div class="d-flex align-items-center">
+                        <div class="color-picker-container">
+                          <div class="color-preview" id="mdH5-preview"></div>
+                          <input type="color" class="color-input" id="mdH5-color" data-key="mdH5">
+                        </div>
+                        <input type="text" class="form-control" id="mdH5-text" placeholder="#666666">
+                      </div>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                      <label class="form-label">六级标题</label>
+                      <div class="d-flex align-items-center">
+                        <div class="color-picker-container">
+                          <div class="color-preview" id="mdH6-preview"></div>
+                          <input type="color" class="color-input" id="mdH6-color" data-key="mdH6">
+                        </div>
+                        <input type="text" class="form-control" id="mdH6-text" placeholder="#737373">
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Markdown 代码样式组 -->
+                <div class="color-group">
+                  <h6 class="fw-bold mb-3">
+                    <i class="bi bi-code-square me-2"></i>Markdown 代码样式
+                  </h6>
+                  <div class="row">
+                    <div class="col-md-6 mb-3">
+                      <label class="form-label">正文文字</label>
+                      <div class="d-flex align-items-center">
+                        <div class="color-picker-container">
+                          <div class="color-preview" id="mdText-preview"></div>
+                          <input type="color" class="color-input" id="mdText-color" data-key="mdText">
+                        </div>
+                        <input type="text" class="form-control" id="mdText-text" placeholder="#212529">
+                      </div>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                      <label class="form-label">行内代码背景</label>
+                      <div class="d-flex align-items-center">
+                        <div class="color-picker-container">
+                          <div class="color-preview" id="mdCodeBg-preview"></div>
+                          <input type="color" class="color-input" id="mdCodeBg-color" data-key="mdCodeBg">
+                        </div>
+                        <input type="text" class="form-control" id="mdCodeBg-text" placeholder="#f8f9fa">
+                      </div>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                      <label class="form-label">行内代码文字</label>
+                      <div class="d-flex align-items-center">
+                        <div class="color-picker-container">
+                          <div class="color-preview" id="mdCodeText-preview"></div>
+                          <input type="color" class="color-input" id="mdCodeText-color" data-key="mdCodeText">
+                        </div>
+                        <input type="text" class="form-control" id="mdCodeText-text" placeholder="#e83e8c">
+                      </div>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                      <label class="form-label">代码块背景</label>
+                      <div class="d-flex align-items-center">
+                        <div class="color-picker-container">
+                          <div class="color-preview" id="mdCodeBlockBg-preview"></div>
+                          <input type="color" class="color-input" id="mdCodeBlockBg-color" data-key="mdCodeBlockBg">
+                        </div>
+                        <input type="text" class="form-control" id="mdCodeBlockBg-text" placeholder="#f8f9fa">
+                      </div>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                      <label class="form-label">代码块文字</label>
+                      <div class="d-flex align-items-center">
+                        <div class="color-picker-container">
+                          <div class="color-preview" id="mdCodeBlockText-preview"></div>
+                          <input type="color" class="color-input" id="mdCodeBlockText-color" data-key="mdCodeBlockText">
+                        </div>
+                        <input type="text" class="form-control" id="mdCodeBlockText-text" placeholder="#212529">
+                      </div>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                      <label class="form-label">代码块边框</label>
+                      <div class="d-flex align-items-center">
+                        <div class="color-picker-container">
+                          <div class="color-preview" id="mdCodeBlockBorder-preview"></div>
+                          <input type="color" class="color-input" id="mdCodeBlockBorder-color" data-key="mdCodeBlockBorder">
+                        </div>
+                        <input type="text" class="form-control" id="mdCodeBlockBorder-text" placeholder="#dee2e6">
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Markdown 其他样式组 -->
+                <div class="color-group">
+                  <h6 class="fw-bold mb-3">
+                    <i class="bi bi-quote me-2"></i>Markdown 其他样式
+                  </h6>
+                  <div class="row">
+                    <div class="col-md-6 mb-3">
+                      <label class="form-label">引用背景</label>
+                      <div class="d-flex align-items-center">
+                        <div class="color-picker-container">
+                          <div class="color-preview" id="mdBlockquoteBg-preview"></div>
+                          <input type="color" class="color-input" id="mdBlockquoteBg-color" data-key="mdBlockquoteBg">
+                        </div>
+                        <input type="text" class="form-control" id="mdBlockquoteBg-text" placeholder="#f8f9fa">
+                      </div>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                      <label class="form-label">引用文字</label>
+                      <div class="d-flex align-items-center">
+                        <div class="color-picker-container">
+                          <div class="color-preview" id="mdBlockquoteText-preview"></div>
+                          <input type="color" class="color-input" id="mdBlockquoteText-color" data-key="mdBlockquoteText">
+                        </div>
+                        <input type="text" class="form-control" id="mdBlockquoteText-text" placeholder="#6c757d">
+                      </div>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                      <label class="form-label">引用边框</label>
+                      <div class="d-flex align-items-center">
+                        <div class="color-picker-container">
+                          <div class="color-preview" id="mdBlockquoteBorder-preview"></div>
+                          <input type="color" class="color-input" id="mdBlockquoteBorder-color" data-key="mdBlockquoteBorder">
+                        </div>
+                        <input type="text" class="form-control" id="mdBlockquoteBorder-text" placeholder="#dee2e6">
+                      </div>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                      <label class="form-label">表格边框</label>
+                      <div class="d-flex align-items-center">
+                        <div class="color-picker-container">
+                          <div class="color-preview" id="mdTableBorder-preview"></div>
+                          <input type="color" class="color-input" id="mdTableBorder-color" data-key="mdTableBorder">
+                        </div>
+                        <input type="text" class="form-control" id="mdTableBorder-text" placeholder="#dee2e6">
+                      </div>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                      <label class="form-label">表格标题背景</label>
+                      <div class="d-flex align-items-center">
+                        <div class="color-picker-container">
+                          <div class="color-preview" id="mdTableHeaderBg-preview"></div>
+                          <input type="color" class="color-input" id="mdTableHeaderBg-color" data-key="mdTableHeaderBg">
+                        </div>
+                        <input type="text" class="form-control" id="mdTableHeaderBg-text" placeholder="#e9ecef">
+                      </div>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                      <label class="form-label">表格标题文字</label>
+                      <div class="d-flex align-items-center">
+                        <div class="color-picker-container">
+                          <div class="color-preview" id="mdTableHeaderText-preview"></div>
+                          <input type="color" class="color-input" id="mdTableHeaderText-color" data-key="mdTableHeaderText">
+                        </div>
+                        <input type="text" class="form-control" id="mdTableHeaderText-text" placeholder="#495057">
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- 外部组件样式组 -->
+                <div class="color-group">
+                  <h6 class="fw-bold mb-3">
+                    <i class="bi bi-puzzle me-2"></i>外部组件样式
+                  </h6>
+                  <div class="row">
+                    <div class="col-md-6 mb-3">
+                      <label class="form-label">LaTeX 文字</label>
+                      <div class="d-flex align-items-center">
+                        <div class="color-picker-container">
+                          <div class="color-preview" id="katexText-preview"></div>
+                          <input type="color" class="color-input" id="katexText-color" data-key="katexText">
+                        </div>
+                        <input type="text" class="form-control" id="katexText-text" placeholder="#212529">
+                      </div>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                      <label class="form-label">LaTeX 背景</label>
+                      <div class="d-flex align-items-center">
+                        <div class="color-picker-container">
+                          <div class="color-preview" id="katexBg-preview"></div>
+                          <input type="color" class="color-input" id="katexBg-color" data-key="katexBg">
+                        </div>
+                        <input type="text" class="form-control" id="katexBg-text" placeholder="#ffffff">
+                      </div>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                      <label class="form-label">Mermaid 背景</label>
+                      <div class="d-flex align-items-center">
+                        <div class="color-picker-container">
+                          <div class="color-preview" id="mermaidBg-preview"></div>
+                          <input type="color" class="color-input" id="mermaidBg-color" data-key="mermaidBg">
+                        </div>
+                        <input type="text" class="form-control" id="mermaidBg-text" placeholder="#ffffff">
+                      </div>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                      <label class="form-label">Mermaid 文字</label>
+                      <div class="d-flex align-items-center">
+                        <div class="color-picker-container">
+                          <div class="color-preview" id="mermaidText-preview"></div>
+                          <input type="color" class="color-input" id="mermaidText-color" data-key="mermaidText">
+                        </div>
+                        <input type="text" class="form-control" id="mermaidText-text" placeholder="#212529">
+                      </div>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                      <label class="form-label">Mermaid 边框</label>
+                      <div class="d-flex align-items-center">
+                        <div class="color-picker-container">
+                          <div class="color-preview" id="mermaidBorder-preview"></div>
+                          <input type="color" class="color-input" id="mermaidBorder-color" data-key="mermaidBorder">
+                        </div>
+                        <input type="text" class="form-control" id="mermaidBorder-text" placeholder="#dee2e6">
+                      </div>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                      <label class="form-label">代码高亮背景</label>
+                      <div class="d-flex align-items-center">
+                        <div class="color-picker-container">
+                          <div class="color-preview" id="highlightBg-preview"></div>
+                          <input type="color" class="color-input" id="highlightBg-color" data-key="highlightBg">
+                        </div>
+                        <input type="text" class="form-control" id="highlightBg-text" placeholder="#f8f9fa">
+                      </div>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>

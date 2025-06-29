@@ -33,7 +33,31 @@ class ThemeManagerService {
         success: '#28a745',
         warning: '#ffc107',
         danger: '#dc3545',
-        info: '#17a2b8'
+        info: '#17a2b8',
+        mdH1: '#1a1a1a',
+        mdH2: '#2d2d2d',
+        mdH3: '#404040',
+        mdH4: '#525252',
+        mdH5: '#666666',
+        mdH6: '#737373',
+        mdText: '#212529',
+        mdCodeBg: '#f8f9fa',
+        mdCodeText: '#e83e8c',
+        mdCodeBlockBg: '#f8f9fa',
+        mdCodeBlockText: '#212529',
+        mdCodeBlockBorder: '#dee2e6',
+        mdBlockquoteBg: '#f8f9fa',
+        mdBlockquoteText: '#6c757d',
+        mdBlockquoteBorder: '#dee2e6',
+        mdTableBorder: '#dee2e6',
+        mdTableHeaderBg: '#e9ecef',
+        mdTableHeaderText: '#495057',
+        katexText: '#212529',
+        katexBg: '#ffffff',
+        mermaidBg: '#ffffff',
+        mermaidText: '#212529',
+        mermaidBorder: '#dee2e6',
+        highlightBg: '#f8f9fa'
       },
       dark: {
         primary: '#5a7cff',
@@ -49,7 +73,31 @@ class ThemeManagerService {
         success: '#20c997',
         warning: '#fd7e14',
         danger: '#e74c3c',
-        info: '#3498db'
+        info: '#3498db',
+        mdH1: '#ffffff',
+        mdH2: '#e9ecef',
+        mdH3: '#dee2e6',
+        mdH4: '#ced4da',
+        mdH5: '#adb5bd',
+        mdH6: '#9ca3af',
+        mdText: '#ffffff',
+        mdCodeBg: '#2d3748',
+        mdCodeText: '#f687b3',
+        mdCodeBlockBg: '#2d3748',
+        mdCodeBlockText: '#e2e8f0',
+        mdCodeBlockBorder: '#4a5568',
+        mdBlockquoteBg: '#2d3748',
+        mdBlockquoteText: '#a0aec0',
+        mdBlockquoteBorder: '#4a5568',
+        mdTableBorder: '#4a5568',
+        mdTableHeaderBg: '#2d3748',
+        mdTableHeaderText: '#e2e8f0',
+        katexText: '#ffffff',
+        katexBg: '#1e1e1e',
+        mermaidBg: '#1e1e1e',
+        mermaidText: '#ffffff',
+        mermaidBorder: '#4a5568',
+        highlightBg: '#2d3748'
       }
     };
   }
@@ -119,6 +167,30 @@ class ThemeManagerService {
   --warning-color: ${lightTheme.warning};
   --danger-color: ${lightTheme.danger};
   --info-color: ${lightTheme.info};
+  --md-h1-color: ${lightTheme.mdH1};
+  --md-h2-color: ${lightTheme.mdH2};
+  --md-h3-color: ${lightTheme.mdH3};
+  --md-h4-color: ${lightTheme.mdH4};
+  --md-h5-color: ${lightTheme.mdH5};
+  --md-h6-color: ${lightTheme.mdH6};
+  --md-text-color: ${lightTheme.mdText};
+  --md-code-bg: ${lightTheme.mdCodeBg};
+  --md-code-text: ${lightTheme.mdCodeText};
+  --md-code-block-bg: ${lightTheme.mdCodeBlockBg};
+  --md-code-block-text: ${lightTheme.mdCodeBlockText};
+  --md-code-block-border: ${lightTheme.mdCodeBlockBorder};
+  --md-blockquote-bg: ${lightTheme.mdBlockquoteBg};
+  --md-blockquote-text: ${lightTheme.mdBlockquoteText};
+  --md-blockquote-border: ${lightTheme.mdBlockquoteBorder};
+  --md-table-border: ${lightTheme.mdTableBorder};
+  --md-table-header-bg: ${lightTheme.mdTableHeaderBg};
+  --md-table-header-text: ${lightTheme.mdTableHeaderText};
+  --katex-text: ${lightTheme.katexText};
+  --katex-bg: ${lightTheme.katexBg};
+  --mermaid-bg: ${lightTheme.mermaidBg};
+  --mermaid-text: ${lightTheme.mermaidText};
+  --mermaid-border: ${lightTheme.mermaidBorder};
+  --highlight-bg: ${lightTheme.highlightBg};
 }
 
 /* 暗夜模式 */
@@ -137,6 +209,30 @@ class ThemeManagerService {
   --warning-color: ${darkTheme.warning};
   --danger-color: ${darkTheme.danger};
   --info-color: ${darkTheme.info};
+  --md-h1-color: ${darkTheme.mdH1};
+  --md-h2-color: ${darkTheme.mdH2};
+  --md-h3-color: ${darkTheme.mdH3};
+  --md-h4-color: ${darkTheme.mdH4};
+  --md-h5-color: ${darkTheme.mdH5};
+  --md-h6-color: ${darkTheme.mdH6};
+  --md-text-color: ${darkTheme.mdText};
+  --md-code-bg: ${darkTheme.mdCodeBg};
+  --md-code-text: ${darkTheme.mdCodeText};
+  --md-code-block-bg: ${darkTheme.mdCodeBlockBg};
+  --md-code-block-text: ${darkTheme.mdCodeBlockText};
+  --md-code-block-border: ${darkTheme.mdCodeBlockBorder};
+  --md-blockquote-bg: ${darkTheme.mdBlockquoteBg};
+  --md-blockquote-text: ${darkTheme.mdBlockquoteText};
+  --md-blockquote-border: ${darkTheme.mdBlockquoteBorder};
+  --md-table-border: ${darkTheme.mdTableBorder};
+  --md-table-header-bg: ${darkTheme.mdTableHeaderBg};
+  --md-table-header-text: ${darkTheme.mdTableHeaderText};
+  --katex-text: ${darkTheme.katexText};
+  --katex-bg: ${darkTheme.katexBg};
+  --mermaid-bg: ${darkTheme.mermaidBg};
+  --mermaid-text: ${darkTheme.mermaidText};
+  --mermaid-border: ${darkTheme.mermaidBorder};
+  --highlight-bg: ${darkTheme.highlightBg};
 }
 
 /* 基础样式 */
@@ -300,6 +396,236 @@ a:hover {
 
 .footer .text-muted img {
   margin: 0 2px;
+}
+
+/* Markdown 内容样式 */
+.markdown-content {
+  color: var(--md-text-color);
+  line-height: 1.6;
+}
+
+.markdown-content h1 {
+  color: var(--md-h1-color);
+  font-size: 2.5rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+  border-bottom: 2px solid var(--border-color);
+  padding-bottom: 0.5rem;
+}
+
+.markdown-content h2 {
+  color: var(--md-h2-color);
+  font-size: 2rem;
+  font-weight: 600;
+  margin-bottom: 0.8rem;
+  border-bottom: 1px solid var(--border-color);
+  padding-bottom: 0.3rem;
+}
+
+.markdown-content h3 {
+  color: var(--md-h3-color);
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin-bottom: 0.6rem;
+}
+
+.markdown-content h4 {
+  color: var(--md-h4-color);
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+.markdown-content h5 {
+  color: var(--md-h5-color);
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin-bottom: 0.4rem;
+}
+
+.markdown-content h6 {
+  color: var(--md-h6-color);
+  font-size: 1rem;
+  font-weight: 600;
+  margin-bottom: 0.3rem;
+}
+
+.markdown-content p {
+  color: var(--md-text-color);
+  margin-bottom: 1rem;
+}
+
+.markdown-content code {
+  background-color: var(--md-code-bg);
+  color: var(--md-code-text);
+  padding: 0.2rem 0.4rem;
+  border-radius: 4px;
+  font-size: 0.9em;
+  font-family: 'Courier New', Courier, monospace;
+}
+
+.markdown-content pre {
+  background-color: var(--md-code-block-bg);
+  border: 1px solid var(--md-code-block-border);
+  border-radius: 8px;
+  padding: 1rem;
+  overflow-x: auto;
+  margin-bottom: 1rem;
+}
+
+.markdown-content pre code {
+  background-color: transparent;
+  color: var(--md-code-block-text);
+  padding: 0;
+  border-radius: 0;
+  font-size: 0.9rem;
+}
+
+.markdown-content blockquote {
+  background-color: var(--md-blockquote-bg);
+  color: var(--md-blockquote-text);
+  border-left: 4px solid var(--md-blockquote-border);
+  padding: 1rem;
+  margin: 1rem 0;
+  border-radius: 0 8px 8px 0;
+}
+
+.markdown-content blockquote p {
+  margin-bottom: 0;
+  color: var(--md-blockquote-text);
+}
+
+.markdown-content table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 1rem;
+  border: 1px solid var(--md-table-border);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.markdown-content table th {
+  background-color: var(--md-table-header-bg);
+  color: var(--md-table-header-text);
+  padding: 0.75rem;
+  text-align: left;
+  font-weight: 600;
+  border-bottom: 2px solid var(--md-table-border);
+}
+
+.markdown-content table td {
+  padding: 0.75rem;
+  border-bottom: 1px solid var(--md-table-border);
+  color: var(--md-text-color);
+}
+
+.markdown-content table tr:last-child td {
+  border-bottom: none;
+}
+
+.markdown-content ul, .markdown-content ol {
+  color: var(--md-text-color);
+  padding-left: 2rem;
+  margin-bottom: 1rem;
+}
+
+.markdown-content li {
+  margin-bottom: 0.5rem;
+}
+
+/* KaTeX 数学公式样式 */
+.katex-inline, .katex-display {
+  color: var(--katex-text) !important;
+}
+
+.katex-display {
+  background-color: var(--katex-bg);
+  padding: 1rem;
+  border-radius: 8px;
+  margin: 1rem 0;
+  text-align: center;
+  border: 1px solid var(--border-color);
+}
+
+.katex {
+  color: var(--katex-text) !important;
+}
+
+.katex .base {
+  color: var(--katex-text) !important;
+}
+
+/* Mermaid 图表样式 */
+.mermaid-diagram {
+  background-color: var(--mermaid-bg);
+  border: 1px solid var(--mermaid-border);
+  border-radius: 8px;
+  padding: 1rem;
+  margin: 1rem 0;
+  text-align: center;
+}
+
+.mermaid {
+  background-color: var(--mermaid-bg) !important;
+}
+
+.mermaid .node rect,
+.mermaid .node circle,
+.mermaid .node ellipse,
+.mermaid .node polygon {
+  fill: var(--surface-color) !important;
+  stroke: var(--mermaid-border) !important;
+}
+
+.mermaid .node .label {
+  color: var(--mermaid-text) !important;
+}
+
+.mermaid .edgePath .path {
+  stroke: var(--mermaid-border) !important;
+}
+
+.mermaid .edgeLabel {
+  background-color: var(--mermaid-bg) !important;
+  color: var(--mermaid-text) !important;
+}
+
+/* 代码高亮样式适配 */
+.hljs {
+  background-color: var(--highlight-bg) !important;
+  color: var(--md-code-block-text) !important;
+}
+
+.hljs-keyword,
+.hljs-selector-tag,
+.hljs-built_in {
+  color: var(--primary-color) !important;
+}
+
+.hljs-string,
+.hljs-attr {
+  color: var(--success-color) !important;
+}
+
+.hljs-comment,
+.hljs-quote {
+  color: var(--text-secondary-color) !important;
+  font-style: italic;
+}
+
+.hljs-number,
+.hljs-literal {
+  color: var(--warning-color) !important;
+}
+
+.hljs-function,
+.hljs-title {
+  color: var(--info-color) !important;
+}
+
+.hljs-variable,
+.hljs-template-variable {
+  color: var(--danger-color) !important;
 }
 `;
 

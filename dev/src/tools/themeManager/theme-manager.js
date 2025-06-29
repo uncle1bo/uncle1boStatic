@@ -60,7 +60,12 @@ class ThemeManager {
     const colorKeys = [
       'primary', 'secondary', 'background', 'surface',
       'text', 'textSecondary', 'link', 'linkHover',
-      'border', 'shadow', 'success', 'warning', 'danger', 'info'
+      'border', 'shadow', 'success', 'warning', 'danger', 'info',
+      'mdH1', 'mdH2', 'mdH3', 'mdH4', 'mdH5', 'mdH6',
+      'mdText', 'mdCodeBg', 'mdCodeText', 'mdCodeBlockBg', 'mdCodeBlockText', 'mdCodeBlockBorder',
+      'mdBlockquoteBg', 'mdBlockquoteText', 'mdBlockquoteBorder',
+      'mdTableBorder', 'mdTableHeaderBg', 'mdTableHeaderText',
+      'katexText', 'katexBg', 'mermaidBg', 'mermaidText', 'mermaidBorder', 'highlightBg'
     ];
 
     colorKeys.forEach(key => {

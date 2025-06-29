@@ -34,122 +34,255 @@
                         <h1 class="display-4" data-i18n="test.title">测试123</h1>
                         <hr class="my-4">
                         <div class="content" data-i18n="test.content">
-                            <div class="markdown-content"><h1>Uncle1bo 静态网站项目</h1>
-<p><a href="docs/README.en.md">English</a> | <a href="#">简体中文</a></p>
-<p>这是一个纯静态网站项目，使用Bootstrap框架构建，计划部署在Cloudflare Pages上。</p>
-<h2>项目结构</h2>
-<pre><code class="language-text">uncle1boStatic/
-├── README.md           # 项目说明文档（中文）
-├── docs/               # 文档目录
-│   └── README.en.md    # 项目说明文档（英文）
-├── dev/                # 开发环境目录
-├── prod/               # 生产环境目录
-│   ├── index.html      # 主页面
-│   ├── pages/          # 用户页面
-│   │   ├── about.html  # 关于页面
-│   │   ├── services.html # 服务页面
-│   │   └── contact.html # 联系我们页面
-│   ├── assets/         # 静态资源
-│   │   ├── images/     # 图片资源
-│   │   ├── fonts/      # 字体文件
-│   │   └── icons/      # 图标文件
-│   ├── css/            # CSS样式
-│   │   └── styles.css  # 自定义样式
-│   ├── js/             # 用户端JavaScript文件
-│   │   ├── main.js     # 主JavaScript
-│   │   ├── i18n.js     # 国际化支持
-│   │   └── template-processor.js # 模板处理器
-│   ├── locales/        # 语言资源
-│   │   ├── en/         # 英文
-│   │   └── zh-CN/      # 简体中文
-│   ├── templates/      # 页面模板
-│   │   ├── header.html # 头部模板
-│   │   └── footer.html # 底部模板
-│   ├── robots.txt      # 搜索引擎爬虫配置
-│   ├── sitemap.xml     # 网站地图
-│   ├── 404.html        # 404错误页面
-│   ├── _headers        # 安全头配置
-│   ├── .nojekyll       # 禁用GitHub Pages的Jekyll处理
-│   ├── .gitignore      # Git忽略文件配置
-│   └── _redirects      # 重定向配置
-├── locall.bat          # 本地开发服务器启动脚本
-├── package.json        # 项目依赖配置
-└── package-lock.json   # 依赖版本锁定文件</code></pre><h2>技术栈</h2>
+                            <div class="markdown-content"><h1>Markdown语法测试文档</h1>
+<p>这是一个用于测试Markdown渲染功能的文档，包含了各种Markdown语法和增强功能。</p>
+<h2>基本语法测试</h2>
+<h3>文本格式</h3>
+<p>这是<strong>粗体文本</strong>，这是<em>斜体文本</em>，这是<em><strong>粗斜体文本</strong></em>。</p>
+<p>这是<del>删除线文本</del>，这是<code>行内代码</code>。</p>
+<h3>列表</h3>
+<h4>无序列表</h4>
 <ul>
-<li>HTML5</li>
-<li>CSS3</li>
-<li>JavaScript</li>
-<li>Bootstrap 5</li>
-<li>Node.js (用于本地开发服务器)</li>
-</ul>
-<h2>特性</h2>
-<ul>
-<li>响应式设计，适用于所有设备</li>
-<li>多语言支持（英文、简体中文）</li>
-<li>快速加载和优化性能</li>
-<li>自定义404错误页面</li>
-<li>对搜索引擎友好</li>
-</ul>
-<h2>开始使用</h2>
-<h3>前提条件</h3>
-<p>运行此项目不需要特殊的前提条件。您只需要一个现代的网络浏览器。</p>
-<h3>本地开发</h3>
-<ol>
-<li><p>克隆存储库：</p>
-<pre><code class="language-text">git clone https://github.com/yourusername/uncle1boStatic.git
-cd uncle1boStatic</code></pre></li>
-<li><p>安装依赖：</p>
-<pre><code class="language-text">npm install</code></pre></li>
-<li><p>启动本地开发服务器：</p>
-<ul>
-<li><p>使用提供的批处理文件启动服务器：</p>
-<pre><code class="language-text">locall.bat</code></pre></li>
-<li><p>或者直接使用npm命令：</p>
-<pre><code class="language-text">npm start</code></pre></li>
-<li><p>浏览器将自动打开并导航至：<code>http://localhost:8000</code></p>
-</li>
+<li>项目1</li>
+<li>项目2<ul>
+<li>子项目2.1</li>
+<li>子项目2.2</li>
 </ul>
 </li>
-</ol>
-<h2>404页面配置</h2>
-<p>本项目包含自定义404错误页面，当用户访问不存在的页面时会自动重定向到此页面。</p>
-<ul>
-<li>本地开发环境：使用http-server提供404页面支持</li>
-<li>Cloudflare Pages部署：通过<code>_redirects</code>文件配置404重定向规则</li>
+<li>项目3</li>
 </ul>
-<p>如果您使用其他托管服务，可能需要根据该服务的要求调整404页面配置。</p>
-<h2>部署</h2>
-<p>此项目设计为部署在Cloudflare Pages上，但可以托管在任何静态站点托管服务上。</p>
-<h3>部署到Cloudflare Pages</h3>
+<h4>有序列表</h4>
 <ol>
-<li>将您的代码推送到GitHub存储库</li>
-<li>登录到您的Cloudflare仪表板</li>
-<li>转到Pages &gt; 创建项目</li>
-<li>连接您的GitHub存储库</li>
-<li>配置您的构建设置：<ul>
-<li>构建命令：（静态站点留空）</li>
-<li>构建输出目录：/（根目录）</li>
-</ul>
+<li>第一项</li>
+<li>第二项<ol>
+<li>子项目2.1</li>
+<li>子项目2.2</li>
+</ol>
 </li>
-<li>部署</li>
+<li>第三项</li>
 </ol>
-<h2>多语言支持</h2>
-<p>网站通过<code>i18n.js</code>模块支持多种语言。语言资源存储在<code>locales</code>目录中的JSON文件中。</p>
-<p>要添加新语言：</p>
-<ol>
-<li>在<code>locales/</code>中创建一个带有语言代码的新目录</li>
-<li>从现有语言目录复制JSON文件</li>
-<li>翻译JSON文件中的值</li>
-</ol>
-<h2>贡献</h2>
-<p>欢迎贡献！请随时提交拉取请求。</p>
-<h2>许可证</h2>
-<p>此项目根据MIT许可证授权，如package.json中所声明。</p>
-<h2>致谢</h2>
+<h3>链接和图片</h3>
+<p><a href="https://github.com/uncle1bo">Uncle1bo Static Website</a></p>
+<h3>引用</h3>
+<blockquote>
+<p>这是一个引用块。</p>
+<p>可以包含多行内容。</p>
+<blockquote>
+<p>这是嵌套引用。</p>
+</blockquote>
+</blockquote>
+<h3>表格</h3>
+<table>
+<thead>
+<tr>
+<th>功能</th>
+<th>状态</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>页面生成器</td>
+<td>✅</td>
+<td>支持多种页面模板</td>
+</tr>
+<tr>
+<td>主题管理器</td>
+<td>✅</td>
+<td>支持主题切换和定制</td>
+</tr>
+<tr>
+<td>菜单编辑器</td>
+<td>✅</td>
+<td>可视化菜单编辑</td>
+</tr>
+<tr>
+<td>实时预览</td>
+<td>✅</td>
+<td>基于Bootstrap</td>
+</tr>
+<tr>
+<td>响应式设计</td>
+<td>✅</td>
+<td>移动端适配</td>
+</tr>
+</tbody></table>
+<h2>代码块测试</h2>
+<h3>JavaScript代码</h3>
+<pre><code class="language-javascript">// 网站工具示例代码
+class WebsiteManager {
+    constructor() {
+        this.tools = {
+            &#039;pageGenerator&#039;: { name: &#039;页面生成器&#039;, icon: &#039;bi-file-plus&#039; },
+            &#039;themeManager&#039;: { name: &#039;主题管理器&#039;, icon: &#039;bi-palette&#039; }
+        };
+    }
+    
+    async generatePage(pageInfo) {
+        try {
+            const template = await this.loadTemplate(pageInfo.template);
+            return this.renderPage(template, pageInfo.data);
+        } catch (error) {
+            console.error(&#039;页面生成失败:&#039;, error);
+        }
+    }
+}</code></pre><h3>Python代码</h3>
+<pre><code class="language-python"># Python示例代码
+def fibonacci(n):
+    &quot;&quot;&quot;计算斐波那契数列&quot;&quot;&quot;
+    if n &lt;= 1:
+        return n
+    return fibonacci(n-1) + fibonacci(n-2)
+
+# 生成前10个斐波那契数
+for i in range(10):
+    print(f&quot;F({i}) = {fibonacci(i)}&quot;)</code></pre><h3>CSS代码</h3>
+<pre><code class="language-css">/* 响应式设计样式 */
+.website-container {
+    max-width: 100%;
+    margin: 0 auto;
+    padding: 1rem;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+@media (max-width: 768px) {
+    .website-container {
+        padding: 0.5rem;
+        margin: 0.5rem;
+    }
+}</code></pre><h2>数学公式测试</h2>
+<h3>行内公式</h3>
+<p>这是一个行内公式：<span class="katex-inline" data-katex="E = mc^2">$E = mc^2$</span>，这是另一个：<span class="katex-inline" data-katex="\sum_{i=1}^{n} x_i">$\sum_{i=1}^{n} x_i$</span>。</p>
+<h3>块级公式</h3>
+<p>$<span class="katex-inline" data-katex="&lt;br&gt;\int_{-\infty}^{\infty} e^{-x^2} dx = \sqrt{\pi}&lt;br&gt;">$&lt;br&gt;\int_{-\infty}^{\infty} e^{-x^2} dx = \sqrt{\pi}&lt;br&gt;$</span><span class="katex-inline" data-katex="&lt;/p&gt;
+&lt;h1&gt;">$&lt;/p&gt;
+&lt;h1&gt;$</span><span class="katex-inline" data-katex="&lt;br&gt;\begin{pmatrix}&lt;br&gt;a &amp;amp; b \&lt;br&gt;c &amp;amp; d&lt;br&gt;\end{pmatrix}&lt;br&gt;\begin{pmatrix}&lt;br&gt;x \&lt;br&gt;y&lt;br&gt;\end{pmatrix}&lt;/h1&gt;
+&lt;p&gt;\begin{pmatrix}&lt;br&gt;ax + by \&lt;br&gt;cx + dy&lt;br&gt;\end{pmatrix}&lt;br&gt;">$&lt;br&gt;\begin{pmatrix}&lt;br&gt;a &amp;amp; b \&lt;br&gt;c &amp;amp; d&lt;br&gt;\end{pmatrix}&lt;br&gt;\begin{pmatrix}&lt;br&gt;x \&lt;br&gt;y&lt;br&gt;\end{pmatrix}&lt;/h1&gt;
+&lt;p&gt;\begin{pmatrix}&lt;br&gt;ax + by \&lt;br&gt;cx + dy&lt;br&gt;\end{pmatrix}&lt;br&gt;$</span>$</p>
+<h2>Mermaid图表测试</h2>
+<h3>流程图</h3>
+<div class="mermaid-diagram" data-mermaid-code="graph TD
+    A[开始] --&gt; B{检测文件类型}
+    B --&gt;|XML| C[XML预览]
+    B --&gt;|Markdown| D[Markdown渲染]
+    B --&gt;|图片| E[图片预览]
+    B --&gt;|其他| F[文本预览]
+    C --&gt; G[语法高亮]
+    D --&gt; H[增强渲染]
+    E --&gt; I[响应式显示]
+    F --&gt; J[纯文本显示]
+    G --&gt; K[完成]
+    H --&gt; K
+    I --&gt; K
+    J --&gt; K" data-diagram-id="mermaid-8eeqbno7w">
+            <pre><code class="language-mermaid">graph TD
+    A[开始] --&gt; B{检测文件类型}
+    B --&gt;|XML| C[XML预览]
+    B --&gt;|Markdown| D[Markdown渲染]
+    B --&gt;|图片| E[图片预览]
+    B --&gt;|其他| F[文本预览]
+    C --&gt; G[语法高亮]
+    D --&gt; H[增强渲染]
+    E --&gt; I[响应式显示]
+    F --&gt; J[纯文本显示]
+    G --&gt; K[完成]
+    H --&gt; K
+    I --&gt; K
+    J --&gt; K</code></pre>
+          </div><h3>时序图</h3>
+<div class="mermaid-diagram" data-mermaid-code="sequenceDiagram
+    participant U as 用户
+    participant B as 浏览器
+    participant W as 网站工具
+    participant S as 服务器
+    
+    U-&gt;&gt;B: 访问工具页面
+    B-&gt;&gt;W: 加载页面生成器
+    W-&gt;&gt;S: 请求模板数据
+    S--&gt;&gt;W: 返回模板内容
+    W-&gt;&gt;W: 渲染页面内容
+    W--&gt;&gt;B: 显示生成界面
+    B--&gt;&gt;U: 展示页面工具" data-diagram-id="mermaid-pdszssp9f">
+            <pre><code class="language-mermaid">sequenceDiagram
+    participant U as 用户
+    participant B as 浏览器
+    participant W as 网站工具
+    participant S as 服务器
+    
+    U-&gt;&gt;B: 访问工具页面
+    B-&gt;&gt;W: 加载页面生成器
+    W-&gt;&gt;S: 请求模板数据
+    S--&gt;&gt;W: 返回模板内容
+    W-&gt;&gt;W: 渲染页面内容
+    W--&gt;&gt;B: 显示生成界面
+    B--&gt;&gt;U: 展示页面工具</code></pre>
+          </div><h3>甘特图</h3>
+<div class="mermaid-diagram" data-mermaid-code="gantt
+    title 网站工具开发计划
+    dateFormat  YYYY-MM-DD
+    section 基础功能
+    页面生成器      :done, generator, 2024-01-01, 2024-01-03
+    主题管理器      :done, theme, 2024-01-03, 2024-01-05
+    菜单编辑器      :done, menu, 2024-01-05, 2024-01-07
+    section 增强功能
+    实时预览        :done, preview, 2024-01-07, 2024-01-08
+    模板系统        :done, template, 2024-01-08, 2024-01-10
+    响应式设计      :done, responsive, 2024-01-10, 2024-01-11
+    国际化支持      :done, i18n, 2024-01-11, 2024-01-12
+    section 测试优化
+    功能测试        :active, test, 2024-01-12, 2024-01-14
+    性能优化        :optimize, 2024-01-14, 2024-01-16
+    文档完善        :docs, 2024-01-16, 2024-01-17" data-diagram-id="mermaid-7kgrm7lfp">
+            <pre><code class="language-mermaid">gantt
+    title 网站工具开发计划
+    dateFormat  YYYY-MM-DD
+    section 基础功能
+    页面生成器      :done, generator, 2024-01-01, 2024-01-03
+    主题管理器      :done, theme, 2024-01-03, 2024-01-05
+    菜单编辑器      :done, menu, 2024-01-05, 2024-01-07
+    section 增强功能
+    实时预览        :done, preview, 2024-01-07, 2024-01-08
+    模板系统        :done, template, 2024-01-08, 2024-01-10
+    响应式设计      :done, responsive, 2024-01-10, 2024-01-11
+    国际化支持      :done, i18n, 2024-01-11, 2024-01-12
+    section 测试优化
+    功能测试        :active, test, 2024-01-12, 2024-01-14
+    性能优化        :optimize, 2024-01-14, 2024-01-16
+    文档完善        :docs, 2024-01-16, 2024-01-17</code></pre>
+          </div><h2>特殊功能测试</h2>
+<h3>任务列表</h3>
 <ul>
-<li>Bootstrap提供响应式框架</li>
-<li>Cloudflare Pages提供托管服务</li>
+<li><input checked="" disabled="" type="checkbox"> 实现页面生成器</li>
+<li><input checked="" disabled="" type="checkbox"> 实现主题管理器</li>
+<li><input checked="" disabled="" type="checkbox"> 添加菜单编辑器</li>
+<li><input checked="" disabled="" type="checkbox"> 支持实时预览</li>
+<li><input checked="" disabled="" type="checkbox"> 支持模板系统</li>
+<li><input checked="" disabled="" type="checkbox"> 添加响应式设计</li>
+<li><input disabled="" type="checkbox"> 添加更多模板</li>
+<li><input disabled="" type="checkbox"> 支持更多主题</li>
 </ul>
+<h3>脚注</h3>
+<p>这是一个带脚注的文本<a href="%E8%BF%99%E6%98%AF%E8%84%9A%E6%B3%A8%E5%86%85%E5%AE%B9%E3%80%82">^1</a>。</p>
+<h3>高亮文本</h3>
+<p>==这是高亮文本==（如果支持的话）。</p>
+<h2>总结</h2>
+<p>这个静态网站工具集支持多种网站管理功能，包括：</p>
+<ol>
+<li><strong>页面管理</strong>：页面生成器、模板系统、内容编辑等</li>
+<li><strong>主题管理</strong>：主题切换、颜色配置、样式定制等</li>
+<li><strong>菜单管理</strong>：导航编辑、链接管理、结构调整等</li>
+</ol>
+<p>主要特性：</p>
+<ul>
+<li>🎨 现代化界面设计</li>
+<li>📝 实时预览功能</li>
+<li>🧮 响应式布局</li>
+<li>📊 可视化编辑</li>
+<li>📋 一键生成代码</li>
+<li>📱 移动端适配</li>
+<li>🚀 纯静态实现，无服务器依赖</li>
+</ul>
+<p>完全符合Cloudflare Pages的静态网站要求！</p>
 </div>
                         </div>
                     </div>
