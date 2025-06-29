@@ -201,3 +201,14 @@ a:hover {
 .footer .text-muted img {
   margin: 0 2px;
 }
+
+/* 导航栏品牌样式 */
+.navbar-brand {
+  color: var(--primary-color) !important;
+  font-weight: 600;
+  transition: color 0.3s ease;
+}
+
+.navbar-brand:hover {
+  color: var(--link-hover-color) !important;
+}
