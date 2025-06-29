@@ -50,6 +50,11 @@ app.use('/page-manager', require('./tools/pageManager/routes'));
 app.use('/theme-manager', require('./tools/themeManager/routes'));
 app.use('/cdn-tester', require('./tools/cdnTester/routes'));
 
+// Bootstrap测试页面路由
+app.get('/bootstrap-test', (req, res) => {
+  res.sendFile(path.join(__dirname, '../test-files/bootstrap-elements-test.html'));
+});
+
 // 这里可以添加其他工具的路由
 // app.use('/other-tool', otherToolRoutes);
 
