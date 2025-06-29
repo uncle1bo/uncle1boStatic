@@ -2,25 +2,19 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc>https://www.uncle1bo.com/</loc>
-    <lastmod>2025-06-28</lastmod>
+    <lastmod>2025-06-29</lastmod>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
   </url>
   <url>
     <loc>https://www.uncle1bo.com/pages/about.html</loc>
-    <lastmod>2025-06-28</lastmod>
+    <lastmod>2025-06-29</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://www.uncle1bo.com/pages/contact.html</loc>
-    <lastmod>2025-06-28</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://www.uncle1bo.com/pages/services.html</loc>
-    <lastmod>2025-06-28</lastmod>
+    <loc>https://www.uncle1bo.com/pages/test.html</loc>
+    <lastmod>2025-06-29</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
