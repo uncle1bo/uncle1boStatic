@@ -246,23 +246,7 @@ This is a paragraph.
     </div>
   </div>
   
-  <!-- 预览模态框 -->
-  <div class="modal fade" id="previewModal" tabindex="-1" aria-labelledby="previewModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-xl">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title" id="previewModalLabel">页面预览</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-        <div class="modal-body p-0">
-          <iframe id="previewFrame" style="width: 100%; height: 600px; border: none;"></iframe>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">关闭</button>
-        </div>
-      </div>
-    </div>
-  </div>
+
   
   <!-- Bootstrap JS Bundle with Popper -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
@@ -280,6 +264,22 @@ This is a paragraph.
       if (fromPageManager) {
         $('#backToManagerBtn').show();
       }
+    
+    // 清理预览页面
+    function cleanupPreviewPage(previewPageName) {
+      if (!previewPageName) return;
+      
+      $.ajax({
+        url: `/page-generator/preview/${previewPageName}`,
+        method: 'DELETE',
+        success: function(response) {
+          console.log('预览页面已清理:', previewPageName);
+        },
+        error: function(xhr) {
+          console.error('清理预览页面失败:', xhr.responseJSON?.error || '服务器错误');
+        }
+      });
+    }
       
       // 如果是编辑模式，加载页面数据
       if (editPageName) {
@@ -504,6 +504,9 @@ This is a paragraph.
         }
       };
       
+      // 显示加载提示
+      showAlert('info', '正在生成预览页面，请稍候...');
+      
       $.ajax({
         url: '/page-generator/preview',
         method: 'POST',
@@ -517,12 +520,30 @@ This is a paragraph.
           content: pageContentZh,
           translations
         }),
-        success: function(html) {
-          const iframe = document.getElementById('previewFrame');
-          iframe.srcdoc = html;
-          
-          const modal = new bootstrap.Modal(document.getElementById('previewModal'));
-          modal.show();
+        success: function(response) {
+          if (response.success) {
+            // 在新窗口中打开预览页面
+            const previewWindow = window.open(response.previewUrl, '_blank');
+            
+            if (previewWindow) {
+              showAlert('success', '预览页面已在新窗口中打开');
+              
+              // 存储预览页面名称，用于后续清理
+              window.currentPreviewPage = response.previewPageName;
+              
+              // 监听窗口关闭事件，自动清理预览页面
+              const checkClosed = setInterval(() => {
+                if (previewWindow.closed) {
+                  clearInterval(checkClosed);
+                  cleanupPreviewPage(response.previewPageName);
+                }
+              }, 1000);
+            } else {
+              showAlert('warning', '无法打开预览窗口，请检查浏览器弹窗设置');
+            }
+          } else {
+            showAlert('danger', '预览失败: ' + response.message);
+          }
         },
         error: function(xhr) {
           showAlert('danger', '预览失败: ' + (xhr.responseJSON?.error || '服务器错误'));

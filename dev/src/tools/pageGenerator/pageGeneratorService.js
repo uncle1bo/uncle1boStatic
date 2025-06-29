@@ -30,7 +30,7 @@ const pageGeneratorService = {
    * @returns {Promise<void>}
    */
   generatePage: async function(options) {
-    const { pageName, tabTitle, pageTitle, seoDescription, seoKeywords, content, translations, isEdit = false } = options;
+    const { pageName, tabTitle, pageTitle, seoDescription, seoKeywords, content, translations, isEdit = false, isPreview = false } = options;
     
     try {
       // 验证页面名称
@@ -52,30 +52,35 @@ const pageGeneratorService = {
       // 生成多语言文件
       await this.generateI18nFiles({ pageName, tabTitle, pageTitle, seoDescription, seoKeywords, translations });
       
-      // 保存页面源数据到统一的数据管理系统
-      const pageData = {
-        pageName,
-        tabTitle,
-        pageTitle,
-        seoDescription,
-        seoKeywords,
-        content,
-        translations,
-        editable: true
-      };
-      await this.savePageData(pageData, 'edit', pageName);
-      
-      // 清理临时文件
-      await this.cleanupTempFiles(pageName);
+      // 只有非预览模式才保存页面数据和清理临时文件
+      if (!isPreview) {
+        // 保存页面源数据到统一的数据管理系统
+        const pageData = {
+          pageName,
+          tabTitle,
+          pageTitle,
+          seoDescription,
+          seoKeywords,
+          content,
+          translations,
+          editable: true
+        };
+        await this.savePageData(pageData, 'edit', pageName);
+        
+        // 清理临时文件
+        await this.cleanupTempFiles(pageName);
+      }
       
       return { success: true };
     } catch (error) {
       console.error('生成页面失败:', error);
-      // 即使生成失败也尝试清理临时文件
-      try {
-        await this.cleanupTempFiles(pageName);
-      } catch (cleanupError) {
-        console.warn('清理临时文件失败:', cleanupError);
+      // 即使生成失败也尝试清理临时文件（仅非预览模式）
+      if (!isPreview) {
+        try {
+          await this.cleanupTempFiles(pageName);
+        } catch (cleanupError) {
+          console.warn('清理临时文件失败:', cleanupError);
+        }
       }
       throw error;
     }
@@ -467,6 +472,22 @@ const pageGeneratorService = {
         }
         
         return `<pre><code class="language-${validLanguage}">${escapedCode}</code></pre>`;
+      };
+      
+      // 自定义列表项渲染，支持任务列表（checkbox）
+      renderer.listitem = (text) => {
+        // 检查是否为任务列表项
+        const taskListMatch = text.match(/^\s*<input[^>]*type="checkbox"[^>]*>\s*(.*)$/);
+        if (taskListMatch) {
+          // 提取checkbox的属性和文本内容
+          const checkboxMatch = text.match(/<input[^>]*type="checkbox"[^>]*>/)[0];
+          const textContent = taskListMatch[1];
+          
+          // 为checkbox添加适当的label包装以提高可访问性
+          return `<li><label>${checkboxMatch} ${textContent}</label></li>\n`;
+        }
+        
+        return `<li>${text}</li>\n`;
       };
       
       // 配置marked选项

@@ -30,6 +30,27 @@ const upload = multer({
   }
 });
 
+// 清理预览页面
+router.delete('/preview/:previewPageName', async (req, res) => {
+  try {
+    const { previewPageName } = req.params;
+    
+    // 删除预览页面文件
+    const previewPagePath = path.join(paths.getPagesPath(), `${previewPageName}.html`);
+    if (await fs.pathExists(previewPagePath)) {
+      await fs.remove(previewPagePath);
+    }
+    
+    // 清理相关的多语言文件
+    await pageGenerator.cleanupAllTempFiles(previewPageName);
+    
+    res.json({ success: true, message: '预览页面已清理' });
+  } catch (error) {
+    console.error('清理预览页面失败:', error);
+    res.status(500).json({ error: '清理预览页面失败: ' + error.message });
+  }
+});
+
 // 生成页面
 router.post('/generate', async (req, res) => {
   try {
@@ -63,21 +84,34 @@ router.post('/generate', async (req, res) => {
 });
 
 // 预览页面
-router.post('/preview', (req, res) => {
+router.post('/preview', async (req, res) => {
   try {
     const { pageName, tabTitle, pageTitle, seoDescription, seoKeywords, content, translations } = req.body;
     
-    const html = pageGenerator.previewPage({
-      pageName,
+    // 生成临时预览页面名称
+    const previewPageName = `preview-${Date.now()}`;
+    
+    // 直接生成页面到prod环境
+    await pageGenerator.generatePage({
+      pageName: previewPageName,
       tabTitle,
       pageTitle,
       seoDescription,
       seoKeywords,
       content,
-      translations
+      translations,
+      isPreview: true // 标记为预览页面
     });
     
-    res.send(html);
+    // 返回预览页面的URL
+    const previewUrl = `http://localhost:3000/prod/pages/${previewPageName}.html`;
+    
+    res.json({ 
+      success: true, 
+      previewUrl,
+      previewPageName,
+      message: '预览页面生成成功' 
+    });
   } catch (error) {
     console.error('预览页面失败:', error);
     res.status(500).json({ error: '预览页面失败: ' + error.message });
