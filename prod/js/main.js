@@ -146,15 +146,18 @@ window.ThemeManager = {
         
         // 监听系统主题变化
         window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
-            if (!localStorage.getItem('preferredTheme')) {
-                this.currentTheme = e.matches ? 'dark' : 'light';
-                this.setTheme(this.currentTheme);
-            }
-        });
+                if (!localStorage.getItem('preferredTheme')) {
+                    this.currentTheme = e.matches ? 'dark' : 'light';
+                    this.setTheme(this.currentTheme);
+                }
+            });
+            
         
         // 初始化主题切换按钮
         this.initThemeToggle();
     },
+    
+
     
     /**
      * 设置主题
@@ -171,6 +174,12 @@ window.ThemeManager = {
         
         // 更新按钮状态
         this.updateToggleButton();
+        
+        // 触发主题变化事件
+        const themeChangeEvent = new CustomEvent('themeChanged', {
+            detail: { theme: theme }
+        });
+        document.dispatchEvent(themeChangeEvent);
     },
     
     /**

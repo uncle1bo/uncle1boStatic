@@ -153,6 +153,17 @@ const templateService = {
             
             // 初始化增强Markdown渲染
             initEnhancedMarkdown();
+            
+            // 监听主题变化事件
+            document.addEventListener('themeChanged', function(event) {
+                // 重新加载代码高亮主题
+                loadCodeTheme();
+                
+                // 重新高亮所有代码块
+                if (window.Prism) {
+                    Prism.highlightAll();
+                }
+            });
         });
         
         // 加载代码高亮主题
@@ -161,27 +172,32 @@ const templateService = {
                 // 获取当前主题模式
                 const currentTheme = document.documentElement.getAttribute('data-bs-theme') || 'light';
                 
-                // 从localStorage获取主题配置
-                const themeConfig = JSON.parse(localStorage.getItem('themeConfig') || '{}');
-                
-                if (themeConfig[currentTheme] && themeConfig[currentTheme].codeTheme) {
-                    const codeTheme = themeConfig[currentTheme].codeTheme;
-                    
-                    // 移除现有的Prism主题
-                    const existingTheme = document.querySelector('link[data-prism-theme]');
-                    if (existingTheme) {
-                        existingTheme.remove();
-                    }
-                    
-                    // 添加新的Prism主题
-                    if (codeTheme && codeTheme !== 'default') {
-                        const link = document.createElement('link');
-                        link.rel = 'stylesheet';
-                        link.href = 'https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-' + codeTheme + '.min.css';
-                        link.setAttribute('data-prism-theme', codeTheme);
-                        document.head.appendChild(link);
-                    }
-                }
+                // 从theme-config.json文件获取主题配置
+                fetch('../theme-config.json')
+                    .then(response => response.json())
+                    .then(themeConfig => {
+                        if (themeConfig && themeConfig.codeTheme) {
+                            const codeTheme = themeConfig.codeTheme;
+                            
+                            // 移除现有的Prism主题
+                            const existingTheme = document.querySelector('link[data-prism-theme]');
+                            if (existingTheme) {
+                                existingTheme.remove();
+                            }
+                            
+                            // 添加新的Prism主题
+                            if (codeTheme && codeTheme !== 'default') {
+                                const link = document.createElement('link');
+                                link.rel = 'stylesheet';
+                                link.href = 'https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-' + codeTheme + '.min.css';
+                                link.setAttribute('data-prism-theme', codeTheme);
+                                document.head.appendChild(link);
+                            }
+                        }
+                    })
+                    .catch(error => {
+                        console.warn('加载主题配置失败:', error);
+                    });
             } catch (error) {
                 console.warn('加载代码主题失败:', error);
             }
