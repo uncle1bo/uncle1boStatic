@@ -340,6 +340,24 @@ const pageGeneratorService = {
     try {
       const languages = ['zh-CN', 'en'];
       
+      // 如果是预览页面，删除HTML文件
+      if (pageName && pageName.startsWith('preview-')) {
+        const previewHtmlFile = path.join(paths.getPagesPath(), `${pageName}.html`);
+        if (await fs.pathExists(previewHtmlFile)) {
+          await fs.remove(previewHtmlFile);
+          console.log(`已删除预览页面文件: ${previewHtmlFile}`);
+        }
+        
+        // 删除预览页面的多语言文件
+        for (const lang of languages) {
+          const previewLocaleFile = path.join(paths.getLocalesPath(lang), `${pageName}.json`);
+          if (await fs.pathExists(previewLocaleFile)) {
+            await fs.remove(previewLocaleFile);
+            console.log(`已删除预览页面多语言文件: ${previewLocaleFile}`);
+          }
+        }
+      }
+      
       // 删除临时多语言文件
       for (const lang of languages) {
         const tempFile = path.join(paths.getTempLocalesPath(lang), `${pageName}.json`);

@@ -120,6 +120,51 @@ const pageManagerService = {
       console.error(`删除页面失败: ${pageName}`, error);
       throw error;
     }
+  },
+  
+  /**
+   * 清理预览文件
+   * @returns {Promise<number>} 清理的文件数量
+   */
+  cleanupPreviewFiles: async function() {
+    try {
+      const pagesPath = paths.getPagesPath();
+      const files = await fs.readdir(pagesPath);
+      
+      let cleanedCount = 0;
+      
+      for (const file of files) {
+        if (file.startsWith('preview-') && file.endsWith('.html')) {
+          const filePath = path.join(pagesPath, file);
+          const stats = await fs.stat(filePath);
+          
+          // 删除超过1小时的预览文件
+          const oneHourAgo = Date.now() - (60 * 60 * 1000);
+          if (stats.mtime.getTime() < oneHourAgo) {
+            await fs.remove(filePath);
+            
+            // 删除对应的语言文件
+            const pageName = file.replace('.html', '');
+            const zhLocaleFile = path.join(paths.getLocalesPath('zh-CN'), `${pageName}.json`);
+            const enLocaleFile = path.join(paths.getLocalesPath('en'), `${pageName}.json`);
+            
+            if (await fs.pathExists(zhLocaleFile)) {
+              await fs.remove(zhLocaleFile);
+            }
+            if (await fs.pathExists(enLocaleFile)) {
+              await fs.remove(enLocaleFile);
+            }
+            
+            cleanedCount++;
+          }
+        }
+      }
+      
+      return cleanedCount;
+    } catch (error) {
+      console.error('清理预览文件失败:', error);
+      throw error;
+    }
   }
 };
 

@@ -27,7 +27,6 @@ const templateService = {
    * @param {Object} options - 选项
    * @param {string} options.pageName - 页面名称
    * @param {string} options.pageTitle - 页面标题
-
    * @returns {string} 处理后的模板
    */
   processHeaderTemplate: function(template, options) {
@@ -102,7 +101,7 @@ const templateService = {
     <link rel="stylesheet" href="../css/styles.css">
 
     <!-- Prism.js CSS for code highlighting -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/themes/prism-tomorrow.min.css">
+    <!-- 主题CSS由主题管理器动态加载 -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/plugins/toolbar/prism-toolbar.min.css">
     <!-- KaTeX CSS for math rendering -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
@@ -156,8 +155,43 @@ const templateService = {
             initEnhancedMarkdown();
         });
         
+        // 加载代码高亮主题
+        function loadCodeTheme() {
+            try {
+                // 获取当前主题模式
+                const currentTheme = document.documentElement.getAttribute('data-bs-theme') || 'light';
+                
+                // 从localStorage获取主题配置
+                const themeConfig = JSON.parse(localStorage.getItem('themeConfig') || '{}');
+                
+                if (themeConfig[currentTheme] && themeConfig[currentTheme].codeTheme) {
+                    const codeTheme = themeConfig[currentTheme].codeTheme;
+                    
+                    // 移除现有的Prism主题
+                    const existingTheme = document.querySelector('link[data-prism-theme]');
+                    if (existingTheme) {
+                        existingTheme.remove();
+                    }
+                    
+                    // 添加新的Prism主题
+                    if (codeTheme && codeTheme !== 'default') {
+                        const link = document.createElement('link');
+                        link.rel = 'stylesheet';
+                        link.href = 'https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-' + codeTheme + '.min.css';
+                        link.setAttribute('data-prism-theme', codeTheme);
+                        document.head.appendChild(link);
+                    }
+                }
+            } catch (error) {
+                console.warn('加载代码主题失败:', error);
+            }
+        }
+        
         // 增强Markdown渲染初始化函数
         function initEnhancedMarkdown() {
+            // 加载代码高亮主题
+            loadCodeTheme();
+            
             // 初始化代码高亮
             if (window.Prism) {
                 Prism.highlightAll();

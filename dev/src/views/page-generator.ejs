@@ -289,6 +289,22 @@ This is a paragraph.
         loadDraft();
       }
       
+      // 页面卸载时清理预览文件
+      window.addEventListener('beforeunload', function() {
+        if (window.currentPreviewPage) {
+          // 使用 navigator.sendBeacon 确保清理请求能够发送
+          const cleanupData = JSON.stringify({ previewPageName: window.currentPreviewPage });
+          navigator.sendBeacon('/page-generator/cleanup-on-unload', cleanupData);
+        }
+      });
+      
+      // 页面隐藏时也尝试清理（用户切换标签页等）
+      document.addEventListener('visibilitychange', function() {
+        if (document.visibilityState === 'hidden' && window.currentPreviewPage) {
+          cleanupPreviewPage(window.currentPreviewPage);
+        }
+      });
+      
       // 页面名称验证
       $('#pageName').on('input', function() {
         const pageName = $(this).val();
@@ -528,14 +544,47 @@ This is a paragraph.
             if (previewWindow) {
               showAlert('success', '预览页面已在新窗口中打开');
               
+              // 清理之前的预览页面（如果存在）
+              if (window.currentPreviewPage && window.currentPreviewCleanup) {
+                clearInterval(window.currentPreviewCleanup);
+                cleanupPreviewPage(window.currentPreviewPage);
+              }
+              
               // 存储预览页面名称，用于后续清理
               window.currentPreviewPage = response.previewPageName;
               
               // 监听窗口关闭事件，自动清理预览页面
-              const checkClosed = setInterval(() => {
-                if (previewWindow.closed) {
-                  clearInterval(checkClosed);
+              let checkCount = 0;
+              const maxChecks = 3600; // 最多检查1小时（3600秒）
+              
+              window.currentPreviewCleanup = setInterval(() => {
+                checkCount++;
+                
+                try {
+                  // 检查窗口是否关闭
+                  if (previewWindow.closed) {
+                    clearInterval(window.currentPreviewCleanup);
+                    cleanupPreviewPage(response.previewPageName);
+                    window.currentPreviewPage = null;
+                    window.currentPreviewCleanup = null;
+                    return;
+                  }
+                  
+                  // 超时清理（1小时后自动清理）
+                  if (checkCount >= maxChecks) {
+                    clearInterval(window.currentPreviewCleanup);
+                    cleanupPreviewPage(response.previewPageName);
+                    window.currentPreviewPage = null;
+                    window.currentPreviewCleanup = null;
+                    console.log('预览页面超时自动清理:', response.previewPageName);
+                  }
+                } catch (error) {
+                  // 如果无法访问窗口（可能由于跨域），也进行清理
+                  console.warn('无法检测预览窗口状态，执行清理:', error.message);
+                  clearInterval(window.currentPreviewCleanup);
                   cleanupPreviewPage(response.previewPageName);
+                  window.currentPreviewPage = null;
+                  window.currentPreviewCleanup = null;
                 }
               }, 1000);
             } else {

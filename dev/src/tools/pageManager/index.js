@@ -24,6 +24,14 @@ const pageManager = {
    */
   deletePage: async function(pageName) {
     return await pageManagerService.deletePage(pageName);
+  },
+  
+  /**
+   * 清理预览文件
+   * @returns {Promise<number>} 清理的文件数量
+   */
+  cleanupPreviewFiles: async function() {
+    return await pageManagerService.cleanupPreviewFiles();
   }
 };
 

@@ -56,6 +56,31 @@ router.delete('/preview/:previewPageName', async (req, res) => {
   }
 });
 
+// 页面卸载时清理预览页面
+router.post('/cleanup-on-unload', async (req, res) => {
+  try {
+    const { previewPageName } = req.body;
+    
+    if (previewPageName) {
+      // 删除预览页面文件
+      const previewPagePath = path.join(paths.getPagesPath(), `${previewPageName}.html`);
+      if (await fs.pathExists(previewPagePath)) {
+        await fs.remove(previewPagePath);
+      }
+      
+      // 清理相关的多语言文件
+      await pageGenerator.cleanupAllTempFiles(previewPageName);
+      
+      console.log('页面卸载时清理预览文件:', previewPageName);
+    }
+    
+    res.json({ success: true });
+  } catch (error) {
+    console.error('页面卸载时清理预览文件失败:', error);
+    res.status(500).json({ error: '清理失败: ' + error.message });
+  }
+});
+
 // 生成页面
 router.post('/generate', async (req, res) => {
   try {

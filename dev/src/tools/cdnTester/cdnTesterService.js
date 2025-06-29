@@ -108,9 +108,9 @@ const cdnTesterService = {
     // Prism.js CSS
     'prism-css': {
       name: 'Prism.js CSS',
-      primary: 'https://cdn.jsdelivr.net/npm/prismjs@1.29.0/themes/prism-tomorrow.min.css',
+      primary: 'https://cdn.jsdelivr.net/npm/prismjs@1.29.0/themes/prism.min.css',
       fallbacks: [
-        'https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css'
+        'https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css'
       ],
       type: 'css'
     },

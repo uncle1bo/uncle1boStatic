@@ -43,4 +43,15 @@ router.delete('/delete/:pageName', async (req, res) => {
   }
 });
 
+// 清理预览文件
+router.post('/cleanup-preview', async (req, res) => {
+  try {
+    const cleanedCount = await pageManager.cleanupPreviewFiles();
+    res.json({ success: true, cleanedCount });
+  } catch (error) {
+    console.error('清理预览文件失败:', error);
+    res.status(500).json({ error: '清理预览文件失败: ' + error.message });
+  }
+});
+
 module.exports = router;

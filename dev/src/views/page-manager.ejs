@@ -145,6 +145,22 @@
         ]
       });
       
+      // 自动清理预览文件
+      function cleanupPreviewFiles() {
+        $.ajax({
+          url: '/page-manager/cleanup-preview',
+          method: 'POST',
+          success: function(response) {
+            if (response.success && response.cleanedCount > 0) {
+              console.log(`已清理 ${response.cleanedCount} 个预览文件`);
+            }
+          },
+          error: function(xhr) {
+            console.warn('清理预览文件失败:', xhr.responseJSON?.error || '服务器错误');
+          }
+        });
+      }
+      
       // 加载页面列表
       function loadPages() {
         $.ajax({
@@ -166,6 +182,9 @@
       
       // 初始加载页面列表
       loadPages();
+      
+      // 自动清理预览文件
+      cleanupPreviewFiles();
       
       // 删除确认模态框
       const deleteConfirmModal = new bootstrap.Modal(document.getElementById('deleteConfirmModal'));
