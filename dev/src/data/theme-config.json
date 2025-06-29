@@ -1,6 +1,6 @@
 {
   "light": {
-    "primary": "#4a6bff",
+    "primary": "#254bf4",
     "secondary": "#6c757d",
     "background": "#ffffff",
     "surface": "#f8f9fa",
@@ -37,7 +37,7 @@
     "mermaidBg": "#ffffff",
     "mermaidText": "#212529",
     "mermaidBorder": "#dee2e6",
-    "codeTheme": "okaidia"
+    "codeTheme": "solarizedlight"
   },
   "dark": {
     "primary": "#5a7cff",
@@ -77,6 +77,6 @@
     "mermaidBg": "#1e1e1e",
     "mermaidText": "#ffffff",
     "mermaidBorder": "#4a5568",
-    "codeTheme": "dark"
+    "codeTheme": "okaidia"
   }
 }

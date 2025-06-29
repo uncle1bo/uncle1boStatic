@@ -314,12 +314,15 @@ class ThemeManager {
     try {
       this.showAlert('正在保存主题配置...', 'info');
       
+      // 确保JSON序列化正确处理特殊字符
+      const configData = JSON.stringify({ config: this.themeConfig });
+      
       const response = await fetch('/theme-manager/save', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ config: this.themeConfig })
+        body: configData
       });
       
       const result = await response.json();
