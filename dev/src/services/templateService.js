@@ -98,8 +98,7 @@ const templateService = {
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
     <!-- Custom CSS -->
     <link rel="stylesheet" href="../css/styles.css">
-    <!-- File Previewer CSS -->
-    <link rel="stylesheet" href="../../prod/css/file-previewer.css">
+
     <!-- Prism.js CSS for code highlighting -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/themes/prism-tomorrow.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/plugins/toolbar/prism-toolbar.min.css">

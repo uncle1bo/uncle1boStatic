@@ -1,6 +1,6 @@
-# 文件预览器测试文档
+# Markdown语法测试文档
 
-这是一个用于测试文件预览器功能的Markdown文档，包含了各种Markdown语法和增强功能。
+这是一个用于测试Markdown渲染功能的文档，包含了各种Markdown语法和增强功能。
 
 ## 基本语法测试
 
@@ -42,32 +42,32 @@
 
 | 功能 | 状态 | 描述 |
 |------|------|------|
-| XML预览 | ✅ | 支持XML文件语法高亮 |
-| Markdown预览 | ✅ | 支持增强Markdown渲染 |
-| 代码高亮 | ✅ | 基于Prism.js |
-| 数学公式 | ✅ | 基于KaTeX |
-| 思维导图 | ✅ | 基于Mermaid |
+| 页面生成器 | ✅ | 支持多种页面模板 |
+| 主题管理器 | ✅ | 支持主题切换和定制 |
+| 菜单编辑器 | ✅ | 可视化菜单编辑 |
+| 实时预览 | ✅ | 基于Bootstrap |
+| 响应式设计 | ✅ | 移动端适配 |
 
 ## 代码块测试
 
 ### JavaScript代码
 
 ```javascript
-// 文件预览器示例代码
-class FilePreviewer {
+// 网站工具示例代码
+class WebsiteManager {
     constructor() {
-        this.supportedTypes = {
-            'xml': { icon: 'bi-file-code', name: 'XML文件' },
-            'md': { icon: 'bi-file-text', name: 'Markdown文件' }
+        this.tools = {
+            'pageGenerator': { name: '页面生成器', icon: 'bi-file-plus' },
+            'themeManager': { name: '主题管理器', icon: 'bi-palette' }
         };
     }
     
-    async preview(fileInfo) {
+    async generatePage(pageInfo) {
         try {
-            const content = await this.fetchFileContent(fileInfo.fullPath);
-            return this.renderContent(content, fileInfo.extension);
+            const template = await this.loadTemplate(pageInfo.template);
+            return this.renderPage(template, pageInfo.data);
         } catch (error) {
-            console.error('预览失败:', error);
+            console.error('页面生成失败:', error);
         }
     }
 }
@@ -92,7 +92,7 @@ for i in range(10):
 
 ```css
 /* 响应式设计样式 */
-.file-previewer {
+.website-container {
     max-width: 100%;
     margin: 0 auto;
     padding: 1rem;
@@ -101,7 +101,7 @@ for i in range(10):
 }
 
 @media (max-width: 768px) {
-    .file-previewer {
+    .website-container {
         padding: 0.5rem;
         margin: 0.5rem;
     }
@@ -163,51 +163,51 @@ graph TD
 sequenceDiagram
     participant U as 用户
     participant B as 浏览器
-    participant P as 文件预览器
+    participant W as 网站工具
     participant S as 服务器
     
-    U->>B: 访问文件URL
-    B->>P: 检测文件类型
-    P->>S: 请求文件内容
-    S-->>P: 返回文件内容
-    P->>P: 渲染文件内容
-    P-->>B: 显示预览界面
-    B-->>U: 展示文件预览
+    U->>B: 访问工具页面
+    B->>W: 加载页面生成器
+    W->>S: 请求模板数据
+    S-->>W: 返回模板内容
+    W->>W: 渲染页面内容
+    W-->>B: 显示生成界面
+    B-->>U: 展示页面工具
 ```
 
 ### 甘特图
 
 ```mermaid
 gantt
-    title 文件预览器开发计划
+    title 网站工具开发计划
     dateFormat  YYYY-MM-DD
     section 基础功能
-    文件类型检测    :done, detect, 2024-01-01, 2024-01-02
-    界面设计        :done, ui, 2024-01-02, 2024-01-03
-    基础预览        :done, basic, 2024-01-03, 2024-01-05
+    页面生成器      :done, generator, 2024-01-01, 2024-01-03
+    主题管理器      :done, theme, 2024-01-03, 2024-01-05
+    菜单编辑器      :done, menu, 2024-01-05, 2024-01-07
     section 增强功能
-    代码高亮        :done, highlight, 2024-01-05, 2024-01-06
-    Markdown渲染    :done, markdown, 2024-01-06, 2024-01-08
-    数学公式        :done, math, 2024-01-08, 2024-01-09
-    思维导图        :done, mermaid, 2024-01-09, 2024-01-10
+    实时预览        :done, preview, 2024-01-07, 2024-01-08
+    模板系统        :done, template, 2024-01-08, 2024-01-10
+    响应式设计      :done, responsive, 2024-01-10, 2024-01-11
+    国际化支持      :done, i18n, 2024-01-11, 2024-01-12
     section 测试优化
-    功能测试        :active, test, 2024-01-10, 2024-01-12
-    性能优化        :optimize, 2024-01-12, 2024-01-14
-    文档完善        :docs, 2024-01-14, 2024-01-15
+    功能测试        :active, test, 2024-01-12, 2024-01-14
+    性能优化        :optimize, 2024-01-14, 2024-01-16
+    文档完善        :docs, 2024-01-16, 2024-01-17
 ```
 
 ## 特殊功能测试
 
 ### 任务列表
 
-- [x] 实现XML文件预览
-- [x] 实现Markdown文件预览
-- [x] 添加代码语法高亮
-- [x] 支持数学公式渲染
-- [x] 支持Mermaid图表
-- [x] 添加一键复制功能
-- [ ] 添加文件下载功能
-- [ ] 支持更多文件格式
+- [x] 实现页面生成器
+- [x] 实现主题管理器
+- [x] 添加菜单编辑器
+- [x] 支持实时预览
+- [x] 支持模板系统
+- [x] 添加响应式设计
+- [ ] 添加更多模板
+- [ ] 支持更多主题
 
 ### 脚注
 
@@ -221,19 +221,19 @@ gantt
 
 ## 总结
 
-这个文件预览器支持多种文件格式的在线预览，包括：
+这个静态网站工具集支持多种网站管理功能，包括：
 
-1. **代码文件**：XML、JSON、CSS、JavaScript、HTML等
-2. **文档文件**：Markdown、纯文本等
-3. **图片文件**：JPG、PNG、GIF、WebP、SVG等
+1. **页面管理**：页面生成器、模板系统、内容编辑等
+2. **主题管理**：主题切换、颜色配置、样式定制等
+3. **菜单管理**：导航编辑、链接管理、结构调整等
 
 主要特性：
-- 🎨 语法高亮（基于Prism.js）
-- 📝 增强Markdown渲染（基于Marked.js）
-- 🧮 数学公式支持（基于KaTeX）
-- 📊 思维导图支持（基于Mermaid）
-- 📋 一键复制代码
-- 📱 响应式设计
-- 🚀 纯客户端实现，无服务器依赖
+- 🎨 现代化界面设计
+- 📝 实时预览功能
+- 🧮 响应式布局
+- 📊 可视化编辑
+- 📋 一键生成代码
+- 📱 移动端适配
+- 🚀 纯静态实现，无服务器依赖
 
 完全符合Cloudflare Pages的静态网站要求！
