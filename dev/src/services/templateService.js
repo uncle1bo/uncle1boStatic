@@ -98,6 +98,13 @@ const templateService = {
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
     <!-- Custom CSS -->
     <link rel="stylesheet" href="../css/styles.css">
+    <!-- File Previewer CSS -->
+    <link rel="stylesheet" href="../../prod/css/file-previewer.css">
+    <!-- Prism.js CSS for code highlighting -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/themes/prism-tomorrow.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/plugins/toolbar/prism-toolbar.min.css">
+    <!-- KaTeX CSS for math rendering -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
     <!-- Template Processor -->
     <script src="../js/template-processor.js"></script>
 </head>
@@ -131,12 +138,82 @@ const templateService = {
     <script src="../js/main.js"></script>
     <!-- 多语言支持 -->
     <script src="../js/i18n.js"></script>
+    <!-- Enhanced Markdown rendering libraries -->
+    <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-core.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/plugins/toolbar/prism-toolbar.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/plugins/copy-to-clipboard/prism-copy-to-clipboard.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10.6.1/dist/mermaid.min.js"></script>
     <script>
-        // 初始化多语言支持
+        // 初始化多语言支持和增强渲染
         document.addEventListener('DOMContentLoaded', function() {
             // 初始化多语言支持，指定当前页面名称
             initI18n('${pageName}');
+            
+            // 初始化增强Markdown渲染
+            initEnhancedMarkdown();
         });
+        
+        // 增强Markdown渲染初始化函数
+        function initEnhancedMarkdown() {
+            // 初始化代码高亮
+            if (window.Prism) {
+                Prism.highlightAll();
+            }
+            
+            // 初始化数学公式渲染
+            if (window.katex) {
+                // 渲染行内公式
+                document.querySelectorAll('.katex-inline').forEach(function(element) {
+                    const formula = element.getAttribute('data-katex');
+                    if (formula) {
+                        try {
+                            element.innerHTML = katex.renderToString(formula, { displayMode: false });
+                        } catch (e) {
+                            console.warn('KaTeX渲染失败:', e);
+                        }
+                    }
+                });
+                
+                // 渲染块级公式
+                document.querySelectorAll('.katex-display').forEach(function(element) {
+                    const formula = element.getAttribute('data-katex');
+                    if (formula) {
+                        try {
+                            element.innerHTML = katex.renderToString(formula, { displayMode: true });
+                        } catch (e) {
+                            console.warn('KaTeX渲染失败:', e);
+                        }
+                    }
+                });
+            }
+            
+            // 初始化Mermaid图表
+            if (window.mermaid) {
+                mermaid.initialize({ 
+                    startOnLoad: false,
+                    theme: 'default',
+                    securityLevel: 'loose'
+                });
+                
+                document.querySelectorAll('.mermaid-diagram').forEach(function(element) {
+                    const code = element.getAttribute('data-mermaid-code');
+                    const id = element.getAttribute('data-diagram-id');
+                    if (code && id) {
+                        try {
+                            mermaid.render(id, code).then(function(result) {
+                                element.innerHTML = result.svg;
+                            }).catch(function(error) {
+                                console.warn('Mermaid渲染失败:', error);
+                            });
+                        } catch (e) {
+                            console.warn('Mermaid渲染失败:', e);
+                        }
+                    }
+                });
+            }
+        }
     </script>
 </body>
 </html>`;

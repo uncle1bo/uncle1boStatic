@@ -11,6 +11,8 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
     <!-- Custom CSS -->
     <link rel="stylesheet" href="css/styles.css">
+    <!-- File Previewer CSS -->
+    <link rel="stylesheet" href="css/file-previewer.css">
     <!-- Template Processor -->
     <script src="js/template-processor.js"></script>
     <style>
@@ -58,13 +60,36 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <!-- Custom JavaScript -->
     <script src="js/main.js"></script>
+    <!-- 文件预览器 -->
+    <script src="js/file-previewer.js"></script>
     <!-- 多语言支持 -->
     <script src="js/i18n.js"></script>
     <script>
-        // 初始化多语言支持
-        document.addEventListener('DOMContentLoaded', function() {
-            // 初始化多语言支持，指定当前页面名称
-            initI18n('404');
+        // 初始化多语言支持和文件预览
+        document.addEventListener('DOMContentLoaded', async function() {
+            // 创建文件预览器实例
+            const previewer = new FilePreviewer();
+            
+            // 检测是否为文件预览请求
+            const fileInfo = previewer.detectFilePreview();
+            
+            if (fileInfo) {
+                // 如果是文件预览请求，显示预览界面
+                document.title = `${fileInfo.filename} - 文件预览`;
+                
+                // 替换页面内容为预览界面
+                const mainContent = document.querySelector('.main-content');
+                if (mainContent) {
+                    mainContent.innerHTML = previewer.createPreviewInterface(fileInfo);
+                    
+                    // 开始预览文件
+                    await previewer.preview(fileInfo);
+                }
+            } else {
+                // 如果不是文件预览请求，显示正常的404页面
+                // 初始化多语言支持，指定当前页面名称
+                initI18n('404');
+            }
         });
     </script>
 </body>

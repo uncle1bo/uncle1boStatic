@@ -440,7 +440,7 @@ const pageGeneratorService = {
   },
 
   /**
-   * 将Markdown转换为HTML
+   * 将Markdown转换为HTML（增强版）
    * @param {string} markdown - Markdown内容
    * @returns {string} HTML内容
    */
@@ -450,19 +450,69 @@ const pageGeneratorService = {
     }
     
     try {
+      // 自定义渲染器
+      const renderer = new marked.Renderer();
+      
+      // 自定义代码块渲染，支持Mermaid图表
+      renderer.code = (code, language) => {
+        const validLanguage = language || 'text';
+        const escapedCode = this.escapeHtml(code);
+        
+        // 检查是否为Mermaid图表
+        if (validLanguage === 'mermaid') {
+          const id = 'mermaid-' + Math.random().toString(36).substr(2, 9);
+          return `<div class="mermaid-diagram" data-mermaid-code="${this.escapeHtml(code)}" data-diagram-id="${id}">
+            <pre><code class="language-mermaid">${escapedCode}</code></pre>
+          </div>`;
+        }
+        
+        return `<pre><code class="language-${validLanguage}">${escapedCode}</code></pre>`;
+      };
+      
       // 配置marked选项
       marked.setOptions({
+        renderer: renderer,
         breaks: true, // 支持换行
         gfm: true,    // 支持GitHub风格的Markdown
         sanitize: false // 允许HTML标签
       });
       
-      return marked(markdown);
+      let html = marked(markdown);
+      
+      // 处理LaTeX数学公式
+      // 行内公式 $...$
+      html = html.replace(/\$([^$]+)\$/g, (match, formula) => {
+        return `<span class="katex-inline" data-katex="${this.escapeHtml(formula)}">${this.escapeHtml(match)}</span>`;
+      });
+      
+      // 块级公式 $$...$$
+      html = html.replace(/\$\$([^$]+)\$\$/g, (match, formula) => {
+        return `<div class="katex-display" data-katex="${this.escapeHtml(formula)}" data-display="true">${this.escapeHtml(match)}</div>`;
+      });
+      
+      // 包装在markdown-content容器中
+      return `<div class="markdown-content">${html}</div>`;
     } catch (error) {
       console.error('Markdown转换失败:', error);
       // 如果转换失败，返回原始内容并用<p>标签包装
-      return `<p>${markdown.replace(/\n/g, '<br>')}</p>`;
+      return `<div class="markdown-content"><p>${markdown.replace(/\n/g, '<br>')}</p></div>`;
     }
+  },
+  
+  /**
+   * HTML转义
+   * @param {string} text - 需要转义的文本
+   * @returns {string} 转义后的文本
+   */
+  escapeHtml: function(text) {
+    const map = {
+      '&': '&amp;',
+      '<': '&lt;',
+      '>': '&gt;',
+      '"': '&quot;',
+      "'": '&#039;'
+    };
+    return text.replace(/[&<>"']/g, function(m) { return map[m]; });
   }
 };
 

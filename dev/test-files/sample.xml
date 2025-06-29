@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<website>
+    <meta>
+        <title>Uncle1bo Static Website</title>
+        <description>一个现代化的静态网站框架</description>
+        <author>Uncle1bo</author>
+        <version>1.0.0</version>
+    </meta>
+    <pages>
+        <page id="home">
+            <title>首页</title>
+            <url>/index.html</url>
+            <description>网站主页</description>
+        </page>
+        <page id="about">
+            <title>关于我们</title>
+            <url>/pages/about.html</url>
+            <description>关于我们的信息</description>
+        </page>
+        <page id="contact">
+            <title>联系我们</title>
+            <url>/pages/contact.html</url>
+            <description>联系方式和表单</description>
+        </page>
+    </pages>
+    <features>
+        <feature name="responsive">响应式设计</feature>
+        <feature name="i18n">多语言支持</feature>
+        <feature name="seo">SEO优化</feature>
+        <feature name="performance">性能优化</feature>
+    </features>
+</website>

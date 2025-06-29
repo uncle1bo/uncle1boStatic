@@ -1,0 +1,393 @@
+/**
+ * 文件预览器样式
+ * 与Bootstrap主题保持一致的现代化设计
+ */
+
+/* 预览容器 */
+.file-preview-container {
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    overflow: hidden;
+    transition: all 0.3s ease;
+}
+
+.file-preview-container:hover {
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+}
+
+/* 预览头部 */
+.file-preview-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 1.5rem;
+    border-bottom: none;
+}
+
+.file-preview-header .file-icon {
+    font-size: 2rem;
+    margin-right: 1rem;
+    opacity: 0.9;
+}
+
+.file-preview-header h5 {
+    margin: 0;
+    font-weight: 600;
+    font-size: 1.25rem;
+}
+
+.file-preview-header small {
+    opacity: 0.8;
+    font-size: 0.875rem;
+}
+
+/* 预览内容区域 */
+.file-preview-content {
+    max-height: 80vh;
+    overflow-y: auto;
+    background: #fff;
+}
+
+/* 代码块样式增强 */
+.file-preview-content pre {
+    margin: 0;
+    border-radius: 0;
+    border: none;
+    background: #f8f9fa !important;
+    font-size: 0.875rem;
+    line-height: 1.6;
+}
+
+.file-preview-content pre code {
+    padding: 1.5rem;
+    display: block;
+    overflow-x: auto;
+}
+
+/* Prism.js 主题覆盖 */
+pre[class*="language-"] {
+    background: #f8f9fa !important;
+    border: 1px solid #e9ecef;
+    border-radius: 8px;
+    margin: 1rem 0;
+}
+
+code[class*="language-"] {
+    color: #495057;
+    font-family: 'SFMono-Regular', 'Menlo', 'Monaco', 'Consolas', 'Liberation Mono', 'Courier New', monospace;
+}
+
+/* 工具栏样式 */
+.code-toolbar {
+    position: relative;
+}
+
+.code-toolbar .toolbar {
+    position: absolute;
+    top: 0.5rem;
+    right: 0.5rem;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.code-toolbar:hover .toolbar {
+    opacity: 1;
+}
+
+.code-toolbar .toolbar .toolbar-item {
+    display: inline-block;
+}
+
+.code-toolbar .toolbar button {
+    background: #6c757d;
+    border: none;
+    color: white;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.code-toolbar .toolbar button:hover {
+    background: #5a6268;
+}
+
+/* Markdown 内容样式 */
+.markdown-content {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif;
+    line-height: 1.6;
+    color: #333;
+}
+
+.markdown-content h1,
+.markdown-content h2,
+.markdown-content h3,
+.markdown-content h4,
+.markdown-content h5,
+.markdown-content h6 {
+    margin-top: 2rem;
+    margin-bottom: 1rem;
+    font-weight: 600;
+    line-height: 1.25;
+    color: #1a1a1a;
+}
+
+.markdown-content h1 {
+    font-size: 2rem;
+    border-bottom: 2px solid #e9ecef;
+    padding-bottom: 0.5rem;
+}
+
+.markdown-content h2 {
+    font-size: 1.5rem;
+    border-bottom: 1px solid #e9ecef;
+    padding-bottom: 0.3rem;
+}
+
+.markdown-content h3 {
+    font-size: 1.25rem;
+}
+
+.markdown-content p {
+    margin-bottom: 1rem;
+}
+
+.markdown-content blockquote {
+    border-left: 4px solid #0d6efd;
+    background: #f8f9fa;
+    margin: 1rem 0;
+    padding: 0.5rem 1rem;
+    color: #6c757d;
+}
+
+.markdown-content blockquote p:last-child {
+    margin-bottom: 0;
+}
+
+.markdown-content table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 1rem 0;
+    font-size: 0.875rem;
+}
+
+.markdown-content table th,
+.markdown-content table td {
+    border: 1px solid #dee2e6;
+    padding: 0.75rem;
+    text-align: left;
+}
+
+.markdown-content table th {
+    background: #f8f9fa;
+    font-weight: 600;
+    color: #495057;
+}
+
+.markdown-content table tr:nth-child(even) {
+    background: #f8f9fa;
+}
+
+.markdown-content ul,
+.markdown-content ol {
+    margin: 1rem 0;
+    padding-left: 2rem;
+}
+
+.markdown-content li {
+    margin: 0.25rem 0;
+}
+
+.markdown-content code {
+    background: #f8f9fa;
+    border: 1px solid #e9ecef;
+    border-radius: 4px;
+    padding: 0.125rem 0.25rem;
+    font-size: 0.875em;
+    color: #e83e8c;
+}
+
+.markdown-content a {
+    color: #0d6efd;
+    text-decoration: none;
+}
+
+.markdown-content a:hover {
+    text-decoration: underline;
+}
+
+/* 任务列表样式 */
+.markdown-content input[type="checkbox"] {
+    margin-right: 0.5rem;
+}
+
+/* KaTeX 数学公式样式 */
+.katex {
+    font-size: 1.1em;
+}
+
+.katex-display {
+    margin: 1rem 0;
+    text-align: center;
+}
+
+/* Mermaid 图表样式 */
+.mermaid-diagram {
+    text-align: center;
+    margin: 2rem 0;
+    background: #fff;
+    border: 1px solid #e9ecef;
+    border-radius: 8px;
+    padding: 1rem;
+}
+
+.mermaid-diagram svg {
+    max-width: 100%;
+    height: auto;
+}
+
+/* 图片预览样式 */
+.image-preview {
+    text-align: center;
+    padding: 2rem;
+    background: linear-gradient(45deg, #f8f9fa 25%, transparent 25%), 
+                linear-gradient(-45deg, #f8f9fa 25%, transparent 25%), 
+                linear-gradient(45deg, transparent 75%, #f8f9fa 75%), 
+                linear-gradient(-45deg, transparent 75%, #f8f9fa 75%);
+    background-size: 20px 20px;
+    background-position: 0 0, 0 10px, 10px -10px, -10px 0px;
+}
+
+.image-preview img {
+    max-width: 100%;
+    max-height: 70vh;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease;
+}
+
+.image-preview img:hover {
+    transform: scale(1.02);
+}
+
+/* 错误提示样式 */
+.file-preview-error {
+    margin: 2rem;
+    padding: 1.5rem;
+    background: #f8d7da;
+    border: 1px solid #f5c6cb;
+    border-radius: 8px;
+    color: #721c24;
+}
+
+.file-preview-error i {
+    font-size: 1.25rem;
+    margin-right: 0.5rem;
+}
+
+/* 加载动画 */
+.file-preview-loading {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 200px;
+    flex-direction: column;
+    color: #6c757d;
+}
+
+.file-preview-loading .spinner-border {
+    margin-bottom: 1rem;
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+    .file-preview-header {
+        padding: 1rem;
+    }
+    
+    .file-preview-header .file-icon {
+        font-size: 1.5rem;
+    }
+    
+    .file-preview-header h5 {
+        font-size: 1.1rem;
+    }
+    
+    .file-preview-content pre code {
+        padding: 1rem;
+        font-size: 0.8rem;
+    }
+    
+    .markdown-content {
+        padding: 1rem;
+    }
+    
+    .markdown-content h1 {
+        font-size: 1.75rem;
+    }
+    
+    .markdown-content h2 {
+        font-size: 1.25rem;
+    }
+    
+    .markdown-content table {
+        font-size: 0.8rem;
+    }
+    
+    .image-preview {
+        padding: 1rem;
+    }
+}
+
+/* 深色模式支持 */
+@media (prefers-color-scheme: dark) {
+    .file-preview-container {
+        background: #1a1a1a;
+        color: #e9ecef;
+    }
+    
+    .file-preview-content {
+        background: #1a1a1a;
+    }
+    
+    .file-preview-content pre {
+        background: #2d2d2d !important;
+        border-color: #404040;
+    }
+    
+    .markdown-content {
+        color: #e9ecef;
+    }
+    
+    .markdown-content h1,
+    .markdown-content h2,
+    .markdown-content h3,
+    .markdown-content h4,
+    .markdown-content h5,
+    .markdown-content h6 {
+        color: #fff;
+        border-color: #404040;
+    }
+    
+    .markdown-content blockquote {
+        background: #2d2d2d;
+        border-color: #0d6efd;
+        color: #adb5bd;
+    }
+    
+    .markdown-content table th {
+        background: #2d2d2d;
+        color: #e9ecef;
+    }
+    
+    .markdown-content table tr:nth-child(even) {
+        background: #2d2d2d;
+    }
+    
+    .markdown-content code {
+        background: #2d2d2d;
+        border-color: #404040;
+        color: #f8f9fa;
+    }
+}

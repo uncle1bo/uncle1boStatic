@@ -6,7 +6,7 @@
   },
   "test": {
     "title": "test123",
-    "content": "<p><strong>ENG</strong>123</p>\n"
+    "content": "<div class=\"markdown-content\"><p><strong>ENG</strong>123</p>\n</div>"
   },
   "title": "test123",
   "content": "**ENG**123"
