@@ -455,7 +455,8 @@ a:hover {
   margin-bottom: 1rem;
 }
 
-.markdown-content code {
+/* 行内代码样式 - 仅在没有Prism主题时使用 */
+.markdown-content code:not([class*="language-"]) {
   background-color: var(--md-code-bg);
   color: var(--md-code-text);
   padding: 0.2rem 0.4rem;
@@ -464,21 +465,74 @@ a:hover {
   font-family: 'Courier New', Courier, monospace;
 }
 
+/* 代码块容器样式 - 不影响Prism主题 */
 .markdown-content pre {
-  background-color: var(--md-code-block-bg);
-  border: 1px solid var(--md-code-block-border);
   border-radius: 8px;
   padding: 1rem;
   overflow-x: auto;
   margin-bottom: 1rem;
 }
 
-.markdown-content pre code {
+/* 仅在没有Prism主题时应用默认样式 */
+.markdown-content pre:not([class*="language-"]) {
+  background-color: var(--md-code-block-bg);
+  border: 1px solid var(--md-code-block-border);
+}
+
+.markdown-content pre:not([class*="language-"]) code {
   background-color: transparent;
   color: var(--md-code-block-text);
   padding: 0;
   border-radius: 0;
   font-size: 0.9rem;
+}
+
+/* 确保Prism主题优先级更高 */
+.markdown-content pre[class*="language-"] {
+  padding: 1rem !important;
+  border-radius: 8px !important;
+  margin-bottom: 1rem !important;
+  overflow-x: auto !important;
+}
+
+/* Prism工具栏样式修复 */
+.markdown-content div.code-toolbar {
+  position: relative;
+  margin-bottom: 1rem;
+}
+
+.markdown-content div.code-toolbar > .toolbar {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  z-index: 10;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.markdown-content div.code-toolbar:hover > .toolbar {
+  opacity: 1;
+}
+
+.markdown-content div.code-toolbar > .toolbar .toolbar-item {
+  display: inline-block;
+}
+
+.markdown-content div.code-toolbar > .toolbar .toolbar-item button {
+  background: var(--surface-color);
+  border: 1px solid var(--border-color);
+  color: var(--text-color);
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.markdown-content div.code-toolbar > .toolbar .toolbar-item button:hover {
+  background: var(--primary-color);
+  color: white;
+  border-color: var(--primary-color);
 }
 
 .markdown-content blockquote {

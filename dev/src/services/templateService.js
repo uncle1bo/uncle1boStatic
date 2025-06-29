@@ -108,7 +108,7 @@ const templateService = {
     <!-- Template Processor -->
     <script src="../js/template-processor.js"></script>
 </head>
-<body>
+<body data-prismjs-copy="📋" data-prismjs-copy-error="❌" data-prismjs-copy-success="✅" data-prismjs-copy-timeout="2000">
     <div class="container-fluid">
         <!-- 头部模板 -->
         <div id="header-template"></div>
@@ -192,6 +192,7 @@ const templateService = {
             // 加载代码高亮主题
             loadCodeTheme();
             
+
             // 初始化代码高亮
             if (window.Prism) {
                 Prism.highlightAll();
