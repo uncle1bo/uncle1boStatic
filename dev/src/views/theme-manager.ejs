@@ -111,9 +111,13 @@
             </div>
           </div>
           <div class="card-body">
-            <div class="alert alert-info mb-0">
+            <div class="alert alert-info mb-3">
               <i class="bi bi-info-circle-fill me-2"></i>
               配置网站的明亮模式和暗夜模式主题配色，实时预览效果并保存到生产环境。
+            </div>
+            <div class="alert alert-warning mb-0">
+              <i class="bi bi-exclamation-triangle-fill me-2"></i>
+              <strong>重要提醒：</strong>请勿直接修改 <code>prod/css/styles.css</code> 文件，所有修改都应通过此主题管理器进行，否则在下次生成时会被覆盖！
             </div>
           </div>
         </div>
@@ -253,7 +257,7 @@
                           <div class="color-preview" id="success-preview"></div>
                           <input type="color" class="color-input" id="success-color" data-key="success">
                         </div>
-                        <input type="text" class="form-control" id="success-text" placeholder="#28a745">
+                        <input type="text" class="form-control" id="success-text" placeholder="#22c55e">
                       </div>
                     </div>
                     <div class="col-md-6 mb-3">
@@ -440,7 +444,7 @@
                           <div class="color-preview" id="mdCodeBlockText-preview"></div>
                           <input type="color" class="color-input" id="mdCodeBlockText-color" data-key="mdCodeBlockText">
                         </div>
-                        <input type="text" class="form-control" id="mdCodeBlockText-text" placeholder="#212529">
+                        <input type="text" class="form-control" id="mdCodeBlockText-text" placeholder="#000000">
                       </div>
                     </div>
                     <div class="col-md-6 mb-3">

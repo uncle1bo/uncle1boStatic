@@ -30,7 +30,7 @@ class ThemeManagerService {
         linkHover: '#2541b8',
         border: '#dee2e6',
         shadow: 'rgba(0, 0, 0, 0.1)',
-        success: '#28a745',
+        success: '#22c55e',
         warning: '#ffc107',
         danger: '#dc3545',
         info: '#17a2b8',
@@ -44,7 +44,7 @@ class ThemeManagerService {
         mdCodeBg: '#f8f9fa',
         mdCodeText: '#e83e8c',
         mdCodeBlockBg: '#f8f9fa',
-        mdCodeBlockText: '#212529',
+        mdCodeBlockText: '#000000',
         mdCodeBlockBorder: '#dee2e6',
         mdBlockquoteBg: '#f8f9fa',
         mdBlockquoteText: '#6c757d',
@@ -70,7 +70,7 @@ class ThemeManagerService {
         linkHover: '#7b9aff',
         border: '#343a40',
         shadow: 'rgba(0, 0, 0, 0.3)',
-        success: '#20c997',
+        success: '#16a34a',
         warning: '#fd7e14',
         danger: '#e74c3c',
         info: '#3498db',
@@ -84,7 +84,7 @@ class ThemeManagerService {
         mdCodeBg: '#2d3748',
         mdCodeText: '#f687b3',
         mdCodeBlockBg: '#2d3748',
-        mdCodeBlockText: '#e2e8f0',
+        mdCodeBlockText: '#ffffff',
         mdCodeBlockBorder: '#4a5568',
         mdBlockquoteBg: '#2d3748',
         mdBlockquoteText: '#a0aec0',
@@ -149,6 +149,9 @@ class ThemeManagerService {
     const css = `/**
  * Uncle1bo静态站点主题样式
  * 由主题管理器自动生成
+ * 
+ * ⚠️ 重要提醒：别直接改style.css，去改样式管理器，要不然会被覆盖！
+ * 请使用开发环境中的主题管理器工具来修改主题配置
  */
 
 /* 明亮模式 */
