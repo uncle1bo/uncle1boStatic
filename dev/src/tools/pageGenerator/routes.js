@@ -14,6 +14,11 @@ const paths = require('../../config/pathConfig');
 
 const router = express.Router();
 
+// 显示页面生成器主页面
+router.get('/', (req, res) => {
+  res.render('page-generator');
+});
+
 // 配置multer用于文件上传
 const upload = multer({
   dest: paths.uploads,

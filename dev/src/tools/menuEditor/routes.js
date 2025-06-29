@@ -7,6 +7,11 @@ const path = require('path');
 const router = express.Router();
 const menuEditor = require('./index');
 
+// 显示目录编辑器主页面
+router.get('/', (req, res) => {
+  res.render('menu-editor');
+});
+
 /**
  * 获取导航菜单结构
  * GET /menu-editor/structure

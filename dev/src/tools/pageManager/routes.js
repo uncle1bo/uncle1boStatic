@@ -10,6 +10,11 @@ const pageManager = require('./index');
 
 const router = express.Router();
 
+// 显示页面管理器主页面
+router.get('/', (req, res) => {
+  res.render('page-manager');
+});
+
 // 获取所有页面列表
 router.get('/list', async (req, res) => {
   try {

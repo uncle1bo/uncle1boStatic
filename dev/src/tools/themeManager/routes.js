@@ -8,6 +8,11 @@ const themeManagerService = require('./themeManagerService');
 
 const router = express.Router();
 
+// 显示主题管理器主页面
+router.get('/', (req, res) => {
+  res.render('theme-manager');
+});
+
 /**
  * 获取当前主题配置
  */

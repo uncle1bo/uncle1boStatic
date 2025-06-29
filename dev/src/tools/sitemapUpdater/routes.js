@@ -10,6 +10,11 @@ const sitemapUpdater = require('./index');
 
 const router = express.Router();
 
+// 显示站点地图更新器主页面
+router.get('/', (req, res) => {
+  res.render('sitemap-updater');
+});
+
 // 更新站点地图
 router.post('/update', async (req, res) => {
   try {

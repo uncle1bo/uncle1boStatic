@@ -43,13 +43,12 @@ app.get('/', (req, res) => {
 });
 
 // 工具路由
-app.use('/tools/page-generator', require('./tools/pageGenerator/routes'));
-app.use('/tools/sitemap-updater', require('./tools/sitemapUpdater/routes'));
-// app.use('/tools/directory-editor', require('./tools/directoryEditor/routes')); // 目录不存在，暂时注释
-app.use('/tools/menu-editor', require('./tools/menuEditor/routes'));
-app.use('/tools/page-manager', require('./tools/pageManager/routes'));
-app.use('/tools/theme-manager', require('./tools/themeManager/routes'));
-app.use('/tools/cdn-tester', require('./tools/cdnTester/routes'));
+app.use('/page-generator', require('./tools/pageGenerator/routes'));
+app.use('/sitemap-updater', require('./tools/sitemapUpdater/routes'));
+app.use('/menu-editor', require('./tools/menuEditor/routes'));
+app.use('/page-manager', require('./tools/pageManager/routes'));
+app.use('/theme-manager', require('./tools/themeManager/routes'));
+app.use('/cdn-tester', require('./tools/cdnTester/routes'));
 
 // 这里可以添加其他工具的路由
 // app.use('/other-tool', otherToolRoutes);
