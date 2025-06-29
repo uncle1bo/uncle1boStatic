@@ -490,6 +490,37 @@ const pageGeneratorService = {
         return `<li>${text}</li>\n`;
       };
       
+      // 先处理LaTeX数学公式，避免被Markdown解析器干扰
+      let processedMarkdown = markdown;
+      
+      // 临时替换LaTeX公式为占位符
+      const latexPlaceholders = [];
+      let placeholderIndex = 0;
+      
+      // 处理块级公式 $$...$$
+      processedMarkdown = processedMarkdown.replace(/\$\$([\s\S]*?)\$\$/g, (match, formula) => {
+        const placeholder = `LATEX_BLOCK_${placeholderIndex}`;
+        latexPlaceholders[placeholderIndex] = {
+          type: 'block',
+          formula: formula.trim(),
+          original: match
+        };
+        placeholderIndex++;
+        return placeholder;
+      });
+      
+      // 处理行内公式 $...$
+      processedMarkdown = processedMarkdown.replace(/\$([^$\n]+)\$/g, (match, formula) => {
+        const placeholder = `LATEX_INLINE_${placeholderIndex}`;
+        latexPlaceholders[placeholderIndex] = {
+          type: 'inline',
+          formula: formula.trim(),
+          original: match
+        };
+        placeholderIndex++;
+        return placeholder;
+      });
+      
       // 配置marked选项
       marked.setOptions({
         renderer: renderer,
@@ -498,17 +529,33 @@ const pageGeneratorService = {
         sanitize: false // 允许HTML标签
       });
       
-      let html = marked(markdown);
+      let html = marked(processedMarkdown);
       
-      // 处理LaTeX数学公式
-      // 行内公式 $...$
-      html = html.replace(/\$([^$]+)\$/g, (match, formula) => {
-        return `<span class="katex-inline" data-katex="${this.escapeHtml(formula)}">${this.escapeHtml(match)}</span>`;
+      // 处理高亮文本 ==text==
+      html = html.replace(/==(.*?)==/g, '<mark class="highlight-text">$1</mark>');
+      
+      // 处理脚注
+      const footnotes = {};
+      // 先提取脚注定义
+      html = html.replace(/^\[\^([^\]]+)\]:\s*(.+)$/gm, (match, id, content) => {
+        footnotes[id] = content.trim();
+        return ''; // 移除脚注定义
       });
       
-      // 块级公式 $$...$$
-      html = html.replace(/\$\$([^$]+)\$\$/g, (match, formula) => {
-        return `<div class="katex-display" data-katex="${this.escapeHtml(formula)}" data-display="true">${this.escapeHtml(match)}</div>`;
+      // 替换脚注引用为Bootstrap悬浮提示
+      html = html.replace(/\[\^([^\]]+)\]/g, (match, id) => {
+        const content = footnotes[id] || '脚注内容未找到';
+        return `<sup><span class="footnote-ref" data-bs-toggle="tooltip" data-bs-placement="top" title="${this.escapeHtml(content)}">[${id}]</span></sup>`;
+      });
+      
+      // 恢复LaTeX公式
+      latexPlaceholders.forEach((item, index) => {
+        const placeholder = item.type === 'block' ? `LATEX_BLOCK_${index}` : `LATEX_INLINE_${index}`;
+        if (item.type === 'block') {
+          html = html.replace(placeholder, `<div class="katex-display" data-katex="${this.escapeHtml(item.formula)}" data-display="true">${this.escapeHtml(item.original)}</div>`);
+        } else {
+          html = html.replace(placeholder, `<span class="katex-inline" data-katex="${this.escapeHtml(item.formula)}">${this.escapeHtml(item.original)}</span>`);
+        }
       });
       
       // 包装在markdown-content容器中
