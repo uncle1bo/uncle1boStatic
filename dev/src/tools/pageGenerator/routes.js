@@ -33,7 +33,7 @@ const upload = multer({
 // 生成页面
 router.post('/generate', async (req, res) => {
   try {
-    const { pageName, pageTitle, content, translations, isEdit = false } = req.body;
+    const { pageName, tabTitle, pageTitle, seoDescription, seoKeywords, content, translations, isEdit = false } = req.body;
     
     if (!pageName || !pageTitle || !content) {
       return res.status(400).json({ error: '缺少必要参数' });
@@ -46,7 +46,10 @@ router.post('/generate', async (req, res) => {
     
     const result = await pageGenerator.generatePage({
       pageName,
+      tabTitle,
       pageTitle,
+      seoDescription,
+      seoKeywords,
       content,
       translations,
       isEdit
@@ -62,12 +65,16 @@ router.post('/generate', async (req, res) => {
 // 预览页面
 router.post('/preview', (req, res) => {
   try {
-    const { pageName, pageTitle, content } = req.body;
+    const { pageName, tabTitle, pageTitle, seoDescription, seoKeywords, content, translations } = req.body;
     
     const html = pageGenerator.previewPage({
       pageName,
+      tabTitle,
       pageTitle,
-      content
+      seoDescription,
+      seoKeywords,
+      content,
+      translations
     });
     
     res.send(html);

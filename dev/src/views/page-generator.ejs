@@ -44,31 +44,116 @@
                 <div class="invalid-feedback" id="pageNameError"></div>
               </div>
               
-              <!-- 页面标题 -->
+              <!-- 选项卡标题 -->
               <div class="mb-4">
-                <label class="form-label">页面标题 <span class="text-danger">*</span></label>
-                <ul class="nav nav-tabs" id="titleTabs" role="tablist">
+                <label class="form-label">选项卡标题 <span class="text-danger">*</span></label>
+                <ul class="nav nav-tabs" id="tabTitleTabs" role="tablist">
                   <li class="nav-item" role="presentation">
-                    <button class="nav-link active" id="title-zh-tab" data-bs-toggle="tab" data-bs-target="#title-zh" type="button" role="tab">
+                    <button class="nav-link active" id="tab-title-zh-tab" data-bs-toggle="tab" data-bs-target="#tab-title-zh" type="button" role="tab">
                       <i class="bi bi-translate me-1"></i>中文
                     </button>
                   </li>
                   <li class="nav-item" role="presentation">
-                    <button class="nav-link" id="title-en-tab" data-bs-toggle="tab" data-bs-target="#title-en" type="button" role="tab">
+                    <button class="nav-link" id="tab-title-en-tab" data-bs-toggle="tab" data-bs-target="#tab-title-en" type="button" role="tab">
                       <i class="bi bi-globe me-1"></i>English
                     </button>
                   </li>
                 </ul>
                 <div class="tab-content border border-top-0 p-3">
-                  <div class="tab-pane fade show active" id="title-zh" role="tabpanel">
-                    <input type="text" class="form-control" id="pageTitleZh" name="pageTitleZh" required 
-                           placeholder="输入中文标题">
+                  <div class="tab-pane fade show active" id="tab-title-zh" role="tabpanel">
+                    <input type="text" class="form-control" id="tabTitleZh" name="tabTitleZh" required 
+                           placeholder="输入中文选项卡标题（显示在浏览器标签页）">
                   </div>
-                  <div class="tab-pane fade" id="title-en" role="tabpanel">
-                    <input type="text" class="form-control" id="pageTitleEn" name="pageTitleEn" 
-                           placeholder="输入英文标题（留空则使用中文标题）">
+                  <div class="tab-pane fade" id="tab-title-en" role="tabpanel">
+                    <input type="text" class="form-control" id="tabTitleEn" name="tabTitleEn" 
+                           placeholder="输入英文选项卡标题（留空则使用中文标题）">
                   </div>
                 </div>
+                <div class="form-text">选项卡标题将显示在浏览器标签页上，用于SEO和用户体验。</div>
+              </div>
+              
+              <!-- 页面标题 -->
+              <div class="mb-4">
+                <label class="form-label">页面标题 <span class="text-danger">*</span></label>
+                <ul class="nav nav-tabs" id="pageTitleTabs" role="tablist">
+                  <li class="nav-item" role="presentation">
+                    <button class="nav-link active" id="page-title-zh-tab" data-bs-toggle="tab" data-bs-target="#page-title-zh" type="button" role="tab">
+                      <i class="bi bi-translate me-1"></i>中文
+                    </button>
+                  </li>
+                  <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="page-title-en-tab" data-bs-toggle="tab" data-bs-target="#page-title-en" type="button" role="tab">
+                      <i class="bi bi-globe me-1"></i>English
+                    </button>
+                  </li>
+                </ul>
+                <div class="tab-content border border-top-0 p-3">
+                  <div class="tab-pane fade show active" id="page-title-zh" role="tabpanel">
+                    <input type="text" class="form-control" id="pageTitleZh" name="pageTitleZh" required 
+                           placeholder="输入中文页面标题（显示在页面内容区域）">
+                  </div>
+                  <div class="tab-pane fade" id="page-title-en" role="tabpanel">
+                    <input type="text" class="form-control" id="pageTitleEn" name="pageTitleEn" 
+                           placeholder="输入英文页面标题（留空则使用中文标题）">
+                  </div>
+                </div>
+                <div class="form-text">页面标题将显示在页面内容的顶部，作为主要标题。</div>
+              </div>
+              
+              <!-- SEO描述 -->
+              <div class="mb-4">
+                <label class="form-label">SEO描述</label>
+                <ul class="nav nav-tabs" id="seoDescTabs" role="tablist">
+                  <li class="nav-item" role="presentation">
+                    <button class="nav-link active" id="seo-desc-zh-tab" data-bs-toggle="tab" data-bs-target="#seo-desc-zh" type="button" role="tab">
+                      <i class="bi bi-translate me-1"></i>中文
+                    </button>
+                  </li>
+                  <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="seo-desc-en-tab" data-bs-toggle="tab" data-bs-target="#seo-desc-en" type="button" role="tab">
+                      <i class="bi bi-globe me-1"></i>English
+                    </button>
+                  </li>
+                </ul>
+                <div class="tab-content border border-top-0 p-3">
+                  <div class="tab-pane fade show active" id="seo-desc-zh" role="tabpanel">
+                    <textarea class="form-control" id="seoDescriptionZh" name="seoDescriptionZh" rows="3" 
+                              placeholder="输入中文SEO描述（建议150-160字符）"></textarea>
+                  </div>
+                  <div class="tab-pane fade" id="seo-desc-en" role="tabpanel">
+                    <textarea class="form-control" id="seoDescriptionEn" name="seoDescriptionEn" rows="3" 
+                              placeholder="输入英文SEO描述（留空则使用中文描述）"></textarea>
+                  </div>
+                </div>
+                <div class="form-text">SEO描述将显示在搜索引擎结果中，建议控制在150-160字符以内。</div>
+              </div>
+              
+              <!-- SEO关键词 -->
+              <div class="mb-4">
+                <label class="form-label">SEO关键词</label>
+                <ul class="nav nav-tabs" id="seoKeywordsTabs" role="tablist">
+                  <li class="nav-item" role="presentation">
+                    <button class="nav-link active" id="seo-keywords-zh-tab" data-bs-toggle="tab" data-bs-target="#seo-keywords-zh" type="button" role="tab">
+                      <i class="bi bi-translate me-1"></i>中文
+                    </button>
+                  </li>
+                  <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="seo-keywords-en-tab" data-bs-toggle="tab" data-bs-target="#seo-keywords-en" type="button" role="tab">
+                      <i class="bi bi-globe me-1"></i>English
+                    </button>
+                  </li>
+                </ul>
+                <div class="tab-content border border-top-0 p-3">
+                  <div class="tab-pane fade show active" id="seo-keywords-zh" role="tabpanel">
+                    <input type="text" class="form-control" id="seoKeywordsZh" name="seoKeywordsZh" 
+                           placeholder="输入中文关键词，用逗号分隔">
+                  </div>
+                  <div class="tab-pane fade" id="seo-keywords-en" role="tabpanel">
+                    <input type="text" class="form-control" id="seoKeywordsEn" name="seoKeywordsEn" 
+                           placeholder="输入英文关键词，用逗号分隔（留空则使用中文关键词）">
+                  </div>
+                </div>
+                <div class="form-text">SEO关键词用于搜索引擎优化，建议使用3-5个相关关键词，用逗号分隔。</div>
               </div>
               
               <!-- 页面内容 -->
@@ -316,8 +401,14 @@ This is a paragraph.
     function saveDraft() {
       const draft = {
         pageName: $('#pageName').val(),
+        tabTitleZh: $('#tabTitleZh').val(),
+        tabTitleEn: $('#tabTitleEn').val(),
         pageTitleZh: $('#pageTitleZh').val(),
         pageTitleEn: $('#pageTitleEn').val(),
+        seoDescriptionZh: $('#seoDescriptionZh').val(),
+        seoDescriptionEn: $('#seoDescriptionEn').val(),
+        seoKeywordsZh: $('#seoKeywordsZh').val(),
+        seoKeywordsEn: $('#seoKeywordsEn').val(),
         pageContentZh: $('#pageContentZh').val(),
         pageContentEn: $('#pageContentEn').val(),
         timestamp: new Date().toISOString()
@@ -350,8 +441,14 @@ This is a paragraph.
           if (response.success && response.draft) {
             const draft = response.draft;
             $('#pageName').val(draft.pageName || '');
+            $('#tabTitleZh').val(draft.tabTitleZh || '');
+            $('#tabTitleEn').val(draft.tabTitleEn || '');
             $('#pageTitleZh').val(draft.pageTitleZh || '');
             $('#pageTitleEn').val(draft.pageTitleEn || '');
+            $('#seoDescriptionZh').val(draft.seoDescriptionZh || '');
+            $('#seoDescriptionEn').val(draft.seoDescriptionEn || '');
+            $('#seoKeywordsZh').val(draft.seoKeywordsZh || '');
+            $('#seoKeywordsEn').val(draft.seoKeywordsEn || '');
             $('#pageContentZh').val(draft.pageContentZh || '');
             $('#pageContentEn').val(draft.pageContentEn || '');
             
@@ -369,8 +466,14 @@ This is a paragraph.
     // 预览页面
     function previewPage() {
       const pageName = $('#pageName').val() || 'preview';
+      const tabTitleZh = $('#tabTitleZh').val() || '预览页面';
+      const tabTitleEn = $('#tabTitleEn').val();
       const pageTitleZh = $('#pageTitleZh').val() || '预览页面';
       const pageTitleEn = $('#pageTitleEn').val();
+      const seoDescriptionZh = $('#seoDescriptionZh').val();
+      const seoDescriptionEn = $('#seoDescriptionEn').val();
+      const seoKeywordsZh = $('#seoKeywordsZh').val();
+      const seoKeywordsEn = $('#seoKeywordsEn').val();
       const pageContentZh = $('#pageContentZh').val();
       const pageContentEn = $('#pageContentEn').val();
       
@@ -382,14 +485,18 @@ This is a paragraph.
       // 准备翻译数据，与生成页面时保持一致
       const translations = {
         'zh-CN': {
-          'meta.title': pageTitleZh,
+          'meta.title': tabTitleZh,
+          'meta.description': seoDescriptionZh,
+          'meta.keywords': seoKeywordsZh,
           [`${pageName}.title`]: pageTitleZh,
           [`${pageName}.content`]: pageContentZh,
           title: pageTitleZh,
           content: pageContentZh
         },
         'en': {
-          'meta.title': pageTitleEn || pageTitleZh,
+          'meta.title': tabTitleEn || tabTitleZh,
+          'meta.description': seoDescriptionEn || seoDescriptionZh,
+          'meta.keywords': seoKeywordsEn || seoKeywordsZh,
           [`${pageName}.title`]: pageTitleEn || pageTitleZh,
           [`${pageName}.content`]: pageContentEn || pageContentZh,
           title: pageTitleEn || pageTitleZh,
@@ -402,8 +509,11 @@ This is a paragraph.
         method: 'POST',
         contentType: 'application/json',
         data: JSON.stringify({ 
-          pageName, 
-          pageTitle: pageTitleZh, 
+          pageName,
+          tabTitle: tabTitleZh,
+          pageTitle: pageTitleZh,
+          seoDescription: seoDescriptionZh,
+          seoKeywords: seoKeywordsZh,
           content: pageContentZh,
           translations
         }),
@@ -423,27 +533,37 @@ This is a paragraph.
     // 生成页面
     function generatePage() {
       const pageName = $('#pageName').val();
+      const tabTitleZh = $('#tabTitleZh').val();
+      const tabTitleEn = $('#tabTitleEn').val();
       const pageTitleZh = $('#pageTitleZh').val();
       const pageTitleEn = $('#pageTitleEn').val();
+      const seoDescriptionZh = $('#seoDescriptionZh').val();
+      const seoDescriptionEn = $('#seoDescriptionEn').val();
+      const seoKeywordsZh = $('#seoKeywordsZh').val();
+      const seoKeywordsEn = $('#seoKeywordsEn').val();
       const pageContentZh = $('#pageContentZh').val();
       const pageContentEn = $('#pageContentEn').val();
       
-      if (!pageName || !pageTitleZh || !pageContentZh) {
-        showAlert('warning', '请填写必要字段');
+      if (!pageName || !tabTitleZh || !pageTitleZh || !pageContentZh) {
+        showAlert('warning', '请填写必要字段（页面名称、选项卡标题、页面标题、页面内容）');
         return;
       }
       
       // 准备翻译数据
       const translations = {
         'zh-CN': {
-          'meta.title': pageTitleZh,
+          'meta.title': tabTitleZh,
+          'meta.description': seoDescriptionZh,
+          'meta.keywords': seoKeywordsZh,
           [`${pageName}.title`]: pageTitleZh,
           [`${pageName}.content`]: pageContentZh,
           title: pageTitleZh,
           content: pageContentZh
         },
         'en': {
-          'meta.title': pageTitleEn || pageTitleZh,
+          'meta.title': tabTitleEn || tabTitleZh,
+          'meta.description': seoDescriptionEn || seoDescriptionZh,
+          'meta.keywords': seoKeywordsEn || seoKeywordsZh,
           [`${pageName}.title`]: pageTitleEn || pageTitleZh,
           [`${pageName}.content`]: pageContentEn || pageContentZh,
           title: pageTitleEn || pageTitleZh,
@@ -461,7 +581,10 @@ This is a paragraph.
         contentType: 'application/json',
         data: JSON.stringify({
           pageName,
+          tabTitle: tabTitleZh,
           pageTitle: pageTitleZh,
+          seoDescription: seoDescriptionZh,
+          seoKeywords: seoKeywordsZh,
           content: pageContentZh,
           translations,
           isEdit
@@ -519,24 +642,67 @@ This is a paragraph.
             // 填充表单数据
             $('#pageName').val(data.pageName).prop('readonly', true); // 编辑模式下页面名称不可修改
             
+            // 填充基本字段数据
+            if (data.tabTitle) {
+              $('#tabTitleZh').val(data.tabTitle);
+            }
+            if (data.pageTitle) {
+              $('#pageTitleZh').val(data.pageTitle);
+            }
+            if (data.seoDescription) {
+              $('#seoDescriptionZh').val(data.seoDescription);
+            }
+            if (data.seoKeywords) {
+              $('#seoKeywordsZh').val(data.seoKeywords);
+            }
+            if (data.content) {
+              $('#pageContentZh').val(data.content);
+            }
+            
             // 填充多语言数据
             if (data.translations) {
               if (data.translations['zh-CN']) {
-                $('#pageTitleZh').val(data.translations['zh-CN'].title || data.translations['zh-CN'][`${data.pageName}.title`] || '');
-                $('#pageContentZh').val(data.translations['zh-CN'].content || data.translations['zh-CN'][`${data.pageName}.content`] || '');
+                // 选项卡标题
+                if (data.translations['zh-CN']['meta.title']) {
+                  $('#tabTitleZh').val(data.translations['zh-CN']['meta.title']);
+                }
+                // SEO描述
+                if (data.translations['zh-CN']['meta.description']) {
+                  $('#seoDescriptionZh').val(data.translations['zh-CN']['meta.description']);
+                }
+                // SEO关键词
+                if (data.translations['zh-CN']['meta.keywords']) {
+                  $('#seoKeywordsZh').val(data.translations['zh-CN']['meta.keywords']);
+                }
+                // 页面标题和内容
+                if (data.translations['zh-CN'].title || data.translations['zh-CN'][`${data.pageName}.title`]) {
+                  $('#pageTitleZh').val(data.translations['zh-CN'].title || data.translations['zh-CN'][`${data.pageName}.title`]);
+                }
+                if (data.translations['zh-CN'].content || data.translations['zh-CN'][`${data.pageName}.content`]) {
+                  $('#pageContentZh').val(data.translations['zh-CN'].content || data.translations['zh-CN'][`${data.pageName}.content`]);
+                }
               }
               if (data.translations['en']) {
-                $('#pageTitleEn').val(data.translations['en'].title || data.translations['en'][`${data.pageName}.title`] || '');
-                $('#pageContentEn').val(data.translations['en'].content || data.translations['en'][`${data.pageName}.content`] || '');
+                // 选项卡标题
+                if (data.translations['en']['meta.title']) {
+                  $('#tabTitleEn').val(data.translations['en']['meta.title']);
+                }
+                // SEO描述
+                if (data.translations['en']['meta.description']) {
+                  $('#seoDescriptionEn').val(data.translations['en']['meta.description']);
+                }
+                // SEO关键词
+                if (data.translations['en']['meta.keywords']) {
+                  $('#seoKeywordsEn').val(data.translations['en']['meta.keywords']);
+                }
+                // 页面标题和内容
+                if (data.translations['en'].title || data.translations['en'][`${data.pageName}.title`]) {
+                  $('#pageTitleEn').val(data.translations['en'].title || data.translations['en'][`${data.pageName}.title`]);
+                }
+                if (data.translations['en'].content || data.translations['en'][`${data.pageName}.content`]) {
+                  $('#pageContentEn').val(data.translations['en'].content || data.translations['en'][`${data.pageName}.content`]);
+                }
               }
-            }
-            
-            // 如果没有多语言数据，使用原始数据
-            if (data.pageTitle && !$('#pageTitleZh').val()) {
-              $('#pageTitleZh').val(data.pageTitle);
-            }
-            if (data.content && !$('#pageContentZh').val()) {
-              $('#pageContentZh').val(data.content);
             }
             
             // 显示编辑模式提示

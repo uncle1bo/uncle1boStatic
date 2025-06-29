@@ -15,15 +15,17 @@ const i18nService = {
    * 生成多语言文件
    * @param {Object} options - 选项
    * @param {string} options.pageName - 页面名称
-   * @param {string} options.pageTitle - 页面标题
-
+   * @param {string} options.tabTitle - 选项卡标题（用于浏览器标签页）
+   * @param {string} options.pageTitle - 页面标题（用于页面内容区域）
+   * @param {string} options.seoDescription - SEO描述
+   * @param {string} options.seoKeywords - SEO关键词
    * @param {Object} options.customTranslations - 自定义翻译键值对 (可选)
    * @param {Object} options.customTranslations.zh - 中文翻译键值对
    * @param {Object} options.customTranslations.en - 英文翻译键值对
    * @returns {Promise<void>}
    */
   generateI18nFiles: async function(options) {
-    const { pageName, pageTitle, customTranslations } = options;
+    const { pageName, tabTitle, pageTitle, seoDescription, seoKeywords, customTranslations } = options;
     
     // 确保临时目录存在
     await this.ensureLocaleDirectories();
@@ -31,16 +33,20 @@ const i18nService = {
     // 生成中文语言文件
     await this.generateLanguageFile('zh-CN', { 
       pageName, 
-      pageTitle, 
- 
+      tabTitle,
+      pageTitle,
+      seoDescription,
+      seoKeywords,
       customTranslations: customTranslations ? customTranslations.zh : null 
     });
     
     // 生成英文语言文件
     await this.generateLanguageFile('en', { 
       pageName, 
-      pageTitle, 
- 
+      tabTitle,
+      pageTitle,
+      seoDescription,
+      seoKeywords,
       customTranslations: customTranslations ? customTranslations.en : null 
     });
   },
@@ -64,23 +70,25 @@ const i18nService = {
    * @param {string} lang - 语言代码 (zh-CN 或 en)
    * @param {Object} options - 选项
    * @param {string} options.pageName - 页面名称
-   * @param {string} options.pageTitle - 页面标题
-
+   * @param {string} options.tabTitle - 选项卡标题（用于浏览器标签页）
+   * @param {string} options.pageTitle - 页面标题（用于页面内容区域）
+   * @param {string} options.seoDescription - SEO描述
+   * @param {string} options.seoKeywords - SEO关键词
    * @param {Object} options.customTranslations - 自定义翻译键值对 (可选)
    * @returns {Promise<void>}
    */
   generateLanguageFile: async function(lang, options) {
-    const { pageName, pageTitle, customTranslations } = options;
+    const { pageName, tabTitle, pageTitle, seoDescription, seoKeywords, customTranslations } = options;
     
     // 创建语言文件内容
     const content = {
       meta: {
-        title: pageTitle || pageName,
-        description: '',
-        keywords: ''
+        title: tabTitle || pageTitle || pageName,  // 选项卡标题
+        description: seoDescription || '',         // SEO描述
+        keywords: seoKeywords || ''               // SEO关键词
       },
       [`${pageName}`]: {
-        title: pageTitle || pageName,
+        title: pageTitle || pageName,              // 页面内容标题
         content: ''
       }
     };

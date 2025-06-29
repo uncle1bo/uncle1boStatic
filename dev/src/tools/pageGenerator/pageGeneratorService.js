@@ -18,7 +18,10 @@ const pageGeneratorService = {
    * 生成新页面
    * @param {Object} options - 选项
    * @param {string} options.pageName - 页面名称
-   * @param {string} options.pageTitle - 页面标题
+   * @param {string} options.tabTitle - 选项卡标题（用于浏览器标签页）
+   * @param {string} options.pageTitle - 页面标题（用于页面内容区域）
+   * @param {string} options.seoDescription - SEO描述
+   * @param {string} options.seoKeywords - SEO关键词
    * @param {string} options.content - 页面内容
    * @param {Object} options.translations - 翻译内容
    * @param {Object} options.translations.zh - 中文翻译
@@ -27,7 +30,7 @@ const pageGeneratorService = {
    * @returns {Promise<void>}
    */
   generatePage: async function(options) {
-    const { pageName, pageTitle, content, translations, isEdit = false } = options;
+    const { pageName, tabTitle, pageTitle, seoDescription, seoKeywords, content, translations, isEdit = false } = options;
     
     try {
       // 验证页面名称
@@ -44,15 +47,18 @@ const pageGeneratorService = {
       }
       
       // 生成HTML文件
-      await this.generateHtmlFile({ pageName, pageTitle, content });
+      await this.generateHtmlFile({ pageName, tabTitle, pageTitle, content });
       
       // 生成多语言文件
-      await this.generateI18nFiles({ pageName, pageTitle, translations });
+      await this.generateI18nFiles({ pageName, tabTitle, pageTitle, seoDescription, seoKeywords, translations });
       
       // 保存页面源数据到统一的数据管理系统
       const pageData = {
         pageName,
+        tabTitle,
         pageTitle,
+        seoDescription,
+        seoKeywords,
         content,
         translations,
         editable: true
@@ -79,12 +85,13 @@ const pageGeneratorService = {
    * 生成HTML文件
    * @param {Object} options - 选项
    * @param {string} options.pageName - 页面名称
-   * @param {string} options.pageTitle - 页面标题
+   * @param {string} options.tabTitle - 选项卡标题（用于浏览器标签页）
+   * @param {string} options.pageTitle - 页面标题（用于页面内容区域）
    * @param {string} options.content - 页面内容（Markdown格式）
    * @returns {Promise<void>}
    */
   generateHtmlFile: async function(options) {
-    const { pageName, pageTitle, content } = options;
+    const { pageName, tabTitle, pageTitle, content } = options;
     
     // 将Markdown转换为HTML
     const htmlContent = this.convertMarkdownToHtml(content);
@@ -93,6 +100,7 @@ const pageGeneratorService = {
     const fullHtmlContent = templateService.generateFullHtml({
       htmlContent,
       pageName,
+      tabTitle,
       pageTitle
     });
     
@@ -108,12 +116,15 @@ const pageGeneratorService = {
    * 生成多语言文件
    * @param {Object} options - 选项
    * @param {string} options.pageName - 页面名称
-   * @param {string} options.pageTitle - 页面标题
+   * @param {string} options.tabTitle - 选项卡标题（用于浏览器标签页）
+   * @param {string} options.pageTitle - 页面标题（用于页面内容区域）
+   * @param {string} options.seoDescription - SEO描述
+   * @param {string} options.seoKeywords - SEO关键词
    * @param {Object} options.translations - 翻译内容
    * @returns {Promise<void>}
    */
   generateI18nFiles: async function(options) {
-    const { pageName, pageTitle, translations } = options;
+    const { pageName, tabTitle, pageTitle, seoDescription, seoKeywords, translations } = options;
     
     // 转换translations中的Markdown内容为HTML
     const processedTranslations = {};
@@ -135,7 +146,10 @@ const pageGeneratorService = {
     // 生成临时多语言文件
     await i18nService.generateI18nFiles({
       pageName,
+      tabTitle,
       pageTitle,
+      seoDescription,
+      seoKeywords,
       customTranslations: processedTranslations
     });
     
@@ -165,6 +179,14 @@ const pageGeneratorService = {
   /**
    * 保存页面数据（草稿或编辑数据）
    * @param {Object} pageData 页面数据
+   * @param {string} pageData.pageName - 页面名称
+   * @param {string} pageData.tabTitle - 选项卡标题（用于浏览器标签页）
+   * @param {string} pageData.pageTitle - 页面标题（用于页面内容区域）
+   * @param {string} pageData.seoDescription - SEO描述
+   * @param {string} pageData.seoKeywords - SEO关键词
+   * @param {string} pageData.content - 页面内容
+   * @param {Object} pageData.translations - 翻译内容
+   * @param {boolean} pageData.editable - 是否可编辑
    * @param {string} type 数据类型：'draft' 或 'edit'
    * @param {string} pageName 页面名称（编辑模式时使用）
    */
@@ -183,9 +205,13 @@ const pageGeneratorService = {
     
     await fs.ensureDir(path.dirname(dataFile));
     
-    // 添加元数据
+    // 添加元数据和默认值
     const dataWithMeta = {
       ...pageData,
+      tabTitle: pageData.tabTitle || pageData.pageTitle || pageData.pageName,
+      pageTitle: pageData.pageTitle || pageData.pageName,
+      seoDescription: pageData.seoDescription || '',
+      seoKeywords: pageData.seoKeywords || '',
       metadata: {
         type: type,
         savedAt: new Date().toISOString(),
@@ -258,13 +284,16 @@ const pageGeneratorService = {
    * 预览页面 - 完整模拟生成流程但不保存文件
    * @param {Object} options - 选项
    * @param {string} options.pageName - 页面名称
-   * @param {string} options.pageTitle - 页面标题
+   * @param {string} options.tabTitle - 选项卡标题（用于浏览器标签页）
+   * @param {string} options.pageTitle - 页面标题（用于页面内容区域）
+   * @param {string} options.seoDescription - SEO描述
+   * @param {string} options.seoKeywords - SEO关键词
    * @param {string} options.content - 页面内容（Markdown格式）
    * @param {Object} options.translations - 翻译数据
    * @returns {string} HTML内容
    */
   previewPage: function(options) {
-    const { pageName, pageTitle, content, translations } = options;
+    const { pageName, tabTitle, pageTitle, seoDescription, seoKeywords, content, translations } = options;
     
     try {
       // 1. 验证页面名称（与生成流程一致）
@@ -284,6 +313,7 @@ const pageGeneratorService = {
       const fullHtml = templateService.generateFullHtml({
         htmlContent,
         pageName,
+        tabTitle: tabTitle || pageTitle || pageName,
         pageTitle: pageTitle || pageName
       });
       

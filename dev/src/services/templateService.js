@@ -77,12 +77,12 @@ const templateService = {
    * @param {Object} options - 选项
    * @param {string} options.htmlContent - HTML内容
    * @param {string} options.pageName - 页面名称
-   * @param {string} options.pageTitle - 页面标题
-
+   * @param {string} options.tabTitle - 选项卡标题（用于浏览器标签页）
+   * @param {string} options.pageTitle - 页面标题（用于页面内容区域）
    * @returns {string} 完整的HTML页面
    */
   generateFullHtml: function(options) {
-    const { htmlContent, pageName, pageTitle } = options;
+    const { htmlContent, pageName, tabTitle, pageTitle } = options;
     
     return `<!DOCTYPE html>
 <html lang="zh-CN">
@@ -91,7 +91,7 @@ const templateService = {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" data-i18n="meta.description" content="">
     <meta name="keywords" content="" data-i18n="meta.keywords">
-    <title data-i18n="meta.title">${pageTitle || pageName}</title>
+    <title data-i18n="meta.title">${tabTitle || pageTitle || pageName}</title>
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- Bootstrap Icons -->
@@ -114,7 +114,7 @@ const templateService = {
                         <h1 class="display-4" data-i18n="${pageName}.title">${pageTitle || pageName}</h1>
                         <hr class="my-4">
                         <div class="content" data-i18n="${pageName}.content">
-                            ${htmlContent}
+                            ${htmlContent || '<!-- 内容将通过多语言系统动态加载 -->'}
                         </div>
                     </div>
                 </div>
