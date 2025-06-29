@@ -16,6 +16,7 @@ const sitemapUpdaterRoutes = require('./tools/sitemapUpdater/routes');
 const menuEditorRoutes = require('./tools/menuEditor/routes');
 const pageManagerRoutes = require('./tools/pageManager/routes');
 const pageGeneratorRoutes = require('./tools/pageGenerator/routes');
+const themeManagerRoutes = require('./tools/themeManager/routes');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -26,6 +27,7 @@ app.set('views', paths.views);
 
 // 设置静态文件目录
 app.use(express.static(paths.public));
+app.use('/tools', express.static(path.join(__dirname, 'tools')));
 
 // 设置prod目录为静态文件目录，方便预览生成的页面
 app.use('/prod', express.static(paths.prod));
@@ -62,6 +64,12 @@ app.get('/page-manager', (req, res) => {
   res.render('page-manager');
 });
 app.use('/page-manager', pageManagerRoutes);
+
+// 主题管理器工具路由
+app.get('/theme-manager', (req, res) => {
+  res.render('theme-manager');
+});
+app.use('/theme-manager', themeManagerRoutes);
 
 // 这里可以添加其他工具的路由
 // app.use('/other-tool', otherToolRoutes);

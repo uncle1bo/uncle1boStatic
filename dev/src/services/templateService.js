@@ -102,24 +102,28 @@ const templateService = {
     <script src="../js/template-processor.js"></script>
 </head>
 <body>
-    <!-- 头部模板 -->
-    <div id="header-template"></div>
+    <div class="container-fluid">
+        <!-- 头部模板 -->
+        <div id="header-template"></div>
 
-    <!-- Content Section -->
-    <div class="container mt-5">
-        <div class="row">
-            <div class="col-md-12">
-                <h1 class="display-4" data-i18n="${pageName}.title">${pageTitle || pageName}</h1>
-                <hr class="my-4">
-                <div class="content" data-i18n="${pageName}.content">
-                    ${htmlContent}
+        <!-- Content Section -->
+        <div class="main-content">
+            <div class="container mt-5">
+                <div class="row">
+                    <div class="col-md-12">
+                        <h1 class="display-4" data-i18n="${pageName}.title">${pageTitle || pageName}</h1>
+                        <hr class="my-4">
+                        <div class="content" data-i18n="${pageName}.content">
+                            ${htmlContent}
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
 
-    <!-- 底部模板 -->
-    <div id="footer-template"></div>
+        <!-- 底部模板 -->
+        <div id="footer-template"></div>
+    </div>
     
     <!-- Bootstrap JS Bundle with Popper -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
