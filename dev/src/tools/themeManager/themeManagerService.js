@@ -57,7 +57,7 @@ class ThemeManagerService {
         mermaidBg: '#ffffff',
         mermaidText: '#212529',
         mermaidBorder: '#dee2e6',
-        highlightBg: '#f8f9fa'
+        codeTheme: 'default'
       },
       dark: {
         primary: '#5a7cff',
@@ -97,7 +97,7 @@ class ThemeManagerService {
         mermaidBg: '#1e1e1e',
         mermaidText: '#ffffff',
         mermaidBorder: '#4a5568',
-        highlightBg: '#2d3748'
+        codeTheme: 'dark'
       }
     };
   }
@@ -190,7 +190,7 @@ class ThemeManagerService {
   --mermaid-bg: ${lightTheme.mermaidBg};
   --mermaid-text: ${lightTheme.mermaidText};
   --mermaid-border: ${lightTheme.mermaidBorder};
-  --highlight-bg: ${lightTheme.highlightBg};
+
 }
 
 /* 暗夜模式 */
@@ -232,7 +232,7 @@ class ThemeManagerService {
   --mermaid-bg: ${darkTheme.mermaidBg};
   --mermaid-text: ${darkTheme.mermaidText};
   --mermaid-border: ${darkTheme.mermaidBorder};
-  --highlight-bg: ${darkTheme.highlightBg};
+
 }
 
 /* 基础样式 */
@@ -590,43 +590,7 @@ a:hover {
   color: var(--mermaid-text) !important;
 }
 
-/* 代码高亮样式适配 */
-.hljs {
-  background-color: var(--highlight-bg) !important;
-  color: var(--md-code-block-text) !important;
-}
 
-.hljs-keyword,
-.hljs-selector-tag,
-.hljs-built_in {
-  color: var(--primary-color) !important;
-}
-
-.hljs-string,
-.hljs-attr {
-  color: var(--success-color) !important;
-}
-
-.hljs-comment,
-.hljs-quote {
-  color: var(--text-secondary-color) !important;
-  font-style: italic;
-}
-
-.hljs-number,
-.hljs-literal {
-  color: var(--warning-color) !important;
-}
-
-.hljs-function,
-.hljs-title {
-  color: var(--info-color) !important;
-}
-
-.hljs-variable,
-.hljs-template-variable {
-  color: var(--danger-color) !important;
-}
 `;
 
     // 确保CSS目录存在

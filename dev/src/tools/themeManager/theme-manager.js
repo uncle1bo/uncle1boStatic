@@ -44,6 +44,8 @@ class ThemeManager {
       
       if (result.success) {
         this.themeConfig = result.data;
+        // 初始化代码主题
+        this.initCodeTheme();
       } else {
         throw new Error(result.message || '加载主题配置失败');
       }
@@ -65,7 +67,7 @@ class ThemeManager {
       'mdText', 'mdCodeBg', 'mdCodeText', 'mdCodeBlockBg', 'mdCodeBlockText', 'mdCodeBlockBorder',
       'mdBlockquoteBg', 'mdBlockquoteText', 'mdBlockquoteBorder',
       'mdTableBorder', 'mdTableHeaderBg', 'mdTableHeaderText',
-      'katexText', 'katexBg', 'mermaidBg', 'mermaidText', 'mermaidBorder', 'highlightBg'
+      'katexText', 'katexBg', 'mermaidBg', 'mermaidText', 'mermaidBorder'
     ];
 
     colorKeys.forEach(key => {
@@ -100,6 +102,78 @@ class ThemeManager {
         });
       }
     });
+
+    // 处理主题选择器
+    const codeThemeSelect = document.getElementById('codeTheme-select');
+    if (codeThemeSelect) {
+      codeThemeSelect.addEventListener('change', (e) => {
+        const theme = e.target.value;
+        this.updateThemeValue('codeTheme', theme);
+        this.updateCodeTheme(theme);
+        this.updatePreview();
+      });
+    }
+  }
+
+  /**
+   * 初始化代码主题
+   */
+  initCodeTheme() {
+    if (this.themeConfig && this.themeConfig[this.currentMode]) {
+      const theme = this.themeConfig[this.currentMode].codeTheme || 'default';
+      this.updateCodeTheme(theme);
+    }
+  }
+
+  /**
+   * 更新代码高亮主题
+   */
+  updateCodeTheme(theme) {
+    // 移除现有的Prism主题
+    const existingTheme = document.querySelector('link[data-prism-theme]');
+    if (existingTheme) {
+      existingTheme.remove();
+    }
+
+    // 添加新的Prism主题
+    if (theme && theme !== 'default') {
+      const link = document.createElement('link');
+      link.rel = 'stylesheet';
+      link.href = `https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-${theme}.min.css`;
+      link.setAttribute('data-prism-theme', theme);
+      document.head.appendChild(link);
+    }
+  }
+
+  /**
+   * 验证颜色值
+   */
+  isValidColor(color) {
+    const s = new Option().style;
+    s.color = color;
+    return s.color !== '';
+  }
+
+  /**
+   * 初始化事件监听器
+   */
+  initEventListeners() {
+    // 模式切换按钮
+    document.querySelectorAll('.mode-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        const mode = e.target.closest('.mode-btn').dataset.mode;
+        this.switchMode(mode);
+      });
+    });
+  }
+
+  /**
+   * 验证颜色值
+   */
+  isValidColor(color) {
+    const s = new Option().style;
+    s.color = color;
+    return s.color !== '';
   }
 
   /**
@@ -133,6 +207,9 @@ class ThemeManager {
     
     // 更新界面
     this.updateUI();
+    
+    // 更新代码主题
+    this.initCodeTheme();
   }
 
   /**
@@ -148,12 +225,16 @@ class ThemeManager {
       const colorInput = document.getElementById(`${key}-color`);
       const textInput = document.getElementById(`${key}-text`);
       const preview = document.getElementById(`${key}-preview`);
+      const selectInput = document.getElementById(`${key}-select`);
       
       if (colorInput && textInput && preview) {
         const color = currentTheme[key];
         colorInput.value = color;
         textInput.value = color;
         preview.style.backgroundColor = color;
+      } else if (selectInput) {
+        // 处理选择器类型的配置
+        selectInput.value = currentTheme[key] || 'default';
       }
     });
     

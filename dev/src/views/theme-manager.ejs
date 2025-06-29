@@ -582,14 +582,16 @@
                       </div>
                     </div>
                     <div class="col-md-6 mb-3">
-                      <label class="form-label">代码高亮背景</label>
-                      <div class="d-flex align-items-center">
-                        <div class="color-picker-container">
-                          <div class="color-preview" id="highlightBg-preview"></div>
-                          <input type="color" class="color-input" id="highlightBg-color" data-key="highlightBg">
-                        </div>
-                        <input type="text" class="form-control" id="highlightBg-text" placeholder="#f8f9fa">
-                      </div>
+                      <label class="form-label">代码高亮主题</label>
+                      <select class="form-select" id="codeTheme-select" data-key="codeTheme">
+                        <option value="default">Default （默认主题）</option>
+                        <option value="dark">Dark （深色主题）</option>
+                        <option value="funky">Funky （炫彩主题）</option>
+                        <option value="okaidia">Okaidia （深色优雅主题）</option>
+                        <option value="twilight">Twilight （暮光主题）</option>
+                        <option value="coy">Coy （简洁主题）</option>
+                        <option value="solarizedlight">Solarized Light （护眼浅色主题）</option>
+                      </select>
                     </div>
                   </div>
                 </div>
