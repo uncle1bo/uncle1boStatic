@@ -52,6 +52,11 @@
   --mermaid-border: #dee2e6;
 }
 
+/* 导航栏品牌样式 */
+.navbar-brand {
+  color: var(--primary-color) !important;
+}
+
 /* 暗夜模式 - 颜色值由JavaScript动态设置 */
 [data-bs-theme="dark"] {
   /* 主要颜色变量 */
