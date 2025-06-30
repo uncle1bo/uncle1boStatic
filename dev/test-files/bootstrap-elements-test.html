@@ -103,7 +103,10 @@
             <div class="row">
                 <div class="col-md-4">
                     <div class="card">
-                        <img src="https://via.placeholder.com/300x200" class="card-img-top" alt="示例图片">
+                        <svg class="card-img-top" width="300" height="200" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="示例图片" preserveAspectRatio="xMidYMid slice" focusable="false">
+                    <rect width="100%" height="100%" fill="#868e96"/>
+                    <text x="50%" y="50%" fill="#dee2e6" dy=".3em" text-anchor="middle" font-family="Arial, sans-serif" font-size="18">示例图片</text>
+                </svg>
                         <div class="card-body">
                             <h5 class="card-title">卡片标题</h5>
                             <p class="card-text">这是一个卡片示例，包含一些快速示例文本。</p>
@@ -341,21 +344,30 @@
                 </div>
                 <div class="carousel-inner">
                     <div class="carousel-item active">
-                        <img src="https://via.placeholder.com/800x400/007bff/ffffff?text=第一张幻灯片" class="d-block w-100" alt="第一张">
+                        <svg class="d-block w-100" width="800" height="400" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="第一张幻灯片" preserveAspectRatio="xMidYMid slice" focusable="false">
+                            <rect width="100%" height="100%" fill="#007bff"/>
+                            <text x="50%" y="50%" fill="#ffffff" dy=".3em" text-anchor="middle" font-family="Arial, sans-serif" font-size="24">第一张幻灯片</text>
+                        </svg>
                         <div class="carousel-caption d-none d-md-block">
                             <h5>第一张幻灯片标签</h5>
                             <p>第一张幻灯片的代表性占位符内容。</p>
                         </div>
                     </div>
                     <div class="carousel-item">
-                        <img src="https://via.placeholder.com/800x400/28a745/ffffff?text=第二张幻灯片" class="d-block w-100" alt="第二张">
+                        <svg class="d-block w-100" width="800" height="400" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="第二张幻灯片" preserveAspectRatio="xMidYMid slice" focusable="false">
+                            <rect width="100%" height="100%" fill="#28a745"/>
+                            <text x="50%" y="50%" fill="#ffffff" dy=".3em" text-anchor="middle" font-family="Arial, sans-serif" font-size="24">第二张幻灯片</text>
+                        </svg>
                         <div class="carousel-caption d-none d-md-block">
                             <h5>第二张幻灯片标签</h5>
                             <p>第二张幻灯片的代表性占位符内容。</p>
                         </div>
                     </div>
                     <div class="carousel-item">
-                        <img src="https://via.placeholder.com/800x400/dc3545/ffffff?text=第三张幻灯片" class="d-block w-100" alt="第三张">
+                        <svg class="d-block w-100" width="800" height="400" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="第三张幻灯片" preserveAspectRatio="xMidYMid slice" focusable="false">
+                            <rect width="100%" height="100%" fill="#dc3545"/>
+                            <text x="50%" y="50%" fill="#ffffff" dy=".3em" text-anchor="middle" font-family="Arial, sans-serif" font-size="24">第三张幻灯片</text>
+                        </svg>
                         <div class="carousel-caption d-none d-md-block">
                             <h5>第三张幻灯片标签</h5>
                             <p>第三张幻灯片的代表性占位符内容。</p>
@@ -465,22 +477,22 @@
 
     <!-- Bootstrap JS -->
     <script>
-        cdnManager.loadResource('bootstrap-js');
-    </script>
-    
-    <!-- 初始化工具提示和弹出框 -->
-    <script>
-        // 初始化工具提示
-        var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
-        var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
-            return new bootstrap.Tooltip(tooltipTriggerEl)
-        })
-        
-        // 初始化弹出框
-        var popoverTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="popover"]'))
-        var popoverList = popoverTriggerList.map(function (popoverTriggerEl) {
-            return new bootstrap.Popover(popoverTriggerEl)
-        })
+        // 加载Bootstrap JS并在加载完成后初始化组件
+        cdnManager.loadResource('bootstrap-js').then(function() {
+            // 初始化工具提示
+            var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+            var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+                return new bootstrap.Tooltip(tooltipTriggerEl)
+            })
+            
+            // 初始化弹出框
+            var popoverTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="popover"]'))
+            var popoverList = popoverTriggerList.map(function (popoverTriggerEl) {
+                return new bootstrap.Popover(popoverTriggerEl)
+            })
+        }).catch(function(error) {
+            console.error('Bootstrap JS 加载失败:', error);
+        });
     </script>
 </body>
 </html>

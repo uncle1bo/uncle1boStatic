@@ -49,3 +49,40 @@
 - 只修改必要部分
 - 当我说修改的时候，一般不保留旧代码，保持简洁
 - 时刻检测修补是否会导致项目违反最佳实践，并提出重构建议
+
+## CDN资源管理规范
+
+### 强制要求
+- **所有新项目必须使用CDN管理器**，禁止硬编码CDN链接
+- CDN管理器必须在所有外部库加载之前初始化
+- 使用 `cdnManager.loadResource(resourceKey)` 方法加载资源
+
+### 标准实现模式
+```html
+<!-- 1. 首先加载CDN管理器 -->
+<script src="/prod/js/cdn-fallback.js"></script>
+
+<!-- 2. 初始化并加载CSS资源 -->
+<script>
+    // 加载CSS资源
+    cdnManager.loadResource('bootstrap-css');
+    cdnManager.loadResource('bootstrap-icons');
+</script>
+
+<!-- 3. 在页面底部加载JS资源 -->
+<script>
+    // 加载JS资源
+    cdnManager.loadResource('bootstrap-js');
+    cdnManager.loadResource('jquery');
+</script>
+```
+
+### 配置管理
+- CDN资源配置统一在 `prod/js/cdn-fallback.js` 中维护
+- 新增CDN资源时，必须配置主要CDN和至少2个备选CDN
+- 支持的资源类型：CSS、JS
+
+### 关于图片
+- 禁止在测试文件中使用外部图片服务，除非用户明确要求
+- 优先使用 SVG 占位图片
+- 为所有图片添加适当的可访问性属性
