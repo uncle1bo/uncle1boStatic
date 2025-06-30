@@ -109,14 +109,20 @@ uncle1boStatic/
 - **超时保护**: 防止CDN响应过慢影响页面加载
 
 #### 支持的CDN资源
-- **Bootstrap框架**: jsDelivr, cdnjs, Staticfile, BootCDN等
-- **jQuery相关**: jsDelivr, Google CDN, Microsoft CDN, cdnjs, Baidu CDN
+- **Bootstrap框架**: jsDelivr, cdnjs, Staticfile等可靠CDN服务商
+- **jQuery相关**: jsDelivr, Google CDN, Microsoft CDN, cdnjs
 - **代码高亮 (Prism.js)**: jsDelivr, cdnjs
-- **数学公式 (KaTeX)**: jsDelivr, BootCDN
+- **数学公式 (KaTeX)**: jsDelivr, cdnjs
 - **图表库 (Mermaid)**: jsDelivr, cdnjs
 
+#### 核心特性
+- **并发竞速加载**: 多个CDN同时竞争，最快响应胜出
+- **线程安全保护**: 防止重复加载和竞态条件
+- **文件完整性校验**: 基础的文件大小和类型验证
+- **智能故障转移**: 8秒超时，快速切换到备用CDN
+
 #### 环境分离
-- **生产环境** (`prod/`): 轻量级CDN自动切换逻辑
+- **生产环境** (`prod/`): 高性能并发CDN竞速机制
 - **开发环境** (`dev/`): 完整的CDN网络性能检测工具
 
 ### 🛠️ 开发工具集

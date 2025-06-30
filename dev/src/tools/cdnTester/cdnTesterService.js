@@ -63,7 +63,6 @@ const cdnTesterService = {
       fallbacks: [
         'https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css',
         'https://cdn.staticfile.org/twitter-bootstrap/5.3.0/css/bootstrap.min.css',
-        'https://cdn.bootcss.com/twitter-bootstrap/5.3.0/css/bootstrap.min.css',
         'https://maxcdn.bootstrapcdn.com/bootstrap/5.3.0/css/bootstrap.min.css'
       ],
       type: 'css'
@@ -120,7 +119,7 @@ const cdnTesterService = {
       name: 'KaTeX CSS',
       primary: 'https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css',
       fallbacks: [
-        'https://cdn.bootcdn.net/ajax/libs/KaTeX/0.16.8/katex.min.css'
+        'https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.8/katex.min.css'
       ],
       type: 'css'
     },
@@ -457,8 +456,7 @@ const cdnTesterService = {
     if (url.includes('googleapis.com')) return 'Google CDN';
     if (url.includes('aspnetcdn.com')) return 'Microsoft CDN';
     if (url.includes('staticfile.org')) return 'Staticfile CDN';
-    if (url.includes('bootcss.com')) return 'BootCDN';
-    if (url.includes('bootcdn.net')) return 'BootCDN';
+    // BootCDN已移除 - 不可靠的CDN服务
     if (url.includes('baidu.com')) return 'Baidu CDN';
     if (url.includes('bootstrapcdn.com')) return 'Bootstrap CDN';
     if (url.includes('elemecdn.com')) return 'eleme CDN';

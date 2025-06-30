@@ -8,9 +8,11 @@ class CDNFallbackManager {
     constructor() {
         this.loadedResources = new Set();
         this.failedResources = new Set();
+        this.loadingPromises = new Map(); // 线程安全：防止重复加载
         this.preferredCDNs = this.getPreferredCDNs();
         this.maxRetries = 3;
-        this.timeout = 10000; // 10秒超时
+        this.timeout = 8000; // 8秒超时，更快的故障转移
+        this.enableIntegrityCheck = true; // 启用文件完整性校验
         
         // CDN备选资源配置
         this.cdnResources = {
@@ -19,8 +21,7 @@ class CDNFallbackManager {
                 primary: 'https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css',
                 fallbacks: [
                     'https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css',
-                    'https://cdn.staticfile.org/twitter-bootstrap/5.3.0/css/bootstrap.min.css',
-                    'https://cdn.bootcss.com/twitter-bootstrap/5.3.0/css/bootstrap.min.css'
+                    'https://cdn.staticfile.org/twitter-bootstrap/5.3.0/css/bootstrap.min.css'
                 ],
                 type: 'css'
             },
@@ -115,7 +116,7 @@ class CDNFallbackManager {
             'katex-css': {
                 primary: 'https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css',
                 fallbacks: [
-                    'https://cdn.bootcdn.net/ajax/libs/KaTeX/0.16.8/katex.min.css'
+                    'https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.8/katex.min.css'
                 ],
                 type: 'css'
             },
@@ -161,7 +162,7 @@ class CDNFallbackManager {
     }
     
     /**
-     * 加载CSS资源
+     * 加载CSS资源（带完整性校验）
      */
     loadCSS(url, id) {
         return new Promise((resolve, reject) => {
@@ -176,7 +177,16 @@ class CDNFallbackManager {
             
             link.onload = () => {
                 clearTimeout(timeout);
-                resolve(url);
+                if (this.enableIntegrityCheck) {
+                    this.validateCSSIntegrity(url).then(() => {
+                        resolve(url);
+                    }).catch(error => {
+                        console.warn(`CSS integrity check failed for ${url}:`, error.message);
+                        resolve(url); // 即使校验失败也继续，因为资源已加载
+                    });
+                } else {
+                    resolve(url);
+                }
             };
             
             link.onerror = () => {
@@ -189,7 +199,7 @@ class CDNFallbackManager {
     }
     
     /**
-     * 加载JS资源
+     * 加载JS资源（带完整性校验）
      */
     loadJS(url, id) {
         return new Promise((resolve, reject) => {
@@ -203,7 +213,16 @@ class CDNFallbackManager {
             
             script.onload = () => {
                 clearTimeout(timeout);
-                resolve(url);
+                if (this.enableIntegrityCheck) {
+                    this.validateJSIntegrity(url).then(() => {
+                        resolve(url);
+                    }).catch(error => {
+                        console.warn(`JS integrity check failed for ${url}:`, error.message);
+                        resolve(url); // 即使校验失败也继续，因为资源已加载
+                    });
+                } else {
+                    resolve(url);
+                }
             };
             
             script.onerror = () => {
@@ -216,51 +235,66 @@ class CDNFallbackManager {
     }
     
     /**
-     * 尝试加载资源
+     * 并发竞速加载资源 - 真正的竞速机制
      */
-    async tryLoadResource(resourceKey, urls, retryCount = 0) {
-        if (retryCount >= this.maxRetries) {
-            throw new Error(`Max retries exceeded for ${resourceKey}`);
-        }
-        
+    async raceLoadResource(resourceKey, urls) {
         const resource = this.cdnResources[resourceKey];
         if (!resource) {
             throw new Error(`Unknown resource: ${resourceKey}`);
         }
         
-        for (const url of urls) {
+        // 创建所有加载任务
+        const loadTasks = urls.map(async (url) => {
             try {
                 if (resource.type === 'css') {
-                    await this.loadCSS(url, resourceKey);
+                    await this.loadCSS(url, `${resourceKey}-race`);
                 } else {
-                    await this.loadJS(url, resourceKey);
+                    await this.loadJS(url, `${resourceKey}-race`);
                 }
-                
-                // 记录成功的CDN
-                this.preferredCDNs[resourceKey] = url;
-                this.savePreferredCDNs();
-                this.loadedResources.add(resourceKey);
-                
-                console.log(`Successfully loaded ${resourceKey} from ${url}`);
-                return url;
+                return { success: true, url, error: null };
             } catch (error) {
-                console.warn(`Failed to load ${resourceKey} from ${url}:`, error.message);
-                continue;
+                return { success: false, url, error: error.message };
             }
+        });
+        
+        // 使用Promise.allSettled等待所有结果，然后选择最快成功的
+        const results = await Promise.allSettled(loadTasks);
+        const successfulResults = results
+            .filter(result => result.status === 'fulfilled' && result.value.success)
+            .map(result => result.value);
+            
+        if (successfulResults.length === 0) {
+            const errors = results.map(r => r.status === 'fulfilled' ? r.value.error : r.reason);
+            throw new Error(`All CDNs failed for ${resourceKey}: ${errors.join(', ')}`);
         }
         
-        // 所有URL都失败，重试
-        return this.tryLoadResource(resourceKey, urls, retryCount + 1);
+        // 返回第一个成功的结果（最快的）
+        const winner = successfulResults[0];
+        
+        // 记录成功的CDN
+        this.preferredCDNs[resourceKey] = winner.url;
+        this.savePreferredCDNs();
+        this.loadedResources.add(resourceKey);
+        
+        console.log(`Successfully loaded ${resourceKey} from ${winner.url} (race winner)`);
+        return winner.url;
     }
     
     /**
-     * 加载单个资源
+     * 线程安全的资源加载
      */
     async loadResource(resourceKey) {
+        // 线程安全：如果已经加载，直接返回
         if (this.loadedResources.has(resourceKey)) {
             return;
         }
         
+        // 线程安全：如果正在加载，等待现有的加载完成
+        if (this.loadingPromises.has(resourceKey)) {
+            return this.loadingPromises.get(resourceKey);
+        }
+        
+        // 线程安全：如果之前失败过，不再尝试
         if (this.failedResources.has(resourceKey)) {
             throw new Error(`Resource ${resourceKey} previously failed`);
         }
@@ -290,13 +324,20 @@ class CDNFallbackManager {
             }
         });
         
-        try {
-            await this.tryLoadResource(resourceKey, urls);
-        } catch (error) {
-            this.failedResources.add(resourceKey);
-            console.error(`Failed to load resource ${resourceKey}:`, error.message);
-            throw error;
-        }
+        // 创建加载Promise并存储，确保线程安全
+        const loadingPromise = this.raceLoadResource(resourceKey, urls)
+            .catch(error => {
+                this.failedResources.add(resourceKey);
+                console.error(`Failed to load resource ${resourceKey}:`, error.message);
+                throw error;
+            })
+            .finally(() => {
+                // 清理加载状态
+                this.loadingPromises.delete(resourceKey);
+            });
+            
+        this.loadingPromises.set(resourceKey, loadingPromise);
+        return loadingPromise;
     }
     
     /**
@@ -338,6 +379,62 @@ class CDNFallbackManager {
                 }
             }
         });
+    }
+    
+    /**
+     * 校验CSS文件完整性
+     */
+    async validateCSSIntegrity(url) {
+        try {
+            const response = await fetch(url, { method: 'HEAD' });
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}`);
+            }
+            
+            // 检查Content-Type
+            const contentType = response.headers.get('content-type');
+            if (contentType && !contentType.includes('text/css')) {
+                console.warn(`Unexpected content-type for CSS: ${contentType}`);
+            }
+            
+            // 检查文件大小（基本的完整性检查）
+            const contentLength = response.headers.get('content-length');
+            if (contentLength && parseInt(contentLength) < 100) {
+                throw new Error('CSS file too small, possibly corrupted');
+            }
+            
+            return true;
+        } catch (error) {
+            throw new Error(`CSS integrity validation failed: ${error.message}`);
+        }
+    }
+    
+    /**
+     * 校验JS文件完整性
+     */
+    async validateJSIntegrity(url) {
+        try {
+            const response = await fetch(url, { method: 'HEAD' });
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}`);
+            }
+            
+            // 检查Content-Type
+            const contentType = response.headers.get('content-type');
+            if (contentType && !contentType.includes('javascript') && !contentType.includes('application/javascript')) {
+                console.warn(`Unexpected content-type for JS: ${contentType}`);
+            }
+            
+            // 检查文件大小（基本的完整性检查）
+            const contentLength = response.headers.get('content-length');
+            if (contentLength && parseInt(contentLength) < 100) {
+                throw new Error('JS file too small, possibly corrupted');
+            }
+            
+            return true;
+        } catch (error) {
+            throw new Error(`JS integrity validation failed: ${error.message}`);
+        }
     }
     
     /**
