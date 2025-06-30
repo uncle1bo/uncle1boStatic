@@ -4,10 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Bootstrap 元素测试页面</title>
-    <!-- Bootstrap CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Bootstrap Icons -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+    <!-- CDN 管理器 -->
+    <script src="/prod/js/cdn-fallback.js"></script>
+    <script>
+        // 加载 Bootstrap CSS 和 Bootstrap Icons
+        cdnManager.loadResource('bootstrap-css');
+        cdnManager.loadResource('bootstrap-icons');
+    </script>
     <style>
         .progress-25 { width: 25%; }
         .progress-50 { width: 50%; }
@@ -461,7 +464,9 @@
     </footer>
 
     <!-- Bootstrap JS -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        cdnManager.loadResource('bootstrap-js');
+    </script>
     
     <!-- 初始化工具提示和弹出框 -->
     <script>
