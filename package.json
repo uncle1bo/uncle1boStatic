@@ -3,8 +3,7 @@
   "version": "1.0.0",
   "description": "Uncle1bo Static Website",
   "scripts": {
-    "start": "node server.js",
-    "start-old": "http-server ./prod -p 8000 -c-1 -o"
+    "start": "node server.js"
   },
   "dependencies": {
     "body-parser": "^2.2.0",
