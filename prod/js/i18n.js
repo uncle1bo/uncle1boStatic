@@ -8,12 +8,12 @@
 
 // 当DOM完全加载后执行
 document.addEventListener('DOMContentLoaded', function() {
-    console.log('i18n module loaded successfully!');
+    // i18n module loaded successfully
 });
 
 // 监听模板加载完成事件
 document.addEventListener('templatesLoaded', function(event) {
-    console.log('Templates loaded, initializing i18n...');
+    // Templates loaded, initializing i18n
     // 初始化多语言支持
     initI18n();
 });
@@ -90,7 +90,7 @@ async function loadLanguageResources(lang, pageName = null) {
         // 构建语言资源URL（使用相对路径）
         let basePath = '';
         
-        // 检查是否有自定义的basePath配置（用于测试页面等特殊情况）
+        // 检查是否有自定义的basePath配置
         if (window.I18N_CONFIG && window.I18N_CONFIG.basePath) {
             basePath = window.I18N_CONFIG.basePath;
         } else {
@@ -111,14 +111,14 @@ async function loadLanguageResources(lang, pageName = null) {
         
         // 首先加载公共语言资源（用于页头页脚模板）
         const commonResourceUrl = `${basePath}/${lang}/common.json`;
-        console.log('Loading common language resource from:', commonResourceUrl);
+        // Loading common language resource
         
         let commonTranslations = {};
         try {
             const commonResponse = await fetch(commonResourceUrl);
             if (commonResponse.ok) {
                 commonTranslations = await commonResponse.json();
-                console.log('Common translations loaded successfully');
+                // Common translations loaded successfully
                 
                 // 缓存公共翻译
                 window._i18nCache[lang]['common'] = commonTranslations;
@@ -128,7 +128,7 @@ async function loadLanguageResources(lang, pageName = null) {
                 // 如果加载失败且当前语言不是中文，尝试使用中文翻译
                 if (lang !== 'zh-CN' && window._i18nCache['zh-CN'] && window._i18nCache['zh-CN']['common']) {
                     commonTranslations = window._i18nCache['zh-CN']['common'];
-                    console.log('Using Chinese common translations as fallback');
+                    // Using Chinese common translations as fallback
                 }
             }
         } catch (error) {
@@ -137,12 +137,12 @@ async function loadLanguageResources(lang, pageName = null) {
             // 如果加载失败且当前语言不是中文，尝试使用中文翻译
             if (lang !== 'zh-CN' && window._i18nCache['zh-CN'] && window._i18nCache['zh-CN']['common']) {
                 commonTranslations = window._i18nCache['zh-CN']['common'];
-                console.log('Using Chinese common translations as fallback');
+                // Using Chinese common translations as fallback
             }
         }
         
         const resourceUrl = `${basePath}/${lang}/${pageName}.json`;
-        console.log('Loading language resource from:', resourceUrl);
+        // Loading language resource
         
         // 获取语言资源
         const response = await fetch(resourceUrl);
@@ -164,7 +164,7 @@ async function loadLanguageResources(lang, pageName = null) {
                     const zhResponse = await fetch(zhResourceUrl);
                     if (zhResponse.ok) {
                         pageTranslations = await zhResponse.json();
-                        console.log('Using Chinese translations as fallback');
+                        // Using Chinese translations as fallback
                         
                         // 缓存中文翻译
                         if (!window._i18nCache['zh-CN']) {

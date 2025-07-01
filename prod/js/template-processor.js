@@ -7,7 +7,7 @@
 
 // 当DOM完全加载后执行
 document.addEventListener('DOMContentLoaded', function() {
-    console.log('Template processor loaded successfully!');
+    // Template processor loaded successfully
     
     // 加载模板
     loadTemplates();
@@ -32,7 +32,7 @@ async function loadTemplates() {
             detail: { pageInfo }
         });
         document.dispatchEvent(event);
-        console.log('Templates loaded successfully, event dispatched');
+        // Templates loaded successfully, event dispatched
         
     } catch (error) {
         console.error('Error loading templates:', error);

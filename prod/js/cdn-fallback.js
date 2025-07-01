@@ -276,7 +276,7 @@ class CDNFallbackManager {
         this.savePreferredCDNs();
         this.loadedResources.add(resourceKey);
 
-        console.log(`Successfully loaded ${resourceKey} from ${winner.url} (race winner)`);
+        // Resource loaded successfully
         return winner.url;
     }
 
@@ -400,14 +400,14 @@ class CDNFallbackManager {
                 // CSS检查
                 if (element.sheet && element.sheet.cssRules) {
                     clearTimeout(timeout);
-                    console.log(`CSS resource ${resourceKey} is healthy`);
+                    // CSS resource is healthy
                     resolve(true);
                     return;
                 }
 
                 element.addEventListener('load', () => {
                     clearTimeout(timeout);
-                    console.log(`CSS resource ${resourceKey} loaded successfully`);
+                    // CSS resource loaded successfully
                     resolve(true);
                 });
 
@@ -421,14 +421,14 @@ class CDNFallbackManager {
                 // JS检查 - 检查是否已经加载
                 if (element.readyState === 'complete' || element.readyState === 'loaded') {
                     clearTimeout(timeout);
-                    console.log(`JS resource ${resourceKey} is healthy`);
+                    // JS resource is healthy
                     resolve(true);
                     return;
                 }
 
                 element.addEventListener('load', () => {
                     clearTimeout(timeout);
-                    console.log(`JS resource ${resourceKey} loaded successfully`);
+                    // JS resource loaded successfully
                     resolve(true);
                 });
 
@@ -525,7 +525,7 @@ class CDNFallbackManager {
      * 初始化CDN管理器
      */
     async init() {
-        console.log('CDN Fallback Manager initialized');
+        // CDN Fallback Manager initialized
 
         // 等待DOM加载完成
         if (document.readyState === 'loading') {

@@ -5,7 +5,7 @@
 
 // 当DOM完全加载后执行
 document.addEventListener('DOMContentLoaded', function() {
-    console.log('Uncle1bo Static Website loaded successfully!');
+    // Uncle1bo Static Website loaded successfully
     
     // 初始化工具提示
     initTooltips();
@@ -20,7 +20,7 @@ document.addEventListener('DOMContentLoaded', function() {
     if (window.templateProcessor) {
         // 监听模板加载完成事件
         document.addEventListener('templatesLoaded', function() {
-            console.log('Templates loaded, initializing theme manager');
+            // Templates loaded, initializing theme manager
             window.ThemeManager.init();
         });
     } else {
@@ -111,7 +111,7 @@ function loadDynamicContent(containerId, contentUrl) {
     
     // 在实际项目中，这里可以使用fetch API从服务器加载内容
     // 这里仅作为示例
-    console.log(`将从 ${contentUrl} 加载内容到 ${containerId}`);
+    // Loading content from URL to container
     
     // 模拟加载中状态
     container.innerHTML = '<div class="text-center"><div class="spinner-border" role="status"><span class="visually-hidden">Loading...</span></div></div>';
@@ -307,7 +307,7 @@ window.ThemeManager = {
         // 更新按钮状态
         this.updateToggleButton();
         
-        console.log('Theme toggle initialized successfully');
+        // Theme toggle initialized successfully
     }
 };
 
