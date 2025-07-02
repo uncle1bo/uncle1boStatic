@@ -27,10 +27,11 @@ const pageGeneratorService = {
    * @param {Object} options.translations.zh - 中文翻译
    * @param {Object} options.translations.en - 英文翻译
    * @param {boolean} options.isEdit - 是否为编辑模式
+   * @param {string} options.subPath - 子路径（可选，用于子文件夹）
    * @returns {Promise<void>}
    */
   generatePage: async function(options) {
-    const { pageName, tabTitle, pageTitle, seoDescription, seoKeywords, content, translations, isEdit = false, isPreview = false } = options;
+    const { pageName, tabTitle, pageTitle, seoDescription, seoKeywords, content, translations, isEdit = false, isPreview = false, subPath } = options;
     
     try {
       // 验证页面名称
@@ -47,7 +48,7 @@ const pageGeneratorService = {
       }
       
       // 生成HTML文件
-      await this.generateHtmlFile({ pageName, tabTitle, pageTitle, content });
+      await this.generateHtmlFile({ pageName, tabTitle, pageTitle, content, subPath });
       
       // 生成多语言文件
       await this.generateI18nFiles({ pageName, tabTitle, pageTitle, seoDescription, seoKeywords, translations });
@@ -93,27 +94,42 @@ const pageGeneratorService = {
    * @param {string} options.tabTitle - 选项卡标题（用于浏览器标签页）
    * @param {string} options.pageTitle - 页面标题（用于页面内容区域）
    * @param {string} options.content - 页面内容（Markdown格式）
+   * @param {string} options.subPath - 子路径（可选，用于子文件夹）
    * @returns {Promise<void>}
    */
   generateHtmlFile: async function(options) {
-    const { pageName, tabTitle, pageTitle, content } = options;
+    const { pageName, tabTitle, pageTitle, content, subPath } = options;
     
     // 将Markdown转换为HTML
     const htmlContent = this.convertMarkdownToHtml(content);
+    
+    // 计算文件的相对路径
+    let htmlFile;
+    let relativePath;
+    
+    if (subPath) {
+      // 如果指定了子路径，在子文件夹中创建文件
+      const subDir = path.join(paths.getGeneratedPagesPath(), subPath);
+      await fs.ensureDir(subDir);
+      htmlFile = path.join(subDir, `${pageName}.html`);
+      relativePath = `pages/generated/${subPath}/${pageName}.html`;
+    } else {
+      // 默认在generated目录下创建文件
+      await fs.ensureDir(paths.getGeneratedPagesPath());
+      htmlFile = path.join(paths.getGeneratedPagesPath(), `${pageName}.html`);
+      relativePath = `pages/generated/${pageName}.html`;
+    }
     
     // 使用模板服务生成完整的HTML
     const fullHtmlContent = templateService.generateFullHtml({
       htmlContent,
       pageName,
       tabTitle,
-      pageTitle
+      pageTitle,
+      relativePath
     });
     
-    // 确保pages目录存在
-    await fs.ensureDir(paths.getPagesPath());
-    
-    // 保存HTML文件到generated目录
-    const htmlFile = path.join(paths.getGeneratedPagesPath(), `${pageName}.html`);
+    // 保存HTML文件
     await fs.writeFile(htmlFile, fullHtmlContent, 'utf8');
   },
   
@@ -315,11 +331,14 @@ const pageGeneratorService = {
       }
       
       // 4. 生成完整HTML（与生成流程一致）
+      // 预览时使用默认路径（pages/generated/）
+      const relativePath = `pages/generated/${pageName}.html`;
       const fullHtml = templateService.generateFullHtml({
         htmlContent,
         pageName,
         tabTitle: tabTitle || pageTitle || pageName,
-        pageTitle: pageTitle || pageName
+        pageTitle: pageTitle || pageName,
+        relativePath
       });
       
       console.log(`预览页面生成成功: ${pageName}`);

@@ -7,9 +7,10 @@
     <!-- CDN 管理器 -->
     <script src="/prod/js/cdn-fallback.js"></script>
     <script>
+        // CDN管理器会自动初始化，无需手动创建实例
         // 加载 Bootstrap CSS 和 Bootstrap Icons
-        cdnManager.loadResource('bootstrap-css');
-        cdnManager.loadResource('bootstrap-icons');
+        window.cdnManager.loadResource('bootstrap-css');
+        window.cdnManager.loadResource('bootstrap-icons');
     </script>
     <style>
         .progress-25 { width: 25%; }
@@ -478,7 +479,7 @@
     <!-- Bootstrap JS -->
     <script>
         // 加载Bootstrap JS并在加载完成后初始化组件
-        cdnManager.loadResource('bootstrap-js').then(function() {
+        window.cdnManager.loadResource('bootstrap-js').then(function() {
             // 初始化工具提示
             var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
             var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {

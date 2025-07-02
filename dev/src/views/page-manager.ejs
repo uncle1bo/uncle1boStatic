@@ -87,17 +87,14 @@
   <!-- CDN Fallback Manager -->
   <script src="/prod/js/cdn-fallback.js"></script>
   <script>
-    // 使用CDN管理器加载JS资源，确保完全加载后再执行业务逻辑
-    window.cdnManager = new CDNFallbackManager();
-    
-    // CDN资源加载Promise - 使用新的依赖管理功能
+    // CDN管理器会自动初始化，无需手动创建实例
+    // 创建全局Promise用于CDN资源加载
     window.cdnResourcesReady = Promise.all([
-      cdnManager.loadResource('bootstrap-css'),
-      cdnManager.loadResource('bootstrap-icons')
+      window.cdnManager.loadResource('bootstrap-css'),
+      window.cdnManager.loadResource('bootstrap-icons')
     ]).then(() => {
-      // 使用新的依赖管理功能自动处理DataTables及其依赖
-      console.log('开始加载DataTables及其依赖...');
-      return cdnManager.loadResourceWithDependencies('dataTables-bootstrap');
+      // 加载DataTables相关资源
+      return window.cdnManager.loadResourceWithDependencies('dataTables-bootstrap');
     }).then(() => {
       console.log('所有资源及依赖加载完成，可以安全使用DataTables功能');
       return true; // 标记资源加载完成

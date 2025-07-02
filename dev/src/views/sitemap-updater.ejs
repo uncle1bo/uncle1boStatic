@@ -123,14 +123,13 @@
   <!-- CDN Fallback Manager -->
   <script src="/prod/js/cdn-fallback.js"></script>
   <script>
-    // 使用CDN管理器加载JS资源，确保完全加载后再执行业务逻辑
-    window.cdnManager = new CDNFallbackManager();
+    // CDN管理器会自动初始化，无需手动创建实例
     // 创建全局Promise用于CDN资源加载
     window.cdnResourcesReady = Promise.all([
-      cdnManager.loadResource('bootstrap-css'),
-      cdnManager.loadResource('bootstrap-icons'),
-      cdnManager.loadResource('bootstrap-js'),
-      cdnManager.loadResource('jquery')
+      window.cdnManager.loadResource('bootstrap-css'),
+      window.cdnManager.loadResource('bootstrap-icons'),
+      window.cdnManager.loadResource('bootstrap-js'),
+      window.cdnManager.loadResource('jquery')
     ]);
   </script>
   

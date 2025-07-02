@@ -1,0 +1,742 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CDN缓存管理工具</title>
+  <!-- CDN Fallback Manager -->
+  <script src="/prod/js/cdn-fallback.js"></script>
+  <script>
+    // CDN管理器会自动初始化，无需手动创建实例
+    // 创建全局Promise用于CDN资源加载
+    window.cdnResourcesReady = Promise.all([
+      window.cdnManager.loadResource('bootstrap-css'),
+      window.cdnManager.loadResource('bootstrap-icons')
+    ]).catch(error => {
+      console.warn('CDN资源加载失败，使用备选方案:', error);
+    });
+  </script>
+  <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+  <div class="container-fluid mt-4">
+    <!-- 页面标题 -->
+    <div class="row mb-4">
+      <div class="col-12">
+        <div class="d-flex justify-content-between align-items-center">
+          <div>
+            <h1 class="h3 mb-1">
+              <i class="bi bi-cloud-arrow-down me-2 text-primary"></i>
+              CDN缓存管理工具
+            </h1>
+            <p class="text-muted mb-0">管理CDN资源缓存，支持一键清除和预热操作</p>
+          </div>
+          <a href="/" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left me-2"></i>返回工具列表
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- 操作面板 -->
+    <div class="row mb-4">
+      <div class="col-12">
+        <div class="card">
+          <div class="card-header">
+            <h5 class="mb-0">
+              <i class="bi bi-gear me-2"></i>
+              快速操作
+            </h5>
+          </div>
+          <div class="card-body">
+            <div class="row g-3">
+              <div class="col-md-3">
+                <button id="clearAllBtn" class="btn btn-danger w-100">
+                  <i class="bi bi-trash me-2"></i>
+                  清除所有缓存
+                </button>
+              </div>
+              <div class="col-md-3">
+                <button id="warmAllBtn" class="btn btn-success w-100">
+                  <i class="bi bi-fire me-2"></i>
+                  预热所有缓存
+                </button>
+              </div>
+              <div class="col-md-3">
+                <button id="checkStatusBtn" class="btn btn-info w-100">
+                  <i class="bi bi-search me-2"></i>
+                  检查缓存状态
+                </button>
+              </div>
+              <div class="col-md-3">
+                <button id="refreshBtn" class="btn btn-outline-primary w-100">
+                  <i class="bi bi-arrow-clockwise me-2"></i>
+                  刷新数据
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 统计信息 -->
+    <div class="row mb-4">
+      <div class="col-md-3">
+        <div class="card text-center">
+          <div class="card-body">
+            <h5 class="card-title text-primary">总操作次数</h5>
+            <h2 class="text-primary" id="totalOperations">-</h2>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="card text-center">
+          <div class="card-body">
+            <h5 class="card-title text-danger">清除操作</h5>
+            <h2 class="text-danger" id="clearOperations">-</h2>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="card text-center">
+          <div class="card-body">
+            <h5 class="card-title text-success">预热操作</h5>
+            <h2 class="text-success" id="warmOperations">-</h2>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="card text-center">
+          <div class="card-body">
+            <h5 class="card-title text-info">资源数量</h5>
+            <h2 class="text-info" id="resourceCount">-</h2>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 主要内容区域 -->
+    <div class="row">
+      <!-- 资源列表 -->
+      <div class="col-lg-8">
+        <div class="card">
+          <div class="card-header d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">
+              <i class="bi bi-list-ul me-2"></i>
+              CDN资源列表
+            </h5>
+            <div class="btn-group" role="group">
+              <button id="selectAllBtn" class="btn btn-sm btn-outline-primary">全选</button>
+              <button id="clearSelectedBtn" class="btn btn-sm btn-outline-danger">清除选中</button>
+              <button id="warmSelectedBtn" class="btn btn-sm btn-outline-success">预热选中</button>
+            </div>
+          </div>
+          <div class="card-body p-0">
+            <div id="resourcesList" class="list-group list-group-flush">
+              <!-- 资源列表将在这里动态生成 -->
+              <div class="text-center p-4">
+                <div class="spinner-border text-primary" role="status">
+                  <span class="visually-hidden">加载中...</span>
+                </div>
+                <p class="mt-2 text-muted">正在加载资源列表...</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 侧边栏 -->
+      <div class="col-lg-4">
+        <!-- 操作历史 -->
+        <div class="card mb-4">
+          <div class="card-header d-flex justify-content-between align-items-center">
+            <h6 class="mb-0">
+              <i class="bi bi-clock-history me-2"></i>
+              操作历史
+            </h6>
+            <button id="clearHistoryBtn" class="btn btn-sm btn-outline-danger">
+              <i class="bi bi-trash"></i>
+            </button>
+          </div>
+          <div class="card-body p-0" style="max-height: 300px; overflow-y: auto;">
+            <div id="operationHistory">
+              <!-- 操作历史将在这里显示 -->
+              <div class="text-center p-3">
+                <small class="text-muted">暂无操作历史</small>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 缓存状态 -->
+        <div class="card">
+          <div class="card-header">
+            <h6 class="mb-0">
+              <i class="bi bi-info-circle me-2"></i>
+              缓存状态概览
+            </h6>
+          </div>
+          <div class="card-body">
+            <div id="cacheStatusOverview">
+              <div class="text-center">
+                <small class="text-muted">点击"检查缓存状态"查看详情</small>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 操作结果模态框 -->
+  <div class="modal fade" id="resultModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="resultModalTitle">操作结果</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <div id="resultModalContent">
+            <!-- 操作结果将在这里显示 -->
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">关闭</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 确认操作模态框 -->
+  <div class="modal fade" id="confirmModal" tabindex="-1">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="confirmModalTitle">确认操作</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <p id="confirmModalContent">确定要执行此操作吗？</p>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+          <button type="button" class="btn btn-primary" id="confirmActionBtn">确认</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- JavaScript -->
+  <script>
+    // 等待CDN资源加载完成
+    Promise.all([
+      window.cdnManager.loadResource('bootstrap-js'),
+        window.cdnManager.loadResource('jquery')
+    ]).then(() => {
+      // 初始化页面
+      initializePage();
+    }).catch(error => {
+      console.error('CDN资源加载失败:', error);
+      // 即使CDN加载失败也要初始化页面
+      initializePage();
+    });
+
+    let cdnResources = {};
+    let selectedResources = new Set();
+
+    function initializePage() {
+      loadCDNResources();
+      loadStatistics();
+      loadOperationHistory();
+      bindEvents();
+    }
+
+    function bindEvents() {
+      // 快速操作按钮
+      document.getElementById('clearAllBtn').addEventListener('click', () => {
+        showConfirmModal('清除所有缓存', '确定要清除所有CDN资源的缓存吗？此操作不可撤销。', () => {
+          performOperation('clear-all');
+        });
+      });
+
+      document.getElementById('warmAllBtn').addEventListener('click', () => {
+        showConfirmModal('预热所有缓存', '确定要预热所有CDN资源的缓存吗？', () => {
+          performOperation('warm-all');
+        });
+      });
+
+      document.getElementById('checkStatusBtn').addEventListener('click', checkCacheStatus);
+      document.getElementById('refreshBtn').addEventListener('click', refreshData);
+
+      // 批量操作按钮
+      document.getElementById('selectAllBtn').addEventListener('click', selectAllResources);
+      document.getElementById('clearSelectedBtn').addEventListener('click', () => {
+        if (selectedResources.size === 0) {
+          showAlert('请先选择要操作的资源', 'warning');
+          return;
+        }
+        showConfirmModal('清除选中缓存', `确定要清除选中的 ${selectedResources.size} 个资源的缓存吗？`, () => {
+          clearSelectedResources();
+        });
+      });
+      document.getElementById('warmSelectedBtn').addEventListener('click', () => {
+        if (selectedResources.size === 0) {
+          showAlert('请先选择要操作的资源', 'warning');
+          return;
+        }
+        showConfirmModal('预热选中缓存', `确定要预热选中的 ${selectedResources.size} 个资源的缓存吗？`, () => {
+          warmSelectedResources();
+        });
+      });
+
+      // 清除历史按钮
+      document.getElementById('clearHistoryBtn').addEventListener('click', () => {
+        showConfirmModal('清除操作历史', '确定要清除所有操作历史记录吗？', () => {
+          clearOperationHistory();
+        });
+      });
+    }
+
+    async function loadCDNResources() {
+      try {
+        const response = await fetch('/cdn-cache-manager/resources');
+        const result = await response.json();
+        
+        if (result.success) {
+          cdnResources = result.data;
+          renderResourcesList();
+          updateResourceCount();
+        } else {
+          showAlert('加载CDN资源失败: ' + result.error, 'danger');
+        }
+      } catch (error) {
+        showAlert('加载CDN资源失败: ' + error.message, 'danger');
+      }
+    }
+
+    function renderResourcesList() {
+      const container = document.getElementById('resourcesList');
+      
+      if (Object.keys(cdnResources).length === 0) {
+        container.innerHTML = `
+          <div class="text-center p-4">
+            <i class="bi bi-inbox display-4 text-muted"></i>
+            <p class="mt-2 text-muted">暂无CDN资源配置</p>
+          </div>
+        `;
+        return;
+      }
+
+      const html = Object.entries(cdnResources).map(([key, resource]) => `
+        <div class="list-group-item">
+          <div class="d-flex justify-content-between align-items-start">
+            <div class="flex-grow-1">
+              <div class="form-check">
+                <input class="form-check-input" type="checkbox" value="${key}" id="resource-${key}" onchange="toggleResourceSelection('${key}')">
+                <label class="form-check-label" for="resource-${key}">
+                  <h6 class="mb-1">${resource.name}</h6>
+                </label>
+              </div>
+              <p class="mb-1 text-muted small">${resource.description || '无描述'}</p>
+              <small class="text-muted">CDN数量: ${resource.cdns ? resource.cdns.length : 0}</small>
+            </div>
+            <div class="btn-group" role="group">
+              <button class="btn btn-sm btn-outline-danger" onclick="clearResourceCache('${key}')">
+                <i class="bi bi-trash"></i>
+              </button>
+              <button class="btn btn-sm btn-outline-success" onclick="warmResourceCache('${key}')">
+                <i class="bi bi-fire"></i>
+              </button>
+              <button class="btn btn-sm btn-outline-info" onclick="checkResourceStatus('${key}')">
+                <i class="bi bi-search"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+      `).join('');
+
+      container.innerHTML = html;
+    }
+
+    function toggleResourceSelection(resourceKey) {
+      const checkbox = document.getElementById(`resource-${resourceKey}`);
+      if (checkbox.checked) {
+        selectedResources.add(resourceKey);
+      } else {
+        selectedResources.delete(resourceKey);
+      }
+    }
+
+    function selectAllResources() {
+      const checkboxes = document.querySelectorAll('#resourcesList input[type="checkbox"]');
+      const allSelected = Array.from(checkboxes).every(cb => cb.checked);
+      
+      checkboxes.forEach(checkbox => {
+        checkbox.checked = !allSelected;
+        const resourceKey = checkbox.value;
+        if (!allSelected) {
+          selectedResources.add(resourceKey);
+        } else {
+          selectedResources.delete(resourceKey);
+        }
+      });
+      
+      document.getElementById('selectAllBtn').textContent = allSelected ? '全选' : '取消全选';
+    }
+
+    async function performOperation(operation, resourceKey = null) {
+      const url = resourceKey ? 
+        `/cdn-cache-manager/${operation}/${resourceKey}` : 
+        `/cdn-cache-manager/${operation}`;
+      
+      try {
+        showLoading(true);
+        const response = await fetch(url, { method: 'POST' });
+        const result = await response.json();
+        
+        if (result.success) {
+          showResultModal(operation, result.data);
+          loadOperationHistory();
+          loadStatistics();
+        } else {
+          showAlert('操作失败: ' + result.error, 'danger');
+        }
+      } catch (error) {
+        showAlert('操作失败: ' + error.message, 'danger');
+      } finally {
+        showLoading(false);
+      }
+    }
+
+    async function clearResourceCache(resourceKey) {
+      showConfirmModal('清除缓存', `确定要清除资源 "${cdnResources[resourceKey]?.name || resourceKey}" 的缓存吗？`, () => {
+        performOperation('clear', resourceKey);
+      });
+    }
+
+    async function warmResourceCache(resourceKey) {
+      showConfirmModal('预热缓存', `确定要预热资源 "${cdnResources[resourceKey]?.name || resourceKey}" 的缓存吗？`, () => {
+        performOperation('warm', resourceKey);
+      });
+    }
+
+    async function clearSelectedResources() {
+      for (const resourceKey of selectedResources) {
+        await performOperation('clear', resourceKey);
+      }
+      selectedResources.clear();
+      renderResourcesList();
+    }
+
+    async function warmSelectedResources() {
+      for (const resourceKey of selectedResources) {
+        await performOperation('warm', resourceKey);
+      }
+      selectedResources.clear();
+      renderResourcesList();
+    }
+
+    async function checkCacheStatus() {
+      try {
+        showLoading(true);
+        const response = await fetch('/cdn-cache-manager/status');
+        const result = await response.json();
+        
+        if (result.success) {
+          showCacheStatusOverview(result.data);
+        } else {
+          showAlert('检查缓存状态失败: ' + result.error, 'danger');
+        }
+      } catch (error) {
+        showAlert('检查缓存状态失败: ' + error.message, 'danger');
+      } finally {
+        showLoading(false);
+      }
+    }
+
+    async function checkResourceStatus(resourceKey) {
+      try {
+        showLoading(true);
+        const response = await fetch(`/cdn-cache-manager/status/${resourceKey}`);
+        const result = await response.json();
+        
+        if (result.success) {
+          showResultModal('status', result.data);
+        } else {
+          showAlert('检查资源状态失败: ' + result.error, 'danger');
+        }
+      } catch (error) {
+        showAlert('检查资源状态失败: ' + error.message, 'danger');
+      } finally {
+        showLoading(false);
+      }
+    }
+
+    async function loadStatistics() {
+      try {
+        const response = await fetch('/cdn-cache-manager/statistics');
+        const result = await response.json();
+        
+        if (result.success) {
+          const stats = result.data;
+          document.getElementById('totalOperations').textContent = stats.totalOperations || 0;
+          document.getElementById('clearOperations').textContent = stats.clearOperations || 0;
+          document.getElementById('warmOperations').textContent = stats.warmOperations || 0;
+        }
+      } catch (error) {
+        console.error('加载统计信息失败:', error);
+      }
+    }
+
+    function updateResourceCount() {
+      document.getElementById('resourceCount').textContent = Object.keys(cdnResources).length;
+    }
+
+    async function loadOperationHistory() {
+      try {
+        const response = await fetch('/cdn-cache-manager/history');
+        const result = await response.json();
+        
+        if (result.success) {
+          renderOperationHistory(result.data);
+        }
+      } catch (error) {
+        console.error('加载操作历史失败:', error);
+      }
+    }
+
+    function renderOperationHistory(history) {
+      const container = document.getElementById('operationHistory');
+      
+      if (!history || history.length === 0) {
+        container.innerHTML = `
+          <div class="text-center p-3">
+            <small class="text-muted">暂无操作历史</small>
+          </div>
+        `;
+        return;
+      }
+
+      const html = history.slice(0, 10).map(record => {
+        const operationText = record.operation === 'clear' ? '清除' : '预热';
+        const operationClass = record.operation === 'clear' ? 'danger' : 'success';
+        const time = new Date(record.timestamp).toLocaleString();
+        
+        return `
+          <div class="border-bottom p-2">
+            <div class="d-flex justify-content-between align-items-start">
+              <div>
+                <span class="badge bg-${operationClass}">${operationText}</span>
+                <small class="text-muted ms-2">${cdnResources[record.resourceKey]?.name || record.resourceKey}</small>
+              </div>
+              <small class="text-muted">${time}</small>
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      container.innerHTML = html;
+    }
+
+    async function clearOperationHistory() {
+      try {
+        const response = await fetch('/cdn-cache-manager/history', { method: 'DELETE' });
+        const result = await response.json();
+        
+        if (result.success) {
+          showAlert('操作历史已清除', 'success');
+          loadOperationHistory();
+        } else {
+          showAlert('清除操作历史失败: ' + result.error, 'danger');
+        }
+      } catch (error) {
+        showAlert('清除操作历史失败: ' + error.message, 'danger');
+      }
+    }
+
+    function showCacheStatusOverview(statusData) {
+      const container = document.getElementById('cacheStatusOverview');
+      
+      if (!statusData || statusData.length === 0) {
+        container.innerHTML = '<div class="text-center"><small class="text-muted">无状态数据</small></div>';
+        return;
+      }
+
+      let availableCount = 0;
+      let errorCount = 0;
+      
+      statusData.forEach(resource => {
+        if (resource.cdns) {
+          resource.cdns.forEach(cdn => {
+            if (cdn.status === 'available') {
+              availableCount++;
+            } else {
+              errorCount++;
+            }
+          });
+        }
+      });
+
+      const html = `
+        <div class="row text-center">
+          <div class="col-6">
+            <div class="text-success">
+              <i class="bi bi-check-circle-fill"></i>
+              <div>${availableCount}</div>
+              <small>可用</small>
+            </div>
+          </div>
+          <div class="col-6">
+            <div class="text-danger">
+              <i class="bi bi-x-circle-fill"></i>
+              <div>${errorCount}</div>
+              <small>错误</small>
+            </div>
+          </div>
+        </div>
+      `;
+
+      container.innerHTML = html;
+    }
+
+    function showResultModal(operation, data) {
+      const modal = new bootstrap.Modal(document.getElementById('resultModal'));
+      const title = document.getElementById('resultModalTitle');
+      const content = document.getElementById('resultModalContent');
+      
+      let titleText = '';
+      let contentHtml = '';
+      
+      if (operation === 'clear-all' || operation === 'warm-all') {
+        titleText = operation === 'clear-all' ? '清除所有缓存结果' : '预热所有缓存结果';
+        contentHtml = data.map(result => {
+          const operationText = result.operation === 'clear' ? '清除' : '预热';
+          const statusClass = result.error ? 'danger' : 'success';
+          
+          return `
+            <div class="card mb-2">
+              <div class="card-header bg-${statusClass} text-white">
+                <h6 class="mb-0">${result.resourceName || result.resourceKey} - ${operationText}结果</h6>
+              </div>
+              <div class="card-body">
+                ${result.error ? 
+                  `<div class="alert alert-danger">${result.error}</div>` :
+                  result.results.map(r => `
+                    <div class="d-flex justify-content-between align-items-center border-bottom py-1">
+                      <span>${r.name}</span>
+                      <span class="badge bg-${r.status === 'cleared' || r.status === 'warmed' ? 'success' : 'danger'}">
+                        ${r.status}
+                      </span>
+                    </div>
+                  `).join('')
+                }
+              </div>
+            </div>
+          `;
+        }).join('');
+      } else if (operation === 'status') {
+        titleText = `${data.resourceName} - 缓存状态`;
+        contentHtml = `
+          <div class="table-responsive">
+            <table class="table table-sm">
+              <thead>
+                <tr>
+                  <th>CDN名称</th>
+                  <th>状态</th>
+                  <th>响应时间</th>
+                  <th>缓存状态</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${data.cdns.map(cdn => `
+                  <tr>
+                    <td>${cdn.name}</td>
+                    <td>
+                      <span class="badge bg-${cdn.status === 'available' ? 'success' : 'danger'}">
+                        ${cdn.status}
+                      </span>
+                    </td>
+                    <td>${cdn.responseTime ? cdn.responseTime + 'ms' : '-'}</td>
+                    <td>${cdn.cacheStatus || '-'}</td>
+                  </tr>
+                `).join('')}
+              </tbody>
+            </table>
+          </div>
+        `;
+      } else {
+        titleText = `${data.resourceName} - ${data.operation === 'clear' ? '清除' : '预热'}结果`;
+        contentHtml = data.results.map(result => `
+          <div class="d-flex justify-content-between align-items-center border-bottom py-2">
+            <div>
+              <strong>${result.name}</strong>
+              <br>
+              <small class="text-muted">${result.url}</small>
+            </div>
+            <div class="text-end">
+              <span class="badge bg-${result.status === 'cleared' || result.status === 'warmed' ? 'success' : 'danger'}">
+                ${result.status}
+              </span>
+              ${result.responseTime ? `<br><small>${result.responseTime}ms</small>` : ''}
+            </div>
+          </div>
+        `).join('');
+      }
+      
+      title.textContent = titleText;
+      content.innerHTML = contentHtml;
+      modal.show();
+    }
+
+    function showConfirmModal(title, content, callback) {
+      const modal = new bootstrap.Modal(document.getElementById('confirmModal'));
+      document.getElementById('confirmModalTitle').textContent = title;
+      document.getElementById('confirmModalContent').textContent = content;
+      
+      const confirmBtn = document.getElementById('confirmActionBtn');
+      confirmBtn.onclick = () => {
+        modal.hide();
+        callback();
+      };
+      
+      modal.show();
+    }
+
+    function showAlert(message, type = 'info') {
+      const alertHtml = `
+        <div class="alert alert-${type} alert-dismissible fade show" role="alert">
+          ${message}
+          <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+      `;
+      
+      const container = document.querySelector('.container-fluid');
+      container.insertAdjacentHTML('afterbegin', alertHtml);
+      
+      // 自动移除警告
+      setTimeout(() => {
+        const alert = container.querySelector('.alert');
+        if (alert) {
+          alert.remove();
+        }
+      }, 5000);
+    }
+
+    function showLoading(show) {
+      const buttons = document.querySelectorAll('button');
+      buttons.forEach(btn => {
+        btn.disabled = show;
+      });
+    }
+
+    function refreshData() {
+      loadCDNResources();
+      loadStatistics();
+      loadOperationHistory();
+      showAlert('数据已刷新', 'success');
+    }
+  </script>
+</body>
+</html>

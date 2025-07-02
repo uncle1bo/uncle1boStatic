@@ -7,24 +7,19 @@
     <meta name="keywords" content="" data-i18n="meta.keywords">
     <title data-i18n="meta.title">测试123</title>
     <!-- CDN自动切换逻辑 -->
-    <script src="../js/cdn-fallback.js"></script>
-    <script>
-        // 使用CDN管理器加载CSS资源
-        window.cdnManager = new CDNFallbackManager();
-        // 创建全局Promise用于CDN资源加载
-        window.cdnResourcesReady = Promise.all([
-            cdnManager.loadResource('bootstrap-css'),
-            cdnManager.loadResource('bootstrap-icons'),
-            cdnManager.loadResource('prism-css'),
-            cdnManager.loadResource('katex-css')
-        ]).catch(error => {
-            console.warn('CDN资源加载失败，使用备选方案:', error);
-        });
-    </script>
+    <!-- CDN模块化组件 -->
+    <script src="../../js/cdn/config.js"></script>
+    <script src="../../js/cdn/cache.js"></script>
+    <script src="../../js/cdn/loader.js"></script>
+    <script src="../../js/cdn/optimizer.js"></script>
+    <script src="../../js/cdn/dependency.js"></script>
+    <!-- CDN主管理器 -->
+    <script src="../../js/cdn-fallback.js"></script>
+    <!-- CSS资源通过CDN管理器动态加载 -->
     <!-- Custom CSS -->
-    <link rel="stylesheet" href="../css/styles.css">
+    <link rel="stylesheet" href="../../css/styles.css">
     <!-- Template Processor -->
-    <script src="../js/template-processor.js"></script>
+    <script src="../../js/template-processor.js"></script>
 </head>
 <body data-prismjs-copy="📋" data-prismjs-copy-error="❌" data-prismjs-copy-success="✅" data-prismjs-copy-timeout="2000">
     <div class="container-fluid">
@@ -204,7 +199,7 @@ $</div></p>
     G --&gt; K[完成]
     H --&gt; K
     I --&gt; K
-    J --&gt; K" data-diagram-id="mermaid-jitouy9yc">
+    J --&gt; K" data-diagram-id="mermaid-z750bp2nx">
             <pre><code class="language-mermaid">graph TD
     A[开始] --&gt; B{检测文件类型}
     B --&gt;|XML| C[XML预览]
@@ -232,7 +227,7 @@ $</div></p>
     S--&gt;&gt;W: 返回模板内容
     W-&gt;&gt;W: 渲染页面内容
     W--&gt;&gt;B: 显示生成界面
-    B--&gt;&gt;U: 展示页面工具" data-diagram-id="mermaid-go2pjc2i5">
+    B--&gt;&gt;U: 展示页面工具" data-diagram-id="mermaid-u0j2m0ge6">
             <pre><code class="language-mermaid">sequenceDiagram
     participant U as 用户
     participant B as 浏览器
@@ -262,7 +257,7 @@ $</div></p>
     section 测试优化
     功能测试        :active, test, 2024-01-12, 2024-01-14
     性能优化        :optimize, 2024-01-14, 2024-01-16
-    文档完善        :docs, 2024-01-16, 2024-01-17" data-diagram-id="mermaid-dmo5clegt">
+    文档完善        :docs, 2024-01-16, 2024-01-17" data-diagram-id="mermaid-pp4q0dj7a">
             <pre><code class="language-mermaid">gantt
     title 网站工具开发计划
     dateFormat  YYYY-MM-DD
@@ -324,38 +319,44 @@ $</div></p>
         <div id="footer-template"></div>
     </div>
     
+    <!-- JS资源通过CDN管理器动态加载 -->
     <!-- Custom JavaScript -->
     <script src="../js/main.js"></script>
     <!-- 多语言支持 -->
     <script src="../js/i18n.js"></script>
     <script>
-        // 等待CDN资源和DOM加载完成后初始化
-        async function initializePage() {
+        // 使用CDN管理器加载所有外部资源
+        // CDN管理器会自动初始化，无需手动创建实例
+        
+        // 创建全局Promise用于CDN资源加载
+        window.cdnResourcesReady = Promise.all([
+            window.cdnManager.loadResource('bootstrap-css'),
+            window.cdnManager.loadResource('bootstrap-icons'),
+            window.cdnManager.loadResource('prism-toolbar-css'),
+            window.cdnManager.loadResource('katex-css')
+        ]).then(() => {
+            return Promise.all([
+                window.cdnManager.loadResource('bootstrap-js'),
+                window.cdnManager.loadResource('prism-core'),
+                window.cdnManager.loadResource('prism-autoloader'),
+                window.cdnManager.loadResource('prism-toolbar'),
+                window.cdnManager.loadResource('prism-copy'),
+                window.cdnManager.loadResource('katex-js'),
+                window.cdnManager.loadResource('mermaid')
+            ]);
+        }).catch(error => {
+            console.warn('CDN资源加载失败，使用备选方案:', error);
+        });
+        
+        // 初始化多语言支持和增强渲染
+        document.addEventListener('DOMContentLoaded', async function() {
             try {
-                // 等待DOM加载完成
-                await new Promise(resolve => {
-                    if (document.readyState === 'loading') {
-                        document.addEventListener('DOMContentLoaded', resolve);
-                    } else {
-                        resolve();
-                    }
-                });
-                
                 // 等待CDN资源加载完成
                 await window.cdnResourcesReady;
+                console.log('所有CDN资源加载完成');
                 
-                // 加载JavaScript资源
-                await Promise.all([
-                    cdnManager.loadResource('bootstrap-js'),
-                    cdnManager.loadResource('prism-js'),
-                    cdnManager.loadResource('katex-js'),
-                    cdnManager.loadResource('mermaid-js')
-                ]);
-                
-                // 初始化多语言支持
-                if (typeof initI18n === 'function') {
-                    initI18n('test');
-                }
+                // 初始化多语言支持，指定当前页面名称
+                initI18n('test');
                 
                 // 初始化增强Markdown渲染
                 initEnhancedMarkdown();
@@ -367,14 +368,12 @@ $</div></p>
                         Prism.highlightAll();
                     }
                 });
-                
             } catch (error) {
                 console.error('页面初始化失败:', error);
+                // 即使CDN资源加载失败，也要尝试初始化基本功能
+                initI18n('test');
             }
-        }
-        
-        // 启动初始化
-        initializePage();
+        });
         
         // 加载完整主题配置
         function loadThemeConfig() {
@@ -398,6 +397,11 @@ $</div></p>
                                     root.style.setProperty(cssVar, config[key]);
                                 }
                             });
+                            
+                            // 通过CDN管理器加载代码高亮主题
+                            if (config.codeTheme && window.cdnManager) {
+                                loadCodeTheme(config.codeTheme);
+                            }
                         }
                     })
                     .catch(error => {
@@ -408,15 +412,52 @@ $</div></p>
             }
         }
         
+        // 通过CDN管理器加载代码高亮主题
+        function loadCodeTheme(codeTheme) {
+            if (!window.cdnManager) {
+                console.warn('CDN管理器未初始化，无法加载代码主题');
+                return;
+            }
+            
+            // 移除现有的代码主题
+            const existingThemeLink = document.getElementById('prism-theme');
+            if (existingThemeLink) {
+                existingThemeLink.remove();
+            }
+            
+            // 通过CDN管理器动态加载新主题
+            const themeResourceKey = `prism-theme-${codeTheme}`;
+            
+            // 如果CDN管理器中没有这个主题资源，动态添加
+            if (!window.cdnManager.cdnResources[themeResourceKey]) {
+                window.cdnManager.cdnResources[themeResourceKey] = {
+                    type: 'css',
+                    primary: `https://cdn.jsdelivr.net/npm/prismjs@1.29.0/themes/prism-${codeTheme}.min.css`,
+                    fallbacks: [
+                        `https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-${codeTheme}.min.css`
+                    ]
+                };
+            }
+            
+            // 加载主题
+            window.cdnManager.loadResource(themeResourceKey)
+                .then(() => {
+                    console.log(`代码高亮主题 ${codeTheme} 加载成功`);
+                    // 重新高亮所有代码块
+                    if (window.Prism) {
+                        Prism.highlightAll();
+                    }
+                })
+                .catch(error => {
+                    console.warn(`代码高亮主题 ${codeTheme} 加载失败:`, error);
+                });
+        }
+        
         // 增强Markdown渲染初始化函数
         function initEnhancedMarkdown() {
             // 加载完整主题配置
             loadThemeConfig();
             
-            // 加载代码高亮主题
-            loadCodeTheme();
-            
-
             // 初始化代码高亮
             if (window.Prism) {
                 Prism.highlightAll();

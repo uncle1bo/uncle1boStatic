@@ -279,19 +279,17 @@
   <!-- CDN Fallback Manager -->
   <script src="/prod/js/cdn-fallback.js"></script>
   <script>
-    // 使用CDN管理器加载JS资源，确保完全加载后再执行业务逻辑
-    window.cdnManager = new CDNFallbackManager();
-    
-    // 创建全局Promise，供菜单编辑器等待CDN资源加载完成
+    // CDN管理器会自动初始化，无需手动创建实例
+    // 创建全局Promise用于CDN资源加载
     window.cdnResourcesReady = Promise.all([
-      cdnManager.loadResource('bootstrap-css'),
-      cdnManager.loadResource('bootstrap-icons'),
-      cdnManager.loadResource('jquery'),
-      cdnManager.loadResource('bootstrap-js')
+      window.cdnManager.loadResource('bootstrap-css'),
+      window.cdnManager.loadResource('bootstrap-icons'),
+      window.cdnManager.loadResource('jquery'),
+      window.cdnManager.loadResource('bootstrap-js')
     ]).then(() => {
       console.log('Bootstrap Icons、jQuery和Bootstrap JS 加载完成');
       // 加载jQuery UI（需要jQuery先加载完成）
-      return cdnManager.loadJS('https://code.jquery.com/ui/1.13.2/jquery-ui.min.js', 'jquery-ui');
+      return window.cdnManager.loadJS('https://code.jquery.com/ui/1.13.2/jquery-ui.min.js', 'jquery-ui');
     }).then(() => {
       console.log('所有JS资源加载完成，可以安全使用jQuery UI功能');
       // 这里可以添加依赖jQuery UI的业务逻辑

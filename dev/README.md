@@ -145,7 +145,7 @@ POST /api/theme/save
 
 #### 强制要求
 - 必须使用CDN管理器，禁止硬编码CDN链接
-- 使用 `cdnManager.loadResource(resourceKey)` 加载资源
+- 使用 `window.cdnManager.loadResource(resourceKey)` 加载资源
 - 配置主CDN + 至少2个备选CDN
 
 #### CDN资源加载时序规范
@@ -153,10 +153,10 @@ POST /api/theme/save
 
 ```javascript
 // 1. 创建全局Promise用于CDN资源加载
-window.cdnResourcesReady = Promise.all([
-  cdnManager.loadResource('bootstrap-js'),
-  cdnManager.loadResource('jquery')
-  // 其他必需的CDN资源
+window.cdnResourcesReady =Promise.all([
+    window.cdnManager.loadResource('bootstrap-js'),
+    window.cdnManager.loadResource('jquery')
+])// 其他必需的CDN资源
 ]);
 
 // 2. 等待DOM和CDN资源都加载完成
@@ -223,7 +223,7 @@ if (modal) {
 
 **修复步骤：**
 1. 移除所有硬编码的CDN链接
-2. 使用CDN管理器：`cdnManager.loadResource(resourceKey)`
+2. 使用CDN管理器：`window.cdnManager.loadResource(resourceKey)`
 3. 实现全局Promise等待机制：`window.cdnResourcesReady`
 4. 延迟初始化所有Bootstrap组件
 

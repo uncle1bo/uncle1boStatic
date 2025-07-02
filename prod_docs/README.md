@@ -141,10 +141,10 @@ locales/
 
 ```javascript
 // 加载CDN资源
-const cdnManager = new CDNFallbackManager();
+// CDN管理器会自动初始化，无需手动创建实例
 
-// 单个资源加载
-await cdnManager.loadResource('bootstrap-css');
+// 基本用法
+await window.cdnManager.loadResource('bootstrap-css');
 
 // 带依赖的资源加载
 await cdnManager.loadResourceWithDependencies('dataTables-bootstrap');

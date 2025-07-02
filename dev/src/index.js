@@ -21,6 +21,7 @@ const pageManagerRoutes = require('./tools/pageManager/routes');
 const pageGeneratorRoutes = require('./tools/pageGenerator/routes');
 const themeManagerRoutes = require('./tools/themeManager/routes');
 const cdnTesterRoutes = require('./tools/cdnTester/routes');
+const cdnCacheManagerRoutes = require('./tools/cdnCacheManager/routes');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -66,6 +67,7 @@ app.use('/menu-editor', require('./tools/menuEditor/routes'));
 app.use('/page-manager', require('./tools/pageManager/routes'));
 app.use('/theme-manager', require('./tools/themeManager/routes'));
 app.use('/cdn-tester', require('./tools/cdnTester/routes'));
+app.use('/cdn-cache-manager', require('./tools/cdnCacheManager/routes'));
 
 // Bootstrap测试页面路由
 app.get('/bootstrap-test', (req, res) => {

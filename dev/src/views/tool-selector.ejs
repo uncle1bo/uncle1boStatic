@@ -7,12 +7,11 @@
   <!-- CDN Fallback Manager -->
   <script src="/prod/js/cdn-fallback.js"></script>
   <script>
-    // 使用CDN管理器加载CSS资源
-    window.cdnManager = new CDNFallbackManager();
-    // 异步加载CSS资源，确保完全加载后再继续
-    Promise.all([
-      cdnManager.loadResource('bootstrap-css'),
-      cdnManager.loadResource('bootstrap-icons')
+    // CDN管理器会自动初始化，无需手动创建实例
+    // 创建全局Promise用于CDN资源加载
+    window.cdnResourcesReady = Promise.all([
+      window.cdnManager.loadResource('bootstrap-css'),
+      window.cdnManager.loadResource('bootstrap-icons')
     ]).catch(error => {
       console.warn('CDN资源加载失败，使用备选方案:', error);
     });
@@ -200,6 +199,30 @@
                 </div>
               </div>
               
+              <!-- CDN缓存管理工具卡片 -->
+              <div class="col">
+                <div class="card h-100 border-warning">
+                  <div class="card-body">
+                    <h5 class="card-title">
+                      <i class="bi bi-cloud-arrow-down me-2 text-warning"></i>
+                      CDN缓存管理工具
+                    </h5>
+                    <p class="card-text">管理CDN资源缓存，提供一键清除和预热功能，帮助快速更新CDN资源和优化加载速度。</p>
+                    <ul class="list-unstyled">
+                      <li><i class="bi bi-check-circle-fill text-success me-2"></i>一键清除缓存</li>
+                      <li><i class="bi bi-check-circle-fill text-success me-2"></i>一键预热缓存</li>
+                      <li><i class="bi bi-check-circle-fill text-success me-2"></i>批量缓存管理</li>
+                      <li><i class="bi bi-check-circle-fill text-success me-2"></i>操作历史记录</li>
+                    </ul>
+                  </div>
+                  <div class="card-footer bg-transparent border-top-0">
+                    <a href="/cdn-cache-manager" class="btn btn-warning text-white w-100">
+                      <i class="bi bi-box-arrow-in-right me-2"></i>使用此工具
+                    </a>
+                  </div>
+                </div>
+              </div>
+              
               <!-- 未来可以在这里添加更多工具卡片 -->
               <div class="col">
                 <div class="card h-100 border-secondary" style="opacity: 0.7;">
@@ -235,8 +258,8 @@
   <script>
   // 创建全局Promise用于CDN资源加载
   window.cdnResourcesReady = Promise.all([
-    cdnManager.loadResource('bootstrap-js'),
-    cdnManager.loadResource('jquery')
+    window.cdnManager.loadResource('bootstrap-js'),
+        window.cdnManager.loadResource('jquery')
   ]);
   
   // 等待CDN资源加载完成

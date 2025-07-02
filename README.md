@@ -128,7 +128,7 @@ uncle1boStatic/
 
 ```javascript
 // CDN资源管理
-cdnManager.loadResource('bootstrap-css');
+window.cdnManager.loadResource('bootstrap-css');
 
 // 国际化
 i18n.t('key');

@@ -27,22 +27,26 @@ const templateService = {
    * @param {Object} options - 选项
    * @param {string} options.pageName - 页面名称
    * @param {string} options.pageTitle - 页面标题
+   * @param {string} options.relativePath - 相对于prod目录的路径（可选）
    * @returns {string} 处理后的模板
    */
   processHeaderTemplate: function(template, options) {
-    const { pageName, pageTitle } = options;
+    const { pageName, pageTitle, relativePath } = options;
+    
+    // 计算相对路径
+    const rootPath = this.calculateRelativePath(relativePath);
     
     let processedTemplate = template
-      .replace(/{{rootPath}}/g, '../')
-      .replace(/{{cssPath}}/g, '../css/')
-      .replace(/{{jsPath}}/g, '../js/');
+      .replace(/{{rootPath}}/g, rootPath)
+      .replace(/{{cssPath}}/g, rootPath + 'css/')
+      .replace(/{{jsPath}}/g, rootPath + 'js/');
     
     // 设置活动页面
     const activePages = ['homeActive', 'aboutActive', 'servicesActive', 'contactActive'];
     activePages.forEach(active => {
       const isActive = active.replace('Active', '') === pageName;
       processedTemplate = processedTemplate.replace(new RegExp(`{{${active}}}`, 'g'), isActive ? 'active' : '');
-      processedTemplate = processedTemplate.replace(new RegExp(`{{#if ${active}}}([\\s\\S]*?){{/if}}`, 'g'), 
+      processedTemplate = processedTemplate.replace(new RegExp(`{{#if ${active}}}([\s\S]*?){{/if}}`, 'g'), 
         isActive ? '$1' : '');
     });
     
@@ -60,14 +64,18 @@ const templateService = {
    * @param {string} template - 模板内容
    * @param {Object} options - 选项
    * @param {string} options.pageName - 页面名称
+   * @param {string} options.relativePath - 相对于prod目录的路径（可选）
    * @returns {string} 处理后的模板
    */
   processFooterTemplate: function(template, options) {
-    const { pageName } = options;
+    const { pageName, relativePath } = options;
+    
+    // 计算相对路径
+    const rootPath = this.calculateRelativePath(relativePath);
     
     return template
-      .replace(/{{rootPath}}/g, '../')
-      .replace(/{{jsPath}}/g, '../js/')
+      .replace(/{{rootPath}}/g, rootPath)
+      .replace(/{{jsPath}}/g, rootPath + 'js/')
       .replace(/{{pageName}}/g, pageName);
   },
   
@@ -78,10 +86,14 @@ const templateService = {
    * @param {string} options.pageName - 页面名称
    * @param {string} options.tabTitle - 选项卡标题（用于浏览器标签页）
    * @param {string} options.pageTitle - 页面标题（用于页面内容区域）
+   * @param {string} options.relativePath - 相对于prod目录的路径（可选）
    * @returns {string} 完整的HTML页面
    */
   generateFullHtml: function(options) {
-    const { htmlContent, pageName, tabTitle, pageTitle } = options;
+    const { htmlContent, pageName, tabTitle, pageTitle, relativePath } = options;
+    
+    // 计算相对路径
+    const rootPath = this.calculateRelativePath(relativePath);
     
     return `<!DOCTYPE html>
 <html lang="zh-CN">
@@ -91,13 +103,20 @@ const templateService = {
     <meta name="description" data-i18n="meta.description" content="">
     <meta name="keywords" content="" data-i18n="meta.keywords">
     <title data-i18n="meta.title">${tabTitle || pageTitle || pageName}</title>
-    <!-- CDN自动切换逻辑 -->
-    <script src="../js/cdn-fallback.js"></script>
+    <!-- CDN Fallback Manager - 必须在其他CDN资源之前加载 -->
+    <!-- CDN模块化组件 -->
+    <script src="${rootPath}js/cdn/config.js"></script>
+    <script src="${rootPath}js/cdn/cache.js"></script>
+    <script src="${rootPath}js/cdn/loader.js"></script>
+    <script src="${rootPath}js/cdn/optimizer.js"></script>
+    <script src="${rootPath}js/cdn/dependency.js"></script>
+    <!-- CDN主管理器 -->
+    <script src="${rootPath}js/cdn-fallback.js"></script>
     <!-- CSS资源通过CDN管理器动态加载 -->
     <!-- Custom CSS -->
-    <link rel="stylesheet" href="../css/styles.css">
+    <link rel="stylesheet" href="${rootPath}css/styles.css">
     <!-- Template Processor -->
-    <script src="../js/template-processor.js"></script>
+    <script src="${rootPath}js/template-processor.js"></script>
 </head>
 <body data-prismjs-copy="\uD83D\uDCCB" data-prismjs-copy-error="\u274C" data-prismjs-copy-success="\u2705" data-prismjs-copy-timeout="2000">
     <div class="container-fluid">
@@ -125,29 +144,27 @@ const templateService = {
     
     <!-- JS资源通过CDN管理器动态加载 -->
     <!-- Custom JavaScript -->
-    <script src="../js/main.js"></script>
+    <script src="${rootPath}js/main.js"></script>
     <!-- 多语言支持 -->
-    <script src="../js/i18n.js"></script>
+    <script src="${rootPath}js/i18n.js"></script>
     <script>
-        // 使用CDN管理器加载所有外部资源
-        window.cdnManager = new CDNFallbackManager();
+        // CDN管理器会自动初始化，无需手动创建实例
         
         // 创建全局Promise用于CDN资源加载
         window.cdnResourcesReady = Promise.all([
-            cdnManager.loadResource('bootstrap-css'),
-            cdnManager.loadResource('bootstrap-icons'),
-            cdnManager.loadResource('prism-toolbar-css'),
-            cdnManager.loadResource('katex-css')
+            window.cdnManager.loadResource('bootstrap-css'),
+            window.cdnManager.loadResource('bootstrap-icons'),
+            window.cdnManager.loadResource('prism-toolbar-css'),
+            window.cdnManager.loadResource('katex-css')
         ]).then(() => {
-            // CSS资源加载完成后加载JS资源
             return Promise.all([
-                cdnManager.loadResource('bootstrap-js'),
-                cdnManager.loadResource('prism-core'),
-                cdnManager.loadResource('prism-autoloader'),
-                cdnManager.loadResource('prism-toolbar'),
-                cdnManager.loadResource('prism-copy'),
-                cdnManager.loadResource('katex-js'),
-                cdnManager.loadResource('mermaid')
+                window.cdnManager.loadResource('bootstrap-js'),
+                window.cdnManager.loadResource('prism-core'),
+                window.cdnManager.loadResource('prism-autoloader'),
+                window.cdnManager.loadResource('prism-toolbar'),
+                window.cdnManager.loadResource('prism-copy'),
+                window.cdnManager.loadResource('katex-js'),
+                window.cdnManager.loadResource('mermaid')
             ]);
         }).catch(error => {
             console.warn('CDN资源加载失败，使用备选方案:', error);
@@ -187,7 +204,7 @@ const templateService = {
                 const currentTheme = document.documentElement.getAttribute('data-bs-theme') || 'light';
                 
                 // 从theme-config.json文件获取主题配置
-                fetch('../theme-config.json')
+                fetch('${rootPath}theme-config.json')
                     .then(response => response.json())
                     .then(themeConfig => {
                         if (themeConfig && themeConfig[currentTheme]) {
@@ -323,6 +340,35 @@ const templateService = {
     </script>
 </body>
 </html>`;
+  },
+
+  /**
+   * 计算相对路径
+   * @param {string} relativePath - 相对于prod目录的路径（如 'pages/generated/subfolder/page.html'）
+   * @returns {string} 相对于当前文件位置的根路径
+   */
+  calculateRelativePath: function(relativePath) {
+    if (!relativePath) {
+      // 默认情况：假设文件在 pages/generated/ 目录下
+      return '../../';
+    }
+    
+    // 计算文件相对于prod目录的深度
+    const pathParts = relativePath.split('/').filter(part => part && part !== '.');
+    
+    // 移除文件名，只保留目录部分
+    if (pathParts.length > 0 && pathParts[pathParts.length - 1].includes('.')) {
+      pathParts.pop();
+    }
+    
+    // 计算需要返回的层级数
+    const depth = pathParts.length;
+    
+    // 生成相对路径
+    if (depth === 0) {
+      return '';
+    }
+    return '../'.repeat(depth);
   }
 };
 

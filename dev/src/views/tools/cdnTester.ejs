@@ -155,9 +155,8 @@
   <!-- CDN Fallback Manager -->
   <script src="/prod/js/cdn-fallback.js"></script>
   <script>
-    // 使用CDN管理器加载JS资源，确保完全加载后再执行业务逻辑
-    window.cdnManager = new CDNFallbackManager();
-    cdnManager.loadResource('bootstrap-js').then(() => {
+    // CDN管理器会自动初始化，无需手动创建实例
+    window.cdnManager.loadResource('bootstrap-js').then(() => {
       console.log('Bootstrap JS 加载完成');
       // 这里可以添加依赖Bootstrap的业务逻辑
     }).catch(error => {
