@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" data-i18n="meta.description" content="查看所有生成的文章页面">
+    <meta name="keywords" content="Uncle1bo, 静态网站, 文章预览, 生成页面" data-i18n="meta.keywords">
+    <title data-i18n="meta.title">文章预览 - Uncle1bo Static Website</title>
+    <!-- CDN Fallback Manager - 必须在其他CDN资源之前加载 -->
+    <script src="../../js/cdn-fallback.js"></script>
+    <script>
+        // 使用CDN管理器加载CSS资源
+        window.cdnManager = new CDNFallbackManager();
+        // 创建全局Promise用于CDN资源加载
+        window.cdnResourcesReady = Promise.all([
+            cdnManager.loadResource('bootstrap-css'),
+            cdnManager.loadResource('bootstrap-icons')
+        ]).catch(error => {
+            console.warn('CDN资源加载失败，使用备选方案:', error);
+        });
+    </script>
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="../../css/styles.css">
+    <!-- Template Processor -->
+    <script src="../../js/template-processor.js"></script>
+    <style>
+        .article-card {
+            transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+            border: 1px solid #dee2e6;
+            border-radius: 0.5rem;
+            overflow: hidden;
+        }
+        .article-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        .card-body {
+            padding: 1.5rem;
+        }
+        .card-title {
+            color: #495057;
+            font-weight: 600;
+            margin-bottom: 0.75rem;
+        }
+        .card-text {
+            color: #6c757d;
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+        .btn-outline-primary {
+            border-width: 1px;
+            font-weight: 500;
+        }
+        .no-articles {
+            text-align: center;
+            padding: 3rem 1rem;
+            color: #6c757d;
+        }
+        .loading-spinner {
+            text-align: center;
+            padding: 3rem 1rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid">
+        <!-- 头部模板 -->
+        <div id="header-template"></div>
+
+        <!-- Generated Articles Preview Section -->
+        <div class="main-content">
+            <div class="container mt-5">
+                <div class="row">
+                    <div class="col-md-12">
+                        <h1 class="display-4 text-center mb-4" data-i18n="preview.title">文章预览</h1>
+                        <p class="lead text-center mb-5" data-i18n="preview.description">浏览所有通过页面生成器创建的文章</p>
+                        <hr class="my-4">
+                        
+                        <!-- 加载状态 -->
+                        <div id="loading" class="loading-spinner">
+                            <div class="spinner-border text-primary" role="status">
+                                <span class="visually-hidden" data-i18n="preview.loading">加载中...</span>
+                            </div>
+                            <p class="mt-2" data-i18n="preview.loading">加载中...</p>
+                        </div>
+                        
+                        <!-- 文章卡片容器 -->
+                        <div id="articles-container" class="d-flex flex-column gap-3" style="display: none;">
+                            <!-- 文章卡片将通过JavaScript动态生成 -->
+                        </div>
+                        
+                        <!-- 无文章提示 -->
+                        <div id="no-articles" class="no-articles" style="display: none;">
+                            <i class="bi bi-file-earmark-text" style="font-size: 3rem; color: #dee2e6;"></i>
+                            <h3 class="mt-3" data-i18n="preview.no_articles">暂无文章</h3>
+                            <p data-i18n="preview.no_articles_desc">还没有通过页面生成器创建的文章。</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 底部模板 -->
+        <div id="footer-template"></div>
+    </div>
+    
+    <!-- Custom JavaScript -->
+    <script src="../../js/main.js"></script>
+    <!-- 多语言支持 -->
+    <script src="../../js/i18n.js"></script>
+    <script>
+        // 文章数据加载和渲染
+        async function loadGeneratedArticles() {
+            try {
+                // 模拟获取generated目录下的文章列表
+                // 在实际应用中，这里应该通过API获取文章列表
+                const articles = await fetchGeneratedArticles();
+                
+                const container = document.getElementById('articles-container');
+                const loading = document.getElementById('loading');
+                const noArticles = document.getElementById('no-articles');
+                
+                loading.style.display = 'none';
+                
+                if (articles.length === 0) {
+                    noArticles.style.display = 'block';
+                    return;
+                }
+                
+                container.style.display = 'flex';
+                
+                articles.forEach(article => {
+                    const cardHtml = createArticleCard(article);
+                    container.innerHTML += cardHtml;
+                });
+                
+            } catch (error) {
+                console.error('加载文章失败:', error);
+                document.getElementById('loading').innerHTML = 
+                    '<p class="text-danger" data-i18n="preview.error">加载文章时出现错误</p>';
+            }
+        }
+        
+        // 获取生成的文章列表
+        async function fetchGeneratedArticles() {
+            // 这里应该实现实际的文章获取逻辑
+            // 目前返回示例数据
+            return [
+                {
+                    name: 'test',
+                    title: '测试123',
+                    description: 'Markdown语法测试文档，包含了各种Markdown语法和增强功能。',
+                    url: '../generated/test.html',
+                    date: '2024-01-01'
+                }
+            ];
+        }
+        
+        // 创建文章卡片HTML
+        function createArticleCard(article) {
+            return `
+                <div class="card article-card">
+                    <div class="card-body d-flex flex-column flex-md-row align-items-start">
+                        <div class="flex-grow-1">
+                            <h5 class="card-title mb-2">${escapeHtml(article.title)}</h5>
+                            <p class="card-text mb-2">${escapeHtml(article.description)}</p>
+                            <small class="text-muted">${escapeHtml(article.date)}</small>
+                        </div>
+                        <div class="mt-3 mt-md-0 ms-md-3">
+                            <a href="${escapeHtml(article.url)}" class="btn btn-outline-primary btn-sm" data-i18n="preview.read_more">阅读更多</a>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+        
+        // HTML转义函数
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+        
+        // 等待CDN资源和DOM加载完成后初始化
+        async function initializePage() {
+            try {
+                // 等待DOM加载完成
+                await new Promise(resolve => {
+                    if (document.readyState === 'loading') {
+                        document.addEventListener('DOMContentLoaded', resolve);
+                    } else {
+                        resolve();
+                    }
+                });
+                
+                // 等待CDN资源加载完成
+                await window.cdnResourcesReady;
+                
+                // 加载Bootstrap JS
+                await cdnManager.loadResource('bootstrap-js');
+                
+                // 初始化多语言支持
+                if (typeof initI18n === 'function') {
+                    initI18n('generated_preview');
+                }
+                
+                // 加载文章列表
+                await loadGeneratedArticles();
+                
+            } catch (error) {
+                console.error('页面初始化失败:', error);
+            }
+        }
+        
+        // 启动初始化
+        initializePage();
+    </script>
+</body>
+</html>

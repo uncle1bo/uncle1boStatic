@@ -2,7 +2,8 @@
   "nav": {
     "language": "Language",
     "menu_0": "首页",
-    "menu_1": "about"
+    "menu_1": "关于",
+    "menu_2": "articles"
   },
   "footer": {
     "copyright": "© 2023 Uncle1bo. All rights reserved.",

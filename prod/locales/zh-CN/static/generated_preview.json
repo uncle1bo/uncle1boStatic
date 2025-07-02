@@ -1,0 +1,17 @@
+{
+  "meta": {
+    "title": "文章预览 - Uncle1bo 静态网站",
+    "description": "查看所有生成的文章页面",
+    "keywords": "Uncle1bo, 静态网站, 文章预览, 生成页面"
+  },
+  
+  "preview": {
+    "title": "文章预览",
+    "description": "浏览所有通过页面生成器创建的文章",
+    "loading": "加载中...",
+    "no_articles": "暂无文章",
+    "no_articles_desc": "还没有通过页面生成器创建的文章。",
+    "error": "加载文章时出现错误",
+    "read_more": "阅读更多"
+  }
+}

@@ -24,6 +24,9 @@
   --danger-color: #dc3545;
   --info-color: #17a2b8;
   
+  /* 卡片样式变量 */
+  --card-background-color: #e3f2fd;
+  
   /* Markdown样式变量 */
   --md-h1-color: #1a1a1a;
   --md-h2-color: #2d2d2d;
@@ -74,6 +77,9 @@
   --warning-color: #fd7e14;
   --danger-color: #e74c3c;
   --info-color: #3498db;
+  
+  /* 卡片样式变量 */
+  --card-background-color: #1a237e;
   
   /* Markdown样式变量 */
   --md-h1-color: #ffffff;
@@ -505,6 +511,18 @@ a:hover {
 
 .mermaid .edgePath .path {
   stroke: var(--mermaid-border) !important;
+}
+
+/* 文章卡片样式 */
+.article-card {
+  background-color: var(--card-background-color) !important;
+  border: 1px solid var(--border-color);
+  transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+
+.article-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px var(--shadow-color);
 }
 
 .mermaid .edgeLabel {

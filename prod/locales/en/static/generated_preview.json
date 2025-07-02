@@ -1,0 +1,17 @@
+{
+  "meta": {
+    "title": "Article Preview - Uncle1bo Static Website",
+    "description": "View all generated article pages",
+    "keywords": "Uncle1bo, static website, article preview, generated pages"
+  },
+  
+  "preview": {
+    "title": "Article Preview",
+    "description": "Browse all articles created through the page generator",
+    "loading": "Loading...",
+    "no_articles": "No Articles",
+    "no_articles_desc": "No articles have been created through the page generator yet.",
+    "error": "Error loading articles",
+    "read_more": "Read More"
+  }
+}

@@ -95,7 +95,9 @@ async function loadLanguageResources(lang, pageName = null) {
             basePath = window.I18N_CONFIG.basePath;
         } else {
             // 检查当前页面是否在子目录中
-            if (window.location.pathname.includes('/pages/')) {
+            if (window.location.pathname.includes('/pages/static/') || window.location.pathname.includes('/pages/generated/')) {
+                basePath = '../../';
+            } else if (window.location.pathname.includes('/pages/')) {
                 basePath = '../';
             }
             basePath += 'locales';
@@ -141,7 +143,15 @@ async function loadLanguageResources(lang, pageName = null) {
             }
         }
         
-        const resourceUrl = `${basePath}/${lang}/${pageName}.json`;
+        // 根据页面位置确定语言资源路径
+        let resourcePath = pageName;
+        if (window.location.pathname.includes('/pages/static/')) {
+            resourcePath = `static/${pageName}`;
+        } else if (window.location.pathname.includes('/pages/generated/')) {
+            resourcePath = `generated/${pageName}`;
+        }
+        
+        const resourceUrl = `${basePath}/${lang}/${resourcePath}.json`;
         // Loading language resource
         
         // 获取语言资源
@@ -160,7 +170,7 @@ async function loadLanguageResources(lang, pageName = null) {
             if (lang !== 'zh-CN') {
                 // 尝试加载中文翻译
                 try {
-                    const zhResourceUrl = `${basePath}/zh-CN/${pageName}.json`;
+                    const zhResourceUrl = `${basePath}/zh-CN/${resourcePath}.json`;
                     const zhResponse = await fetch(zhResourceUrl);
                     if (zhResponse.ok) {
                         pageTranslations = await zhResponse.json();

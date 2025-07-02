@@ -191,7 +191,15 @@ window.ThemeManager = {
      */
     loadThemeConfig: function(theme) {
         try {
-            fetch('./theme-config.json')
+            // 根据页面位置确定主题配置文件路径
+            let configPath = './theme-config.json';
+            if (window.location.pathname.includes('/pages/static/') || window.location.pathname.includes('/pages/generated/')) {
+                configPath = '../../theme-config.json';
+            } else if (window.location.pathname.includes('/pages/')) {
+                configPath = '../theme-config.json';
+            }
+            
+            fetch(configPath)
                 .then(response => response.json())
                 .then(themeConfig => {
                     if (themeConfig && themeConfig[theme]) {

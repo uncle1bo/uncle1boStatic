@@ -56,9 +56,25 @@ function getPageInfo() {
     }
     
     // 确定路径前缀
-    const rootPath = isRoot ? '' : '../';
-    const cssPath = isRoot ? 'css/' : '../css/';
-    const jsPath = isRoot ? 'js/' : '../js/';
+    let rootPath = '';
+    let cssPath = 'css/';
+    let jsPath = 'js/';
+    
+    if (!isRoot) {
+        // 检查是否在static或generated子目录中
+        const pathParts = path.split('/');
+        const isInSubDir = pathParts.includes('static') || pathParts.includes('generated');
+        
+        if (isInSubDir) {
+            rootPath = '../../';
+            cssPath = '../../css/';
+            jsPath = '../../js/';
+        } else {
+            rootPath = '../';
+            cssPath = '../css/';
+            jsPath = '../js/';
+        }
+    }
     
     // 确定活动页面
     const activePages = {
