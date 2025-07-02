@@ -32,7 +32,7 @@ async function initI18n(pageName = null) {
     // 如果有指定页面名称，确保加载了正确的页面资源
     if (pageName) {
         await loadLanguageResources(currentLang, pageName);
-        applyTranslations();
+        // applyTranslations已在loadLanguageResources中调用，无需重复调用
     }
     
     // 为语言选择器添加事件监听
@@ -63,7 +63,7 @@ async function setLanguage(lang) {
     // 重新加载语言资源并应用翻译
     try {
         await loadLanguageResources(lang);
-        applyTranslations();
+        // applyTranslations已在loadLanguageResources中调用，无需重复调用
     } catch (error) {
         console.error('切换语言时加载资源失败:', error);
     }
