@@ -37,7 +37,7 @@ const i18nService = {
       pageTitle,
       seoDescription,
       seoKeywords,
-      customTranslations: customTranslations ? customTranslations.zh : null 
+      customTranslations: customTranslations ? customTranslations['zh-CN'] : null 
     });
     
     // 生成英文语言文件
