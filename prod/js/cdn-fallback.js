@@ -107,13 +107,16 @@ class CDNFallbackManager {
                 
                 // 特殊处理：prism autoloader加载完成后设置正确的组件路径
                 if (resourceKey === 'prism-autoloader' && typeof Prism !== 'undefined' && Prism.plugins && Prism.plugins.autoloader) {
-                    // 使用CDN配置中的primary路径设置组件路径
+                    // 优先使用本地组件路径
+                    const localComponentsPath = window.location.origin + window.location.pathname.replace(/[^/]*$/, '') + 'assets/libs/prism/';
+                    Prism.plugins.autoloader.languages_path = localComponentsPath;
+                    console.log('已设置Prism autoloader本地组件路径:', Prism.plugins.autoloader.languages_path);
+                    
+                    // 备用：如果本地路径不可用，使用CDN路径
                     const prismCoreConfig = this.config.getResource('prism-core');
                     if (prismCoreConfig && prismCoreConfig.primary) {
-                        // 从prism-core的CDN路径推导components路径
-                        const basePath = prismCoreConfig.primary.replace('/prism.min.js', '/components/');
-                        Prism.plugins.autoloader.languages_path = basePath;
-                        console.log('已设置Prism autoloader组件路径:', Prism.plugins.autoloader.languages_path);
+                        const cdnBasePath = prismCoreConfig.primary.replace('/prism.min.js', '/components/');
+                        console.log('CDN备用组件路径:', cdnBasePath);
                     }
                 }
                 

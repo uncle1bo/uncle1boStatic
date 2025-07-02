@@ -13,6 +13,7 @@ const fsNative = require('fs');
 
 // 导入配置
 const paths = require('./config/pathConfig');
+const redirectService = require('./services/redirectService');
 
 // 导入工具路由
 const sitemapUpdaterRoutes = require('./tools/sitemapUpdater/routes');
@@ -38,6 +39,9 @@ app.use('/tools', express.static(path.join(__dirname, 'tools')));
 app.use('/prod', express.static(paths.prod));
 
 // 添加assets路径映射，解决静态资源访问问题
+// 优先映射根目录的assets（包含Prism组件）
+app.use('/assets', express.static(path.join(paths.root, '..', 'assets')));
+// 然后映射prod目录的assets
 app.use('/assets', express.static(path.join(paths.prod, 'assets')));
 
 // 添加字体文件路径映射，解决Bootstrap图标404问题
@@ -75,9 +79,32 @@ app.use('/theme-manager', require('./tools/themeManager/routes'));
 app.use('/cdn-tester', require('./tools/cdnTester/routes'));
 app.use('/cdn-cache-manager', require('./tools/cdnCacheManager/routes'));
 
+// 重定向管理路由
+app.use('/api/redirect', require('./routes/redirectRoutes'));
+
+// 重定向管理器页面路由
+app.get('/redirect-manager', (req, res) => {
+    res.render('redirect-manager');
+});
+
 // Bootstrap测试页面路由
 app.get('/bootstrap-test', (req, res) => {
   res.sendFile(path.join(__dirname, '../test-files/bootstrap-elements-test.html'));
+});
+
+// 自动重定向中间件 - 处理外部资源路径的重定向
+app.use((req, res, next) => {
+  const redirectInfo = redirectService.processRedirect(req.path);
+  
+  if (redirectInfo) {
+    // 记录重定向日志
+    redirectService.logRedirect(redirectInfo);
+    
+    // 执行重定向
+    return res.redirect(redirectInfo.statusCode, redirectInfo.newPath);
+  }
+  
+  next();
 });
 
 // 自动处理prod目录下的所有静态文件访问

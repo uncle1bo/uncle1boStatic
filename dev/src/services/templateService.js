@@ -154,7 +154,7 @@ const templateService = {
         window.cdnResourcesReady = Promise.all([
             window.cdnManager.loadResource('bootstrap-css'),
             window.cdnManager.loadResource('bootstrap-icons'),
-            window.cdnManager.loadResource('prism-css'),
+            window.cdnManager.loadResource('prism-theme-css'),
             window.cdnManager.loadResource('prism-toolbar-css'),
             window.cdnManager.loadResource('katex-css')
         ]).then(() => {
@@ -162,10 +162,14 @@ const templateService = {
                 window.cdnManager.loadResource('bootstrap-js'),
                 window.cdnManager.loadResource('prism-core'),
                 window.cdnManager.loadResource('prism-autoloader'),
-                window.cdnManager.loadResource('prism-toolbar'),
-                window.cdnManager.loadResource('prism-copy'),
                 window.cdnManager.loadResource('katex-js'),
                 window.cdnManager.loadResource('mermaid')
+            ]);
+        }).then(() => {
+            // 在Prism核心组件加载完成后，再加载工具栏和复制功能
+            return Promise.all([
+                window.cdnManager.loadResource('prism-toolbar'),
+                window.cdnManager.loadResource('prism-copy')
             ]);
         }).catch(error => {
             console.warn('CDN资源加载失败，使用备选方案:', error);
@@ -294,7 +298,8 @@ const templateService = {
             
             // 为每个组件动态注册CDN资源
             commonComponents.forEach(component => {
-                const resourceKey = \`prism-\${component}\`;
+                // 特殊处理CSS组件，避免与CSS主题文件冲突
+                const resourceKey = component === 'css' ? 'prism-css-component' : \`prism-\${component}\`;
                 
                 // 检查是否已经注册
                 if (!window.cdnManager.config.cdnResources[resourceKey]) {
@@ -328,7 +333,8 @@ const templateService = {
                     
                     // 为每个语言动态注册CDN资源并加载
                     const loadPromises = languageArray.map(async (lang) => {
-                        const resourceKey = \`prism-\${lang}\`;
+                        // 特殊处理CSS组件，避免与CSS主题文件冲突
+                        const resourceKey = lang === 'css' ? 'prism-css-component' : \`prism-\${lang}\`;
                         
                         // 动态注册资源（如果尚未注册）
                         if (!window.cdnManager.config.cdnResources[resourceKey]) {
@@ -397,8 +403,25 @@ const templateService = {
             }
         }
         
+        // 防止重复注册copy按钮的函数
+        function preventDuplicateCopyButton() {
+            if (typeof Prism !== 'undefined' && Prism.plugins && Prism.plugins.toolbar) {
+                // 检查是否已经注册了copy-to-clipboard按钮
+                if (Prism.plugins.toolbar.getButton && Prism.plugins.toolbar.getButton('copy-to-clipboard')) {
+                    console.log('copy-to-clipboard按钮已存在，跳过重复注册');
+                    return true;
+                }
+            }
+            return false;
+        }
+        
         // 增强Markdown渲染初始化函数
         function initEnhancedMarkdown() {
+            // 防止重复注册copy按钮
+            if (preventDuplicateCopyButton()) {
+                console.log('检测到重复的copy按钮注册，已阻止');
+            }
+            
             // 注册Prism组件资源
             registerPrismComponents();
             

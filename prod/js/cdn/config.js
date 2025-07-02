@@ -127,8 +127,8 @@ class CDNConfig {
                 readyCheck: () => typeof $ !== 'undefined' && typeof jQuery !== 'undefined'
             },
 
-            // Prism.js CSS
-            'prism-css': {
+            // Prism.js CSS Theme
+            'prism-theme-css': {
                 localPath: '/assets/libs/prism/prism-tomorrow.min.css',
                 primary: 'https://cdn.jsdelivr.net/npm/prismjs@1.29.0/themes/prism-tomorrow.min.css',
                 fallbacks: [
@@ -293,7 +293,7 @@ class CDNConfig {
                 dependencies: ['prism-core', 'prism-clike']
             },
 
-            'prism-css': {
+            'prism-css-component': {
                 localPath: '/assets/libs/prism/components/prism-css.min.js',
                 primary: 'https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-css.min.js',
                 fallbacks: [
