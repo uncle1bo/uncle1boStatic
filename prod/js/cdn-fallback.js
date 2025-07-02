@@ -136,6 +136,26 @@ class CDNFallbackManager {
                     'https://cdnjs.cloudflare.com/ajax/libs/mermaid/10.6.1/mermaid.min.js'
                 ],
                 type: 'js'
+            },
+
+            // DataTables Core
+            'dataTables': {
+                primary: 'https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js',
+                fallbacks: [
+                    'https://cdnjs.cloudflare.com/ajax/libs/datatables/1.13.4/js/jquery.dataTables.min.js',
+                    'https://cdn.jsdelivr.net/npm/datatables.net@1.13.4/js/jquery.dataTables.min.js'
+                ],
+                type: 'js'
+            },
+
+            // DataTables Bootstrap 5 Integration
+            'dataTables-bootstrap': {
+                primary: 'https://cdn.datatables.net/1.13.4/js/dataTables.bootstrap5.min.js',
+                fallbacks: [
+                    'https://cdnjs.cloudflare.com/ajax/libs/datatables/1.13.4/js/dataTables.bootstrap5.min.js',
+                    'https://cdn.jsdelivr.net/npm/datatables.net-bs5@1.13.4/js/dataTables.bootstrap5.min.js'
+                ],
+                type: 'js'
             }
         };
     }

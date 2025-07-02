@@ -4,10 +4,6 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>页面管理器 - Uncle1bo静态站点工具集</title>
-  <!-- Bootstrap CSS -->
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-  <!-- Bootstrap Icons -->
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
   <!-- DataTables CSS -->
   <link rel="stylesheet" href="https://cdn.datatables.net/1.13.4/css/dataTables.bootstrap5.min.css">
   <!-- Custom CSS -->
@@ -96,14 +92,16 @@
     
     // 创建全局Promise，供页面管理器等待CDN资源加载完成
     window.cdnResourcesReady = Promise.all([
+      cdnManager.loadResource('bootstrap-css'),
+      cdnManager.loadResource('bootstrap-icons'),
       cdnManager.loadResource('bootstrap-js'),
       cdnManager.loadResource('jquery')
     ]).then(() => {
       console.log('jQuery和Bootstrap JS 加载完成');
       // 加载DataTables（需要jQuery先加载完成）
       return Promise.all([
-        cdnManager.loadJS('https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js', 'dataTables'),
-        cdnManager.loadJS('https://cdn.datatables.net/1.13.4/js/dataTables.bootstrap5.min.js', 'dataTables-bootstrap')
+        cdnManager.loadResource('dataTables'),
+        cdnManager.loadResource('dataTables-bootstrap')
       ]);
     }).then(() => {
       console.log('所有JS资源加载完成，可以安全使用DataTables功能');
