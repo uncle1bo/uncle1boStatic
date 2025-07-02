@@ -61,6 +61,7 @@ class CDNConfig {
         this.cdnResources = {
             // Bootstrap CSS
             'bootstrap-css': {
+                localPath: '/assets/libs/bootstrap/bootstrap.min.css',
                 primary: 'https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css',
                 fallbacks: [
                     'https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css',
@@ -71,6 +72,7 @@ class CDNConfig {
 
             // Bootstrap JS
             'bootstrap-js': {
+                localPath: '/assets/libs/bootstrap/bootstrap.bundle.min.js',
                 primary: 'https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js',
                 fallbacks: [
                     'https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js',
@@ -83,6 +85,7 @@ class CDNConfig {
 
             // Bootstrap Icons CSS
             'bootstrap-icons': {
+                localPath: '/assets/libs/bootstrap/bootstrap-icons.css',
                 primary: 'https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css',
                 fallbacks: [
                     'https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.10.5/font/bootstrap-icons.css',
@@ -112,10 +115,11 @@ class CDNConfig {
 
             // jQuery
             'jquery': {
+                localPath: '/assets/libs/jquery/jquery.min.js',
                 primary: 'https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js',
                 fallbacks: [
-                    'https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js',
                     'https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js',
+                    'https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js',
                     'https://code.jquery.com/jquery-3.6.0.min.js',
                     'https://cdn.staticfile.org/jquery/3.6.0/jquery.min.js'
                 ],
@@ -125,6 +129,7 @@ class CDNConfig {
 
             // Prism.js CSS
             'prism-css': {
+                localPath: '/assets/libs/prism/prism-tomorrow.min.css',
                 primary: 'https://cdn.jsdelivr.net/npm/prismjs@1.29.0/themes/prism-tomorrow.min.css',
                 fallbacks: [
                     'https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css'
@@ -134,6 +139,7 @@ class CDNConfig {
 
             // Prism.js Toolbar CSS
             'prism-toolbar-css': {
+                localPath: '/assets/libs/prism/prism-toolbar.min.css',
                 primary: 'https://cdn.jsdelivr.net/npm/prismjs@1.29.0/plugins/toolbar/prism-toolbar.min.css',
                 fallbacks: [
                     'https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/toolbar/prism-toolbar.min.css'
@@ -143,6 +149,7 @@ class CDNConfig {
 
             // Prism.js Core
             'prism-core': {
+                localPath: '/assets/libs/prism/prism-core.min.js',
                 primary: 'https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-core.min.js',
                 fallbacks: [
                     'https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js'
@@ -153,6 +160,7 @@ class CDNConfig {
 
             // Prism.js Autoloader
             'prism-autoloader': {
+                localPath: '/assets/libs/prism/prism-autoloader.min.js',
                 primary: 'https://cdn.jsdelivr.net/npm/prismjs@1.29.0/plugins/autoloader/prism-autoloader.min.js',
                 fallbacks: [
                     'https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js'
@@ -164,6 +172,7 @@ class CDNConfig {
 
             // Prism.js Toolbar
             'prism-toolbar': {
+                localPath: '/assets/libs/prism/prism-toolbar.min.js',
                 primary: 'https://cdn.jsdelivr.net/npm/prismjs@1.29.0/plugins/toolbar/prism-toolbar.min.js',
                 fallbacks: [
                     'https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/toolbar/prism-toolbar.min.js'
@@ -175,6 +184,7 @@ class CDNConfig {
 
             // Prism.js Copy to Clipboard
             'prism-copy': {
+                localPath: '/assets/libs/prism/prism-copy-to-clipboard.min.js',
                 primary: 'https://cdn.jsdelivr.net/npm/prismjs@1.29.0/plugins/copy-to-clipboard/prism-copy-to-clipboard.min.js',
                 fallbacks: [
                     'https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/copy-to-clipboard/prism-copy-to-clipboard.min.js'
@@ -186,6 +196,7 @@ class CDNConfig {
 
             // KaTeX CSS
             'katex-css': {
+                localPath: '/assets/libs/katex/katex.min.css',
                 primary: 'https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css',
                 fallbacks: [
                     'https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.8/katex.min.css'
@@ -195,13 +206,17 @@ class CDNConfig {
 
             // KaTeX JS
             'katex-js': {
+                localPath: '/assets/libs/katex/katex.min.js',
                 primary: 'https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js',
-                fallbacks: [],
+                fallbacks: [
+                    'https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.8/katex.min.js'
+                ],
                 type: 'js'
             },
 
             // Mermaid
             'mermaid': {
+                localPath: '/assets/libs/mermaid/mermaid.min.js',
                 primary: 'https://cdn.jsdelivr.net/npm/mermaid@10.6.1/dist/mermaid.min.js',
                 fallbacks: [
                     'https://cdnjs.cloudflare.com/ajax/libs/mermaid/10.6.1/mermaid.min.js'
@@ -211,6 +226,7 @@ class CDNConfig {
 
             // DataTables Core
             'dataTables': {
+                localPath: '/assets/libs/datatables/jquery.dataTables.min.js',
                 primary: 'https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js',
                 fallbacks: [
                     'https://cdnjs.cloudflare.com/ajax/libs/datatables/1.13.4/js/jquery.dataTables.min.js',
@@ -223,6 +239,7 @@ class CDNConfig {
 
             // DataTables Bootstrap 5 Integration
             'dataTables-bootstrap': {
+                localPath: '/assets/libs/datatables/dataTables.bootstrap5.min.js',
                 primary: 'https://cdn.datatables.net/1.13.4/js/dataTables.bootstrap5.min.js',
                 fallbacks: [
                     'https://cdnjs.cloudflare.com/ajax/libs/datatables/1.13.4/js/dataTables.bootstrap5.min.js',
@@ -235,10 +252,11 @@ class CDNConfig {
 
             // jQuery UI
             'jquery-ui': {
+                localPath: '/assets/libs/jquery-ui/jquery-ui.min.js',
                 primary: 'https://code.jquery.com/ui/1.13.2/jquery-ui.min.js',
                 fallbacks: [
-                    'https://cdn.jsdelivr.net/npm/jquery-ui@1.13.2/dist/jquery-ui.min.js',
-                    'https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.13.2/jquery-ui.min.js'
+                    'https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.13.2/jquery-ui.min.js',
+                    'https://cdn.jsdelivr.net/npm/jquery-ui@1.13.2/dist/jquery-ui.min.js'
                 ],
                 type: 'js',
                 dependencies: ['jquery'],
