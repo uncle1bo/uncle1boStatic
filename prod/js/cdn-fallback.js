@@ -13,6 +13,10 @@ class CDNFallbackManager {
         this.maxRetries = 3;
         this.timeout = 8000; // 8秒超时，更快的故障转移
         this.enableIntegrityCheck = true; // 启用文件完整性校验
+        this.enableLocalCache = true; // 启用本地缓存
+        this.cachePrefix = 'cdn-cache-'; // 缓存键前缀
+        this.cacheExpiry = 24 * 60 * 60 * 1000; // 缓存过期时间：24小时
+        this.maxCacheSize = 50 * 1024 * 1024; // 最大缓存大小：50MB
 
         // CDN备选资源配置
         this.cdnResources = {
@@ -234,10 +238,264 @@ class CDNFallbackManager {
     }
 
     /**
-     * 加载CSS资源（带完整性校验）
+     * 生成缓存键
+     */
+    generateCacheKey(url) {
+        // 使用URL的哈希值作为缓存键，避免特殊字符问题
+        const hash = this.simpleHash(url);
+        return `${this.cachePrefix}${hash}`;
+    }
+
+    /**
+     * 简单哈希函数
+     */
+    simpleHash(str) {
+        let hash = 0;
+        for (let i = 0; i < str.length; i++) {
+            const char = str.charCodeAt(i);
+            hash = ((hash << 5) - hash) + char;
+            hash = hash & hash; // 转换为32位整数
+        }
+        return Math.abs(hash).toString(36);
+    }
+
+    /**
+     * 检查缓存是否存在且未过期
+     */
+    isCacheValid(cacheKey) {
+        try {
+            const cacheData = localStorage.getItem(cacheKey);
+            if (!cacheData) return false;
+
+            const cache = JSON.parse(cacheData);
+            const now = Date.now();
+            
+            // 检查是否过期
+            if (now - cache.timestamp > this.cacheExpiry) {
+                localStorage.removeItem(cacheKey);
+                return false;
+            }
+            
+            return true;
+        } catch (error) {
+            console.warn('缓存检查失败:', error);
+            return false;
+        }
+    }
+
+    /**
+     * 从缓存获取资源内容
+     */
+    getCachedContent(url) {
+        if (!this.enableLocalCache) return null;
+        
+        const cacheKey = this.generateCacheKey(url);
+        if (!this.isCacheValid(cacheKey)) return null;
+        
+        try {
+            const cacheData = localStorage.getItem(cacheKey);
+            const cache = JSON.parse(cacheData);
+            console.log(`从缓存加载资源: ${url}`);
+            return cache.content;
+        } catch (error) {
+            console.warn('缓存读取失败:', error);
+            return null;
+        }
+    }
+
+    /**
+     * 将资源内容保存到缓存
+     */
+    setCachedContent(url, content, type) {
+        if (!this.enableLocalCache) return;
+        
+        try {
+            // 检查缓存大小限制
+            const contentSize = new Blob([content]).size;
+            if (contentSize > this.maxCacheSize / 10) { // 单个文件不超过总缓存的10%
+                console.warn(`文件过大，不缓存: ${url}`);
+                return;
+            }
+            
+            // 清理过期缓存
+            this.cleanExpiredCache();
+            
+            // 检查总缓存大小
+            if (this.getTotalCacheSize() + contentSize > this.maxCacheSize) {
+                this.cleanOldestCache();
+            }
+            
+            const cacheKey = this.generateCacheKey(url);
+            const cacheData = {
+                url: url,
+                content: content,
+                type: type,
+                timestamp: Date.now(),
+                size: contentSize
+            };
+            
+            localStorage.setItem(cacheKey, JSON.stringify(cacheData));
+            console.log(`资源已缓存: ${url}`);
+        } catch (error) {
+            console.warn('缓存保存失败:', error);
+        }
+    }
+
+    /**
+     * 清理过期缓存
+     */
+    cleanExpiredCache() {
+        const now = Date.now();
+        const keysToRemove = [];
+        
+        for (let i = 0; i < localStorage.length; i++) {
+            const key = localStorage.key(i);
+            if (key && key.startsWith(this.cachePrefix)) {
+                try {
+                    const cacheData = localStorage.getItem(key);
+                    const cache = JSON.parse(cacheData);
+                    
+                    if (now - cache.timestamp > this.cacheExpiry) {
+                        keysToRemove.push(key);
+                    }
+                } catch (error) {
+                    keysToRemove.push(key); // 损坏的缓存也删除
+                }
+            }
+        }
+        
+        keysToRemove.forEach(key => {
+            localStorage.removeItem(key);
+            console.log(`清理过期缓存: ${key}`);
+        });
+    }
+
+    /**
+     * 清理最旧的缓存
+     */
+    cleanOldestCache() {
+        const cacheItems = [];
+        
+        for (let i = 0; i < localStorage.length; i++) {
+            const key = localStorage.key(i);
+            if (key && key.startsWith(this.cachePrefix)) {
+                try {
+                    const cacheData = localStorage.getItem(key);
+                    const cache = JSON.parse(cacheData);
+                    cacheItems.push({ key, timestamp: cache.timestamp, size: cache.size });
+                } catch (error) {
+                    // 损坏的缓存直接删除
+                    localStorage.removeItem(key);
+                }
+            }
+        }
+        
+        // 按时间戳排序，删除最旧的缓存
+        cacheItems.sort((a, b) => a.timestamp - b.timestamp);
+        
+        // 删除最旧的25%缓存
+        const toRemove = Math.ceil(cacheItems.length * 0.25);
+        for (let i = 0; i < toRemove; i++) {
+            localStorage.removeItem(cacheItems[i].key);
+            console.log(`清理旧缓存: ${cacheItems[i].key}`);
+        }
+    }
+
+    /**
+     * 获取总缓存大小
+     */
+    getTotalCacheSize() {
+        let totalSize = 0;
+        
+        for (let i = 0; i < localStorage.length; i++) {
+            const key = localStorage.key(i);
+            if (key && key.startsWith(this.cachePrefix)) {
+                try {
+                    const cacheData = localStorage.getItem(key);
+                    const cache = JSON.parse(cacheData);
+                    totalSize += cache.size || 0;
+                } catch (error) {
+                    // 忽略损坏的缓存
+                }
+            }
+        }
+        
+        return totalSize;
+    }
+
+    /**
+     * 获取缓存统计信息
+     */
+    getCacheStats() {
+        let count = 0;
+        let totalSize = 0;
+        let oldestTimestamp = Date.now();
+        let newestTimestamp = 0;
+        
+        for (let i = 0; i < localStorage.length; i++) {
+            const key = localStorage.key(i);
+            if (key && key.startsWith(this.cachePrefix)) {
+                try {
+                    const cacheData = localStorage.getItem(key);
+                    const cache = JSON.parse(cacheData);
+                    count++;
+                    totalSize += cache.size || 0;
+                    oldestTimestamp = Math.min(oldestTimestamp, cache.timestamp);
+                    newestTimestamp = Math.max(newestTimestamp, cache.timestamp);
+                } catch (error) {
+                    // 忽略损坏的缓存
+                }
+            }
+        }
+        
+        return {
+            count,
+            totalSize,
+            totalSizeMB: (totalSize / (1024 * 1024)).toFixed(2),
+            oldestAge: count > 0 ? Math.floor((Date.now() - oldestTimestamp) / (1000 * 60 * 60)) : 0,
+            newestAge: count > 0 ? Math.floor((Date.now() - newestTimestamp) / (1000 * 60 * 60)) : 0
+        };
+    }
+
+    /**
+     * 清空所有缓存
+     */
+    clearAllCache() {
+        const keysToRemove = [];
+        
+        for (let i = 0; i < localStorage.length; i++) {
+            const key = localStorage.key(i);
+            if (key && key.startsWith(this.cachePrefix)) {
+                keysToRemove.push(key);
+            }
+        }
+        
+        keysToRemove.forEach(key => localStorage.removeItem(key));
+        console.log(`已清空所有CDN缓存，共删除 ${keysToRemove.length} 个文件`);
+    }
+
+    /**
+     * 加载CSS资源（带完整性校验和缓存支持）
      */
     loadCSS(url, id) {
-        return new Promise((resolve, reject) => {
+        return new Promise(async (resolve, reject) => {
+            // 检查缓存
+            const cachedContent = this.getCachedContent(url);
+            if (cachedContent) {
+                try {
+                    // 从缓存创建CSS
+                    const style = document.createElement('style');
+                    if (id) style.id = id;
+                    style.textContent = cachedContent;
+                    document.head.appendChild(style);
+                    resolve(url);
+                    return;
+                } catch (error) {
+                    console.warn('缓存CSS应用失败，回退到网络加载:', error);
+                }
+            }
+
+            // 网络加载
             const link = document.createElement('link');
             link.rel = 'stylesheet';
             link.href = url;
@@ -247,8 +505,22 @@ class CDNFallbackManager {
                 reject(new Error(`CSS load timeout: ${url}`));
             }, this.timeout);
 
-            link.onload = () => {
+            link.onload = async () => {
                 clearTimeout(timeout);
+                
+                // 缓存CSS内容
+                if (this.enableLocalCache) {
+                    try {
+                        const response = await fetch(url);
+                        if (response.ok) {
+                            const content = await response.text();
+                            this.setCachedContent(url, content, 'css');
+                        }
+                    } catch (error) {
+                        console.warn('CSS缓存失败:', error);
+                    }
+                }
+                
                 if (this.enableIntegrityCheck) {
                     this.validateCSSIntegrity(url).then(() => {
                         resolve(url);
@@ -271,10 +543,27 @@ class CDNFallbackManager {
     }
 
     /**
-     * 加载JS资源（带完整性校验）
+     * 加载JS资源（带完整性校验和缓存支持）
      */
     loadJS(url, id) {
-        return new Promise((resolve, reject) => {
+        return new Promise(async (resolve, reject) => {
+            // 检查缓存
+            const cachedContent = this.getCachedContent(url);
+            if (cachedContent) {
+                try {
+                    // 从缓存创建JS
+                    const script = document.createElement('script');
+                    if (id) script.id = id;
+                    script.textContent = cachedContent;
+                    document.head.appendChild(script);
+                    resolve(url);
+                    return;
+                } catch (error) {
+                    console.warn('缓存JS应用失败，回退到网络加载:', error);
+                }
+            }
+
+            // 网络加载
             const script = document.createElement('script');
             script.src = url;
             if (id) script.id = id;
@@ -283,8 +572,22 @@ class CDNFallbackManager {
                 reject(new Error(`JS load timeout: ${url}`));
             }, this.timeout);
 
-            script.onload = () => {
+            script.onload = async () => {
                 clearTimeout(timeout);
+                
+                // 缓存JS内容
+                if (this.enableLocalCache) {
+                    try {
+                        const response = await fetch(url);
+                        if (response.ok) {
+                            const content = await response.text();
+                            this.setCachedContent(url, content, 'js');
+                        }
+                    } catch (error) {
+                        console.warn('JS缓存失败:', error);
+                    }
+                }
+                
                 if (this.enableIntegrityCheck) {
                     this.validateJSIntegrity(url).then(() => {
                         resolve(url);
@@ -853,10 +1156,114 @@ class CDNFallbackManager {
     }
 
     /**
+     * 启用/禁用本地缓存
+     */
+    setLocalCacheEnabled(enabled) {
+        this.enableLocalCache = enabled;
+        console.log(`本地缓存已${enabled ? '启用' : '禁用'}`);
+    }
+
+    /**
+     * 设置缓存过期时间
+     */
+    setCacheExpiry(hours) {
+        this.cacheExpiry = hours * 60 * 60 * 1000;
+        console.log(`缓存过期时间已设置为 ${hours} 小时`);
+    }
+
+    /**
+     * 预加载资源到缓存
+     */
+    async preloadToCache(resourceKeys) {
+        if (!this.enableLocalCache) {
+            console.warn('本地缓存未启用，无法预加载');
+            return;
+        }
+
+        console.log('开始预加载资源到缓存:', resourceKeys);
+        const results = [];
+
+        for (const resourceKey of resourceKeys) {
+            const resource = this.cdnResources[resourceKey];
+            if (!resource) {
+                console.warn(`未知资源: ${resourceKey}`);
+                continue;
+            }
+
+            const urls = [resource.primary, ...resource.fallbacks];
+            let cached = false;
+
+            for (const url of urls) {
+                try {
+                    const response = await fetch(url);
+                    if (response.ok) {
+                        const content = await response.text();
+                        this.setCachedContent(url, content, resource.type);
+                        results.push({ resourceKey, url, success: true });
+                        cached = true;
+                        break;
+                    }
+                } catch (error) {
+                    console.warn(`预加载失败 ${url}:`, error);
+                }
+            }
+
+            if (!cached) {
+                results.push({ resourceKey, success: false, error: '所有URL都失败' });
+            }
+        }
+
+        console.log('预加载完成:', results);
+        return results;
+    }
+
+    /**
+     * 获取详细的缓存信息
+     */
+    getDetailedCacheInfo() {
+        const cacheItems = [];
+        const stats = this.getCacheStats();
+
+        for (let i = 0; i < localStorage.length; i++) {
+            const key = localStorage.key(i);
+            if (key && key.startsWith(this.cachePrefix)) {
+                try {
+                    const cacheData = localStorage.getItem(key);
+                    const cache = JSON.parse(cacheData);
+                    cacheItems.push({
+                        key,
+                        url: cache.url,
+                        type: cache.type,
+                        size: cache.size,
+                        sizeMB: (cache.size / (1024 * 1024)).toFixed(3),
+                        age: Math.floor((Date.now() - cache.timestamp) / (1000 * 60 * 60)),
+                        timestamp: new Date(cache.timestamp).toLocaleString()
+                    });
+                } catch (error) {
+                    // 忽略损坏的缓存
+                }
+            }
+        }
+
+        return {
+            stats,
+            items: cacheItems.sort((a, b) => b.timestamp - a.timestamp),
+            enabled: this.enableLocalCache,
+            expiryHours: this.cacheExpiry / (1000 * 60 * 60),
+            maxSizeMB: this.maxCacheSize / (1024 * 1024)
+        };
+    }
+
+    /**
      * 初始化CDN管理器
      */
     async init() {
         // CDN Fallback Manager initialized
+        
+        // 清理过期缓存
+        if (this.enableLocalCache) {
+            this.cleanExpiredCache();
+        }
 
         // 等待DOM加载完成
         if (document.readyState === 'loading') {
