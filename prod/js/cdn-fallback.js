@@ -108,7 +108,7 @@ class CDNFallbackManager {
                 // 特殊处理：prism autoloader加载完成后设置正确的组件路径
                 if (resourceKey === 'prism-autoloader' && typeof Prism !== 'undefined' && Prism.plugins && Prism.plugins.autoloader) {
                     // 使用CDN配置中的primary路径设置组件路径
-                    const prismCoreConfig = this.config.getResourceConfig('prism-core');
+                    const prismCoreConfig = this.config.getResource('prism-core');
                     if (prismCoreConfig && prismCoreConfig.primary) {
                         // 从prism-core的CDN路径推导components路径
                         const basePath = prismCoreConfig.primary.replace('/prism.min.js', '/components/');
@@ -283,7 +283,7 @@ class CDNFallbackManager {
         console.log('开始修复KaTeX字体路径...');
         
         // 获取KaTeX CSS配置以确定字体基础路径
-        const katexConfig = this.config.getResourceConfig('katex-css');
+        const katexConfig = this.config.getResource('katex-css');
         let fontBasePath = 'https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/fonts/'; // 默认路径
         
         if (katexConfig && katexConfig.primary) {

@@ -154,6 +154,7 @@ const templateService = {
         window.cdnResourcesReady = Promise.all([
             window.cdnManager.loadResource('bootstrap-css'),
             window.cdnManager.loadResource('bootstrap-icons'),
+            window.cdnManager.loadResource('prism-css'),
             window.cdnManager.loadResource('prism-toolbar-css'),
             window.cdnManager.loadResource('katex-css')
         ]).then(() => {
@@ -251,8 +252,8 @@ const templateService = {
             const themeResourceKey = \`prism-theme-\${codeTheme}\`;
             
             // 如果CDN管理器中没有这个主题资源，动态添加
-            if (!window.cdnManager.cdnResources[themeResourceKey]) {
-                window.cdnManager.cdnResources[themeResourceKey] = {
+            if (!window.cdnManager.config.cdnResources[themeResourceKey]) {
+                window.cdnManager.config.cdnResources[themeResourceKey] = {
                     type: 'css',
                     primary: \`https://cdn.jsdelivr.net/npm/prismjs@1.29.0/themes/prism-\${codeTheme}.min.css\`,
                     fallbacks: [
@@ -275,8 +276,135 @@ const templateService = {
                 });
         }
         
+        // 动态注册Prism组件资源
+        function registerPrismComponents() {
+            if (!window.cdnManager) {
+                console.warn('CDN管理器未初始化，无法注册Prism组件');
+                return;
+            }
+            
+            // 常用的Prism组件列表
+            const commonComponents = [
+                'clike', 'javascript', 'css', 'markup', 'python', 'java', 'c', 'cpp',
+                'csharp', 'php', 'ruby', 'go', 'rust', 'typescript', 'json', 'yaml',
+                'sql', 'bash', 'powershell', 'markdown', 'latex', 'mermaid', 'diff',
+                'git', 'docker', 'nginx', 'apache', 'html', 'scss', 'sass',
+                'less', 'stylus', 'jsx', 'tsx', 'vue', 'svelte', 'graphql', 'regex'
+            ];
+            
+            // 为每个组件动态注册CDN资源
+            commonComponents.forEach(component => {
+                const resourceKey = \`prism-\${component}\`;
+                
+                // 检查是否已经注册
+                if (!window.cdnManager.config.cdnResources[resourceKey]) {
+                    window.cdnManager.config.cdnResources[resourceKey] = {
+                        type: 'js',
+                        primary: \`https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-\${component}.min.js\`,
+                        fallbacks: [
+                            \`https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-\${component}.min.js\`,
+                            \`https://unpkg.com/prismjs@1.29.0/components/prism-\${component}.min.js\`
+                        ],
+                        dependencies: component === 'clike' ? ['prism-core'] : ['prism-core', 'prism-clike']
+                    };
+                }
+            });
+            
+            console.log('已注册Prism组件资源:', commonComponents.length, '个组件');
+        }
+        
+        // 拦截Prism autoloader的组件加载请求
+        function interceptPrismAutoloader() {
+            if (typeof Prism !== 'undefined' && Prism.plugins && Prism.plugins.autoloader) {
+                // 保存原始的loadLanguages方法
+                const originalLoadLanguages = Prism.plugins.autoloader.loadLanguages;
+                
+                // 重写loadLanguages方法
+                Prism.plugins.autoloader.loadLanguages = function(languages, success, error) {
+                    console.log('Prism autoloader请求加载语言:', languages);
+                    
+                    // 确保languages是数组
+                    const languageArray = Array.isArray(languages) ? languages : [languages];
+                    
+                    // 为每个语言动态注册CDN资源并加载
+                    const loadPromises = languageArray.map(async (lang) => {
+                        const resourceKey = \`prism-\${lang}\`;
+                        
+                        // 动态注册资源（如果尚未注册）
+                        if (!window.cdnManager.config.cdnResources[resourceKey]) {
+                            window.cdnManager.config.cdnResources[resourceKey] = {
+                                type: 'js',
+                                primary: \`https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-\${lang}.min.js\`,
+                                fallbacks: [
+                                    \`https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-\${lang}.min.js\`,
+                                    \`https://unpkg.com/prismjs@1.29.0/components/prism-\${lang}.min.js\`
+                                ],
+                                dependencies: lang === 'clike' ? ['prism-core'] : ['prism-core', 'prism-clike']
+                            };
+                            console.log(\`动态注册Prism组件: \${resourceKey}\`);
+                        }
+                        
+                        try {
+                            // 通过CDN管理器加载资源
+                            await window.cdnManager.loadResourceWithDependencies(resourceKey);
+                            console.log(\`Prism组件 \${lang} 加载成功\`);
+                            return { lang, success: true };
+                        } catch (err) {
+                            console.warn(\`Prism组件 \${lang} 加载失败:\`, err);
+                            // 如果CDN管理器加载失败，回退到原始方法
+                            try {
+                                await new Promise((resolve, reject) => {
+                                    originalLoadLanguages.call(this, lang, resolve, reject);
+                                });
+                                return { lang, success: true };
+                            } catch (fallbackErr) {
+                                console.error(\`Prism组件 \${lang} 回退加载也失败:\`, fallbackErr);
+                                return { lang, success: false, error: fallbackErr };
+                            }
+                        }
+                    });
+                    
+                    // 等待所有语言加载完成
+                    Promise.allSettled(loadPromises)
+                        .then(results => {
+                            const successfulLanguages = results
+                                .filter(result => result.status === 'fulfilled' && result.value.success)
+                                .map(result => result.value.lang);
+                            
+                            const failedLanguages = results
+                                .filter(result => result.status === 'rejected' || !result.value.success)
+                                .map(result => result.status === 'fulfilled' ? result.value.lang : 'unknown');
+                            
+                            if (successfulLanguages.length > 0) {
+                                console.log('Prism组件加载成功:', successfulLanguages);
+                                if (success) success(successfulLanguages);
+                            }
+                            
+                            if (failedLanguages.length > 0) {
+                                console.warn('Prism组件加载失败:', failedLanguages);
+                                if (error) error(new Error(\`Failed to load languages: \${failedLanguages.join(', ')}\`));
+                            }
+                        })
+                        .catch(err => {
+                            console.error('Prism autoloader拦截器发生错误:', err);
+                            if (error) error(err);
+                        });
+                };
+                
+                console.log('已拦截Prism autoloader，启用CDN管理器加载');
+            } else {
+                console.warn('Prism autoloader未找到，无法拦截');
+            }
+        }
+        
         // 增强Markdown渲染初始化函数
         function initEnhancedMarkdown() {
+            // 注册Prism组件资源
+            registerPrismComponents();
+            
+            // 拦截Prism autoloader
+            interceptPrismAutoloader();
+            
             // 加载完整主题配置
             loadThemeConfig();
             

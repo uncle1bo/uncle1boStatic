@@ -270,6 +270,196 @@ class CDNConfig {
                 type: 'js'
             },
 
+            // Prism.js 常用组件
+            'prism-clike': {
+                localPath: '/assets/libs/prism/components/prism-clike.min.js',
+                primary: 'https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-clike.min.js',
+                fallbacks: [
+                    'https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-clike.min.js',
+                    'https://unpkg.com/prismjs@1.29.0/components/prism-clike.min.js'
+                ],
+                type: 'js',
+                dependencies: ['prism-core']
+            },
+
+            'prism-javascript': {
+                localPath: '/assets/libs/prism/components/prism-javascript.min.js',
+                primary: 'https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-javascript.min.js',
+                fallbacks: [
+                    'https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-javascript.min.js',
+                    'https://unpkg.com/prismjs@1.29.0/components/prism-javascript.min.js'
+                ],
+                type: 'js',
+                dependencies: ['prism-core', 'prism-clike']
+            },
+
+            'prism-css': {
+                localPath: '/assets/libs/prism/components/prism-css.min.js',
+                primary: 'https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-css.min.js',
+                fallbacks: [
+                    'https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-css.min.js',
+                    'https://unpkg.com/prismjs@1.29.0/components/prism-css.min.js'
+                ],
+                type: 'js',
+                dependencies: ['prism-core']
+            },
+
+            'prism-python': {
+                localPath: '/assets/libs/prism/components/prism-python.min.js',
+                primary: 'https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-python.min.js',
+                fallbacks: [
+                    'https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js',
+                    'https://unpkg.com/prismjs@1.29.0/components/prism-python.min.js'
+                ],
+                type: 'js',
+                dependencies: ['prism-core']
+            },
+
+            'prism-markup': {
+                localPath: '/assets/libs/prism/components/prism-markup.min.js',
+                primary: 'https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-markup.min.js',
+                fallbacks: [
+                    'https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-markup.min.js',
+                    'https://unpkg.com/prismjs@1.29.0/components/prism-markup.min.js'
+                ],
+                type: 'js',
+                dependencies: ['prism-core']
+            },
+
+            'prism-json': {
+                localPath: '/assets/libs/prism/components/prism-json.min.js',
+                primary: 'https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-json.min.js',
+                fallbacks: [
+                    'https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-json.min.js',
+                    'https://unpkg.com/prismjs@1.29.0/components/prism-json.min.js'
+                ],
+                type: 'js',
+                dependencies: ['prism-core']
+            },
+
+            'prism-bash': {
+                localPath: '/assets/libs/prism/components/prism-bash.min.js',
+                primary: 'https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-bash.min.js',
+                fallbacks: [
+                    'https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-bash.min.js',
+                    'https://unpkg.com/prismjs@1.29.0/components/prism-bash.min.js'
+                ],
+                type: 'js',
+                dependencies: ['prism-core']
+            },
+
+            'prism-yaml': {
+                localPath: '/assets/libs/prism/components/prism-yaml.min.js',
+                primary: 'https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-yaml.min.js',
+                fallbacks: [
+                    'https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-yaml.min.js',
+                    'https://unpkg.com/prismjs@1.29.0/components/prism-yaml.min.js'
+                ],
+                type: 'js',
+                dependencies: ['prism-core']
+            },
+
+            'prism-java': {
+                localPath: '/assets/libs/prism/components/prism-java.min.js',
+                primary: 'https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-java.min.js',
+                fallbacks: [
+                    'https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-java.min.js',
+                    'https://unpkg.com/prismjs@1.29.0/components/prism-java.min.js'
+                ],
+                type: 'js',
+                dependencies: ['prism-core', 'prism-clike']
+            },
+
+            'prism-cpp': {
+                localPath: '/assets/libs/prism/components/prism-cpp.min.js',
+                primary: 'https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-cpp.min.js',
+                fallbacks: [
+                    'https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-cpp.min.js',
+                    'https://unpkg.com/prismjs@1.29.0/components/prism-cpp.min.js'
+                ],
+                type: 'js',
+                dependencies: ['prism-core', 'prism-clike']
+            },
+
+            'prism-c': {
+                localPath: '/assets/libs/prism/components/prism-c.min.js',
+                primary: 'https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-c.min.js',
+                fallbacks: [
+                    'https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-c.min.js',
+                    'https://unpkg.com/prismjs@1.29.0/components/prism-c.min.js'
+                ],
+                type: 'js',
+                dependencies: ['prism-core', 'prism-clike']
+            },
+
+            'prism-sql': {
+                localPath: '/assets/libs/prism/components/prism-sql.min.js',
+                primary: 'https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-sql.min.js',
+                fallbacks: [
+                    'https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-sql.min.js',
+                    'https://unpkg.com/prismjs@1.29.0/components/prism-sql.min.js'
+                ],
+                type: 'js',
+                dependencies: ['prism-core']
+            },
+
+            'prism-typescript': {
+                localPath: '/assets/libs/prism/components/prism-typescript.min.js',
+                primary: 'https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-typescript.min.js',
+                fallbacks: [
+                    'https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-typescript.min.js',
+                    'https://unpkg.com/prismjs@1.29.0/components/prism-typescript.min.js'
+                ],
+                type: 'js',
+                dependencies: ['prism-core', 'prism-javascript']
+            },
+
+            'prism-php': {
+                localPath: '/assets/libs/prism/components/prism-php.min.js',
+                primary: 'https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-php.min.js',
+                fallbacks: [
+                    'https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-php.min.js',
+                    'https://unpkg.com/prismjs@1.29.0/components/prism-php.min.js'
+                ],
+                type: 'js',
+                dependencies: ['prism-core', 'prism-markup']
+            },
+
+            'prism-go': {
+                localPath: '/assets/libs/prism/components/prism-go.min.js',
+                primary: 'https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-go.min.js',
+                fallbacks: [
+                    'https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-go.min.js',
+                    'https://unpkg.com/prismjs@1.29.0/components/prism-go.min.js'
+                ],
+                type: 'js',
+                dependencies: ['prism-core', 'prism-clike']
+            },
+
+            'prism-rust': {
+                localPath: '/assets/libs/prism/components/prism-rust.min.js',
+                primary: 'https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-rust.min.js',
+                fallbacks: [
+                    'https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-rust.min.js',
+                    'https://unpkg.com/prismjs@1.29.0/components/prism-rust.min.js'
+                ],
+                type: 'js',
+                dependencies: ['prism-core']
+            },
+
+            'prism-markdown': {
+                localPath: '/assets/libs/prism/components/prism-markdown.min.js',
+                primary: 'https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-markdown.min.js',
+                fallbacks: [
+                    'https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-markdown.min.js',
+                    'https://unpkg.com/prismjs@1.29.0/components/prism-markdown.min.js'
+                ],
+                type: 'js',
+                dependencies: ['prism-core', 'prism-markup']
+            },
+
+
+
             // DataTables Core
             'dataTables': {
                 localPath: '/assets/libs/datatables/jquery.dataTables.min.js',
