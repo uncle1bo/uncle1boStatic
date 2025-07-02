@@ -178,7 +178,7 @@ const templateService = {
                 console.log('所有CDN资源加载完成');
                 
                 // 初始化多语言支持，指定当前页面名称
-                initI18n('${pageName}');
+                await initI18n('${pageName}');
                 
                 // 初始化增强Markdown渲染
                 initEnhancedMarkdown();

@@ -22,15 +22,18 @@ document.addEventListener('templatesLoaded', function(event) {
  * 初始化多语言支持
  * @param {string} pageName - 页面名称，用于加载对应的语言文件
  */
-function initI18n(pageName = null) {
+async function initI18n(pageName = null) {
     // 获取当前语言或使用默认语言
     const currentLang = localStorage.getItem('preferredLanguage') || 'zh-CN';
     
-    // 设置初始语言
-    setLanguage(currentLang);
+    // 设置初始语言并加载语言资源
+    await setLanguage(currentLang);
     
-    // 加载当前页面的语言资源
-    loadLanguageResources(currentLang, pageName);
+    // 如果有指定页面名称，确保加载了正确的页面资源
+    if (pageName) {
+        await loadLanguageResources(currentLang, pageName);
+        applyTranslations();
+    }
     
     // 为语言选择器添加事件监听
     const langSelectors = document.querySelectorAll('[data-lang]');
@@ -39,7 +42,6 @@ function initI18n(pageName = null) {
             e.preventDefault();
             const lang = this.getAttribute('data-lang');
             setLanguage(lang);
-            loadLanguageResources(lang, pageName);
         });
     });
 }
@@ -48,7 +50,7 @@ function initI18n(pageName = null) {
  * 设置网站语言
  * @param {string} lang - 语言代码 (zh-CN, en)
  */
-function setLanguage(lang) {
+async function setLanguage(lang) {
     // 保存语言偏好到本地存储
     localStorage.setItem('preferredLanguage', lang);
     
@@ -57,6 +59,14 @@ function setLanguage(lang) {
     
     // 更新HTML lang属性
     document.documentElement.lang = lang;
+    
+    // 重新加载语言资源并应用翻译
+    try {
+        await loadLanguageResources(lang);
+        applyTranslations();
+    } catch (error) {
+        console.error('切换语言时加载资源失败:', error);
+    }
 }
 
 // 全局变量存储公共翻译
