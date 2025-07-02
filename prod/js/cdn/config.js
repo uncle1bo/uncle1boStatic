@@ -214,6 +214,52 @@ class CDNConfig {
                 type: 'js'
             },
 
+            // KaTeX Fonts
+            'katex-math-italic-woff2': {
+                primary: 'https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/fonts/KaTeX_Math-Italic.woff2',
+                fallbacks: [
+                    'https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.8/fonts/KaTeX_Math-Italic.woff2'
+                ],
+                type: 'font',
+                localPath: '/assets/fonts/KaTeX_Math-Italic.woff2'
+            },
+
+            'katex-main-regular-woff2': {
+                primary: 'https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/fonts/KaTeX_Main-Regular.woff2',
+                fallbacks: [
+                    'https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.8/fonts/KaTeX_Main-Regular.woff2'
+                ],
+                type: 'font',
+                localPath: '/assets/fonts/KaTeX_Main-Regular.woff2'
+            },
+
+            'katex-size1-regular-woff2': {
+                primary: 'https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/fonts/KaTeX_Size1-Regular.woff2',
+                fallbacks: [
+                    'https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.8/fonts/KaTeX_Size1-Regular.woff2'
+                ],
+                type: 'font',
+                localPath: '/assets/fonts/KaTeX_Size1-Regular.woff2'
+            },
+
+            'katex-size2-regular-woff2': {
+                primary: 'https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/fonts/KaTeX_Size2-Regular.woff2',
+                fallbacks: [
+                    'https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.8/fonts/KaTeX_Size2-Regular.woff2'
+                ],
+                type: 'font',
+                localPath: '/assets/fonts/KaTeX_Size2-Regular.woff2'
+            },
+
+            'katex-size3-regular-woff2': {
+                primary: 'https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/fonts/KaTeX_Size3-Regular.woff2',
+                fallbacks: [
+                    'https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.8/fonts/KaTeX_Size3-Regular.woff2'
+                ],
+                type: 'font',
+                localPath: '/assets/fonts/KaTeX_Size3-Regular.woff2'
+            },
+
             // Mermaid
             'mermaid': {
                 localPath: '/assets/libs/mermaid/mermaid.min.js',

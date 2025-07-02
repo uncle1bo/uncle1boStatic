@@ -104,6 +104,24 @@ class CDNFallbackManager {
         const loadingPromise = this.raceLoadResource(resourceKey, urls)
             .then(url => {
                 this.dependencyManager.markResourceLoaded(resourceKey);
+                
+                // 特殊处理：prism autoloader加载完成后设置正确的组件路径
+                if (resourceKey === 'prism-autoloader' && typeof Prism !== 'undefined' && Prism.plugins && Prism.plugins.autoloader) {
+                    // 使用CDN配置中的primary路径设置组件路径
+                    const prismCoreConfig = this.config.getResourceConfig('prism-core');
+                    if (prismCoreConfig && prismCoreConfig.primary) {
+                        // 从prism-core的CDN路径推导components路径
+                        const basePath = prismCoreConfig.primary.replace('/prism.min.js', '/components/');
+                        Prism.plugins.autoloader.languages_path = basePath;
+                        console.log('已设置Prism autoloader组件路径:', Prism.plugins.autoloader.languages_path);
+                    }
+                }
+                
+                // 特殊处理：KaTeX CSS加载完成后修复字体路径
+                if (resourceKey === 'katex-css') {
+                    this.fixKaTeXFontPaths();
+                }
+                
                 return url;
             })
             .catch(error => {
@@ -256,6 +274,112 @@ class CDNFallbackManager {
             return true;
         }
         return false;
+    }
+
+    /**
+     * 修复KaTeX字体路径
+     */
+    fixKaTeXFontPaths() {
+        console.log('开始修复KaTeX字体路径...');
+        
+        // 获取KaTeX CSS配置以确定字体基础路径
+        const katexConfig = this.config.getResourceConfig('katex-css');
+        let fontBasePath = 'https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/fonts/'; // 默认路径
+        
+        if (katexConfig && katexConfig.primary) {
+            // 从KaTeX CSS的CDN路径推导字体路径
+            fontBasePath = katexConfig.primary.replace('/katex.min.css', '/fonts/');
+        }
+        
+        // 查找所有KaTeX相关的样式表
+        const styleSheets = Array.from(document.styleSheets);
+        
+        for (const styleSheet of styleSheets) {
+            try {
+                if (styleSheet.href && styleSheet.href.includes('katex')) {
+                    const rules = Array.from(styleSheet.cssRules || styleSheet.rules || []);
+                    
+                    for (const rule of rules) {
+                        if (rule.style && rule.style.src) {
+                            // 修复字体路径，将相对路径替换为CDN路径
+                            const originalSrc = rule.style.src;
+                            if (originalSrc.includes('fonts/KaTeX_')) {
+                                const newSrc = originalSrc.replace(
+                                    /url\(["']?[^"']*fonts\/(KaTeX_[^"']*\.[^"']*)["']?\)/g,
+                                    `url("${fontBasePath}$1")`
+                                );
+                                if (newSrc !== originalSrc) {
+                                    rule.style.src = newSrc;
+                                    console.log('已修复KaTeX字体路径:', newSrc);
+                                }
+                            }
+                        }
+                    }
+                }
+            } catch (error) {
+                // 跨域样式表可能无法访问，忽略错误
+                console.warn('无法访问样式表:', styleSheet.href, error);
+            }
+        }
+        
+        // 生成多个备选字体路径
+        const generateFontSources = (fontName) => {
+            const sources = [];
+            
+            // 检查本地字体文件是否存在（基于katex-css的localPath推导）
+            if (katexConfig && katexConfig.localPath) {
+                const localFontPath = katexConfig.localPath.replace('/katex.min.css', `/fonts/${fontName}.woff2`);
+                sources.push(`url('${localFontPath}') format('woff2')`);
+                
+                const localFontPathWoff = katexConfig.localPath.replace('/katex.min.css', `/fonts/${fontName}.woff`);
+                sources.push(`url('${localFontPathWoff}') format('woff')`);
+            }
+            
+            // 添加primary CDN路径
+            sources.push(`url('${fontBasePath}${fontName}.woff2') format('woff2')`);
+            sources.push(`url('${fontBasePath}${fontName}.woff') format('woff')`);
+            
+            // 添加fallback CDN路径
+            if (katexConfig && katexConfig.fallbacks) {
+                katexConfig.fallbacks.forEach(fallbackUrl => {
+                    const fallbackFontPath = fallbackUrl.replace('/katex.min.css', '/fonts/');
+                    sources.push(`url('${fallbackFontPath}${fontName}.woff2') format('woff2')`);
+                    sources.push(`url('${fallbackFontPath}${fontName}.woff') format('woff')`);
+                });
+            }
+            
+            sources.push(`url('${fontBasePath}${fontName}.ttf') format('truetype')`);
+            return sources.join(',\n                     ');
+        };
+        
+        // 添加自定义CSS来覆盖字体路径
+        const customStyle = document.createElement('style');
+        customStyle.textContent = `
+            @font-face {
+                font-family: 'KaTeX_Math';
+                src: ${generateFontSources('KaTeX_Math-Italic')};
+                font-style: italic;
+            }
+            @font-face {
+                font-family: 'KaTeX_Main';
+                src: ${generateFontSources('KaTeX_Main-Regular')};
+            }
+            @font-face {
+                font-family: 'KaTeX_Size1';
+                src: ${generateFontSources('KaTeX_Size1-Regular')};
+            }
+            @font-face {
+                font-family: 'KaTeX_Size2';
+                src: ${generateFontSources('KaTeX_Size2-Regular')};
+            }
+            @font-face {
+                font-family: 'KaTeX_Size3';
+                src: ${generateFontSources('KaTeX_Size3-Regular')};
+            }
+        `;
+        document.head.appendChild(customStyle);
+        
+        console.log('KaTeX字体路径修复完成');
     }
 
     /**

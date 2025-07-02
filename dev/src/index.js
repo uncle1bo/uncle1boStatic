@@ -37,6 +37,9 @@ app.use('/tools', express.static(path.join(__dirname, 'tools')));
 // 设置prod目录为静态文件目录，方便预览生成的页面
 app.use('/prod', express.static(paths.prod));
 
+// 添加assets路径映射，解决静态资源访问问题
+app.use('/assets', express.static(path.join(paths.prod, 'assets')));
+
 // 添加字体文件路径映射，解决Bootstrap图标404问题
 app.use('/fonts', express.static(path.join(paths.prod, 'assets', 'fonts')));
 

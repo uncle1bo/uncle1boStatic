@@ -27,6 +27,12 @@ app.use((req, res, next) => {
 // 设置静态文件目录
 app.use(express.static(path.join(__dirname, 'prod')));
 
+// 添加assets路径映射，确保静态资源正确访问
+app.use('/assets', express.static(path.join(__dirname, 'prod', 'assets')));
+
+// 添加字体文件路径映射
+app.use('/fonts', express.static(path.join(__dirname, 'prod', 'assets', 'fonts')));
+
 // 404处理 - 对于所有未匹配的路由
 app.use((req, res) => {
     res.status(404).sendFile(path.join(__dirname, 'prod', '404.html'));

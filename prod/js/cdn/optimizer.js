@@ -73,6 +73,12 @@ class CDNOptimizer {
      */
     buildOptimizedUrls(resourceKey, resource) {
         let urls = [];
+        
+        // 优先使用本地路径（如果存在）
+        if (resource.localPath) {
+            urls.push(resource.localPath);
+        }
+        
         const preferred = this.preferredCDNs[resourceKey];
 
         if (preferred) {
@@ -91,8 +97,11 @@ class CDNOptimizer {
             }
         });
 
-        // 使用智能CDN选择策略优化URL顺序
-        return this.optimizeCDNOrder(urls);
+        // 使用智能CDN选择策略优化URL顺序（但保持本地路径在最前面）
+        const localPath = resource.localPath;
+        const optimizedCDNs = this.optimizeCDNOrder(urls.filter(url => url !== localPath));
+        
+        return localPath ? [localPath, ...optimizedCDNs] : optimizedCDNs;
     }
 
     /**
