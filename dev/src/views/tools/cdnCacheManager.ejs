@@ -4,7 +4,14 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>CDN缓存管理工具</title>
-  <!-- CDN Fallback Manager -->
+  <!-- CDN Fallback Manager - 必须在其他CDN资源之前加载 -->
+  <!-- CDN模块化组件 -->
+  <script src="/prod/js/cdn/config.js"></script>
+  <script src="/prod/js/cdn/cache.js"></script>
+  <script src="/prod/js/cdn/loader.js"></script>
+  <script src="/prod/js/cdn/optimizer.js"></script>
+  <script src="/prod/js/cdn/dependency.js"></script>
+  <!-- CDN主管理器 -->
   <script src="/prod/js/cdn-fallback.js"></script>
   <script>
     // CDN管理器会自动初始化，无需手动创建实例

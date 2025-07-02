@@ -231,6 +231,18 @@ class CDNConfig {
                 type: 'js',
                 dependencies: ['dataTables', 'bootstrap-js'],
                 readyCheck: () => typeof $ !== 'undefined' && typeof $.fn.DataTable !== 'undefined' && typeof $.fn.DataTable.ext !== 'undefined' && typeof $.fn.DataTable.ext.classes !== 'undefined' && typeof $.fn.DataTable.ext.classes.sWrapper !== 'undefined'
+            },
+
+            // jQuery UI
+            'jquery-ui': {
+                primary: 'https://code.jquery.com/ui/1.13.2/jquery-ui.min.js',
+                fallbacks: [
+                    'https://cdn.jsdelivr.net/npm/jquery-ui@1.13.2/dist/jquery-ui.min.js',
+                    'https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.13.2/jquery-ui.min.js'
+                ],
+                type: 'js',
+                dependencies: ['jquery'],
+                readyCheck: () => typeof $ !== 'undefined' && typeof $.ui !== 'undefined' && typeof $.ui.sortable !== 'undefined'
             }
         };
     }
