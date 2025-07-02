@@ -8,6 +8,9 @@ const path = require('path');
 const fs = require('fs-extra');
 const ejs = require('ejs');
 
+// 为了兼容性，同时引入原生fs模块
+const fsNative = require('fs');
+
 // 导入配置
 const paths = require('./config/pathConfig');
 
@@ -33,6 +36,20 @@ app.use('/tools', express.static(path.join(__dirname, 'tools')));
 // 设置prod目录为静态文件目录，方便预览生成的页面
 app.use('/prod', express.static(paths.prod));
 
+// 设置CORS跨域头
+app.use((req, res, next) => {
+  res.header('Access-Control-Allow-Origin', '*');
+  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
+  
+  // 处理预检请求
+  if (req.method === 'OPTIONS') {
+    res.sendStatus(200);
+  } else {
+    next();
+  }
+});
+
 // 设置body解析器
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -53,6 +70,30 @@ app.use('/cdn-tester', require('./tools/cdnTester/routes'));
 // Bootstrap测试页面路由
 app.get('/bootstrap-test', (req, res) => {
   res.sendFile(path.join(__dirname, '../test-files/bootstrap-elements-test.html'));
+});
+
+// 自动处理prod目录下的所有静态文件访问
+// 支持嵌套路径和直接访问，无需手动配置每个路由
+app.get('/prod/*', (req, res, next) => {
+  const filePath = req.path.replace('/prod', '');
+  const fullPath = path.join(paths.prod, filePath);
+  
+  // 检查文件是否存在
+  if (fsNative.existsSync(fullPath)) {
+    res.sendFile(fullPath);
+  } else {
+    next(); // 继续到下一个中间件
+  }
+});
+
+// 处理prod根目录访问，自动重定向到index.html
+app.get('/prod', (req, res) => {
+  const indexPath = path.join(paths.prod, 'index.html');
+  if (fsNative.existsSync(indexPath)) {
+    res.sendFile(indexPath);
+  } else {
+    res.status(404).send('Index file not found');
+  }
 });
 
 // 这里可以添加其他工具的路由

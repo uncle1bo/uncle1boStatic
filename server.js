@@ -10,7 +10,19 @@ const fs = require('fs');
 const app = express();
 const PORT = process.env.PORT || 8000;
 
-
+// 设置CORS跨域头
+app.use((req, res, next) => {
+  res.header('Access-Control-Allow-Origin', '*');
+  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
+  
+  // 处理预检请求
+  if (req.method === 'OPTIONS') {
+    res.sendStatus(200);
+  } else {
+    next();
+  }
+});
 
 // 设置静态文件目录
 app.use(express.static(path.join(__dirname, 'prod')));
