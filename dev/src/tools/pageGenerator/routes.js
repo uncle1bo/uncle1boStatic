@@ -219,10 +219,17 @@ router.get('/check-editable/:pageName', async (req, res) => {
 router.get('/load-page/:pageName', async (req, res) => {
   try {
     const { pageName } = req.params;
+    
+    // 先检查页面是否可编辑
+    const isEditable = await pageGenerator.isPageEditable(pageName);
+    if (!isEditable) {
+      return res.status(404).json({ success: false, error: '页面不存在或不可编辑' });
+    }
+    
     const pageData = await pageGenerator.loadPageData('edit', pageName);
     
-    if (!pageData || !pageData.editable) {
-      return res.status(404).json({ success: false, error: '页面不存在或不可编辑' });
+    if (!pageData) {
+      return res.status(404).json({ success: false, error: '页面数据不存在' });
     }
     
     res.json({ success: true, pageData });

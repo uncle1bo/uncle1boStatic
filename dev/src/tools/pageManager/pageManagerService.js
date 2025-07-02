@@ -18,61 +18,15 @@ const pageManagerService = {
    */
   getAllPages: async function() {
     try {
-      // 获取pages目录路径
-      const pagesPath = paths.getPagesPath();
-      
-      // 确保目录存在
-      await fs.ensureDir(pagesPath);
-      
-      // 读取目录内容
-      const files = await fs.readdir(pagesPath);
-      
-      // 过滤出HTML文件并获取详细信息
       const pages = [];
       
-      for (const file of files) {
-        if (path.extname(file).toLowerCase() === '.html') {
-          const filePath = path.join(pagesPath, file);
-          const stats = await fs.stat(filePath);
-          
-          // 获取中文和英文的页面标题
-          const pageName = file.replace('.html', '');
-          let zhTitle = pageName;
-          let enTitle = pageName;
-          
-          try {
-            // 尝试从中文语言文件获取标题
-            const zhLocaleFile = path.join(paths.getLocalesPath('zh-CN'), `${pageName}.json`);
-            if (await fs.pathExists(zhLocaleFile)) {
-              const zhLocale = await fs.readJson(zhLocaleFile);
-              zhTitle = zhLocale.meta?.title || pageName;
-            }
-            
-            // 尝试从英文语言文件获取标题
-            const enLocaleFile = path.join(paths.getLocalesPath('en'), `${pageName}.json`);
-            if (await fs.pathExists(enLocaleFile)) {
-              const enLocale = await fs.readJson(enLocaleFile);
-              enTitle = enLocale.meta?.title || pageName;
-            }
-          } catch (error) {
-            console.error(`读取语言文件失败: ${pageName}`, error);
-          }
-          
-          // 检查页面是否可编辑
-      const editable = await pageGenerator.isPageEditable(pageName);
-          
-          pages.push({
-            name: pageName,
-            file: file,
-            path: filePath,
-            size: stats.size,
-            modified: stats.mtime,
-            zhTitle,
-            enTitle,
-            editable
-          });
-        }
-      }
+      // 获取生成的页面
+      const generatedPages = await this.getPagesFromDirectory(paths.getGeneratedPagesPath(), 'generated');
+      pages.push(...generatedPages);
+      
+      // 获取静态页面
+      const staticPages = await this.getPagesFromDirectory(paths.getStaticPagesPath(), 'static');
+      pages.push(...staticPages);
       
       // 按修改时间排序，最新的在前面
       pages.sort((a, b) => b.modified - a.modified);
@@ -85,85 +39,185 @@ const pageManagerService = {
   },
   
   /**
+   * 从指定目录获取页面列表
+   * @param {string} pagesDir - 页面目录路径
+   * @param {string} pageType - 页面类型 ('generated' 或 'static')
+   * @returns {Promise<Array>} 页面列表
+   */
+  getPagesFromDirectory: async function(pagesDir, pageType) {
+    const pages = [];
+    
+    // 确保目录存在
+    await fs.ensureDir(pagesDir);
+    
+    // 读取目录内容
+    const files = await fs.readdir(pagesDir);
+    
+    for (const file of files) {
+      if (path.extname(file).toLowerCase() === '.html') {
+        const filePath = path.join(pagesDir, file);
+        const stats = await fs.stat(filePath);
+        
+        // 获取中文和英文的页面标题
+        const pageName = file.replace('.html', '');
+        const titles = await this.getPageTitles(pageName, pageType);
+        
+        // 判断页面是否可编辑（生成页面可编辑，静态页面不可编辑）
+        const editable = pageType === 'generated';
+        
+        pages.push({
+          name: pageName,
+          file: file,
+          path: filePath,
+          size: stats.size,
+          modified: stats.mtime,
+          zhTitle: titles['zh-CN'],
+          enTitle: titles['en'],
+          editable,
+          type: pageType
+        });
+      }
+    }
+    
+    return pages;
+  },
+  
+  /**
+   * 获取页面的多语言标题
+   * @param {string} pageName - 页面名称
+   * @param {string} pageType - 页面类型 ('generated' 或 'static')
+   * @returns {Promise<Object>} 多语言标题对象
+   */
+  getPageTitles: async function(pageName, pageType) {
+    const titles = {};
+    const languages = ['zh-CN', 'en'];
+    
+    for (const lang of languages) {
+      let localeFile;
+      if (pageType === 'generated') {
+        localeFile = path.join(paths.getGeneratedLocalesPath(lang), `${pageName}.json`);
+      } else {
+        localeFile = path.join(paths.getStaticLocalesPath(lang), `${pageName}.json`);
+      }
+      
+      try {
+        if (await fs.pathExists(localeFile)) {
+          const localeData = await fs.readJson(localeFile);
+          titles[lang] = localeData.meta?.title || localeData.title || pageName;
+        } else {
+          titles[lang] = pageName;
+        }
+      } catch (error) {
+        console.error(`读取语言文件失败: ${localeFile}`, error);
+        titles[lang] = pageName;
+      }
+    }
+    
+    return titles;
+  },
+  
+  /**
    * 删除页面
    * @param {string} pageName - 页面名称
-   * @returns {Promise<boolean>} 是否删除成功
+   * @returns {Promise<boolean>} 删除是否成功
    */
   deletePage: async function(pageName) {
     try {
+      let htmlFile;
+      let pageType;
+      
+      // 先检查是否为生成页面
+      const generatedHtmlFile = path.join(paths.getGeneratedPagesPath(), `${pageName}.html`);
+      if (await fs.pathExists(generatedHtmlFile)) {
+        htmlFile = generatedHtmlFile;
+        pageType = 'generated';
+      } else {
+        // 检查是否为静态页面
+        const staticHtmlFile = path.join(paths.getStaticPagesPath(), `${pageName}.html`);
+        if (await fs.pathExists(staticHtmlFile)) {
+          htmlFile = staticHtmlFile;
+          pageType = 'static';
+        }
+      }
+      
+      if (!htmlFile) {
+        console.error(`页面不存在: ${pageName}`);
+        return false;
+      }
+      
       // 删除HTML文件
-      const htmlFile = path.join(paths.getPagesPath(), `${pageName}.html`);
-      if (await fs.pathExists(htmlFile)) {
-        await fs.remove(htmlFile);
+      await fs.remove(htmlFile);
+      
+      // 删除多语言文件
+      const languages = ['zh-CN', 'en'];
+      for (const lang of languages) {
+        let localeFile;
+        if (pageType === 'generated') {
+          localeFile = path.join(paths.getGeneratedLocalesPath(lang), `${pageName}.json`);
+        } else {
+          localeFile = path.join(paths.getStaticLocalesPath(lang), `${pageName}.json`);
+        }
+        
+        if (await fs.pathExists(localeFile)) {
+          await fs.remove(localeFile);
+        }
       }
       
-      // 删除中文语言文件
-      const zhLocaleFile = path.join(paths.getLocalesPath('zh-CN'), `${pageName}.json`);
-      if (await fs.pathExists(zhLocaleFile)) {
-        await fs.remove(zhLocaleFile);
-      }
-      
-      // 删除英文语言文件
-      const enLocaleFile = path.join(paths.getLocalesPath('en'), `${pageName}.json`);
-      if (await fs.pathExists(enLocaleFile)) {
-        await fs.remove(enLocaleFile);
-      }
-      
-      // 删除页面源数据文件
-      const dataFile = paths.getPageDataFile(pageName);
-      if (await fs.pathExists(dataFile)) {
-        await fs.remove(dataFile);
+      // 只有生成页面才删除页面数据文件
+      if (pageType === 'generated') {
+        const dataFile = paths.getPageDataFile(pageName);
+        if (await fs.pathExists(dataFile)) {
+          await fs.remove(dataFile);
+        }
       }
       
       return true;
     } catch (error) {
       console.error(`删除页面失败: ${pageName}`, error);
-      throw error;
+      return false;
     }
   },
   
   /**
    * 清理预览文件
-   * @returns {Promise<number>} 清理的文件数量
+   * @returns {Promise<void>}
    */
   cleanupPreviewFiles: async function() {
     try {
-      const pagesPath = paths.getPagesPath();
-      const files = await fs.readdir(pagesPath);
+      const generatedPagesPath = paths.getGeneratedPagesPath();
       
-      let cleanedCount = 0;
+      // 确保目录存在
+      if (!(await fs.pathExists(generatedPagesPath))) {
+        return;
+      }
+      
+      const files = await fs.readdir(generatedPagesPath);
+      const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000);
       
       for (const file of files) {
         if (file.startsWith('preview-') && file.endsWith('.html')) {
-          const filePath = path.join(pagesPath, file);
+          const filePath = path.join(generatedPagesPath, file);
           const stats = await fs.stat(filePath);
           
-          // 删除超过1小时的预览文件
-          const oneHourAgo = Date.now() - (60 * 60 * 1000);
-          if (stats.mtime.getTime() < oneHourAgo) {
+          if (stats.mtime < oneHourAgo) {
+            // 删除HTML文件
             await fs.remove(filePath);
             
             // 删除对应的语言文件
             const pageName = file.replace('.html', '');
-            const zhLocaleFile = path.join(paths.getLocalesPath('zh-CN'), `${pageName}.json`);
-            const enLocaleFile = path.join(paths.getLocalesPath('en'), `${pageName}.json`);
+            const languages = ['zh-CN', 'en'];
             
-            if (await fs.pathExists(zhLocaleFile)) {
-              await fs.remove(zhLocaleFile);
+            for (const lang of languages) {
+              const localeFile = path.join(paths.getGeneratedLocalesPath(lang), `${pageName}.json`);
+              if (await fs.pathExists(localeFile)) {
+                await fs.remove(localeFile);
+              }
             }
-            if (await fs.pathExists(enLocaleFile)) {
-              await fs.remove(enLocaleFile);
-            }
-            
-            cleanedCount++;
           }
         }
       }
-      
-      return cleanedCount;
     } catch (error) {
       console.error('清理预览文件失败:', error);
-      throw error;
     }
   }
 };

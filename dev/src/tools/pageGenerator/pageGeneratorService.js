@@ -112,8 +112,8 @@ const pageGeneratorService = {
     // 确保pages目录存在
     await fs.ensureDir(paths.getPagesPath());
     
-    // 保存HTML文件
-    const htmlFile = path.join(paths.getPagesPath(), `${pageName}.html`);
+    // 保存HTML文件到generated目录
+    const htmlFile = path.join(paths.getGeneratedPagesPath(), `${pageName}.html`);
     await fs.writeFile(htmlFile, fullHtmlContent, 'utf8');
   },
   
@@ -158,25 +158,25 @@ const pageGeneratorService = {
       customTranslations: processedTranslations
     });
     
-    // 复制到prod目录
-    await this.copyI18nFilesToProd(pageName);
+    // 复制到generated目录
+    await this.copyI18nFilesToGenerated(pageName);
   },
   
   /**
-   * 复制多语言文件到prod目录
+   * 复制多语言文件到generated目录
    * @param {string} pageName - 页面名称
    * @returns {Promise<void>}
    */
-  copyI18nFilesToProd: async function(pageName) {
+  copyI18nFilesToGenerated: async function(pageName) {
     const languages = ['zh-CN', 'en'];
     
     for (const lang of languages) {
       const tempFile = path.join(paths.getTempLocalesPath(lang), `${pageName}.json`);
-      const prodFile = path.join(paths.getLocalesPath(lang), `${pageName}.json`);
+      const generatedFile = path.join(paths.getGeneratedLocalesPath(lang), `${pageName}.json`);
       
       if (await fs.pathExists(tempFile)) {
-        await fs.ensureDir(path.dirname(prodFile));
-        await fs.copy(tempFile, prodFile);
+        await fs.ensureDir(path.dirname(generatedFile));
+        await fs.copy(tempFile, generatedFile);
       }
     }
   },
@@ -342,7 +342,7 @@ const pageGeneratorService = {
       
       // 如果是预览页面，删除HTML文件
       if (pageName && pageName.startsWith('preview-')) {
-        const previewHtmlFile = path.join(paths.getPagesPath(), `${pageName}.html`);
+        const previewHtmlFile = path.join(paths.getGeneratedPagesPath(), `${pageName}.html`);
         if (await fs.pathExists(previewHtmlFile)) {
           await fs.remove(previewHtmlFile);
           console.log(`已删除预览页面文件: ${previewHtmlFile}`);
@@ -350,7 +350,7 @@ const pageGeneratorService = {
         
         // 删除预览页面的多语言文件
         for (const lang of languages) {
-          const previewLocaleFile = path.join(paths.getLocalesPath(lang), `${pageName}.json`);
+          const previewLocaleFile = path.join(paths.getGeneratedLocalesPath(lang), `${pageName}.json`);
           if (await fs.pathExists(previewLocaleFile)) {
             await fs.remove(previewLocaleFile);
             console.log(`已删除预览页面多语言文件: ${previewLocaleFile}`);
@@ -458,8 +458,20 @@ const pageGeneratorService = {
    * @returns {Promise<boolean>} 是否可编辑
    */
   isPageEditable: async function(pageName) {
-    const pageData = await this.loadPageData('edit', pageName);
-    return pageData && pageData.editable === true;
+    // 检查页面是否在generated目录中（生成页面可编辑）
+    const generatedPagePath = path.join(paths.getGeneratedPagesPath(), `${pageName}.html`);
+    if (await fs.pathExists(generatedPagePath)) {
+      return true;
+    }
+    
+    // 检查页面是否在static目录中（静态页面不可编辑）
+    const staticPagePath = path.join(paths.getStaticPagesPath(), `${pageName}.html`);
+    if (await fs.pathExists(staticPagePath)) {
+      return false;
+    }
+    
+    // 页面不存在，返回false
+    return false;
   },
 
   /**

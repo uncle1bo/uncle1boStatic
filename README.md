@@ -25,10 +25,18 @@ uncle1boStatic/
 ├── prod/               # 生产环境目录
 │   ├── index.html      # 主页面
 │   ├── pages/          # 用户页面
+│   │   ├── generated/  # 页面生成器生成的页面
+│   │   └── static/     # 手写的静态页面
 │   ├── assets/         # 静态资源
 │   ├── css/            # CSS样式
 │   ├── js/             # JavaScript文件
 │   ├── locales/        # 语言资源
+│   │   ├── en/         # 英文语言包
+│   │   │   ├── generated/  # 生成页面的语言文件
+│   │   │   └── static/     # 静态页面的语言文件
+│   │   └── zh-CN/      # 中文语言包
+│   │       ├── generated/  # 生成页面的语言文件
+│   │       └── static/     # 静态页面的语言文件
 │   ├── templates/      # 页面模板
 │   ├── robots.txt      # 搜索引擎配置
 │   ├── sitemap.xml     # 网站地图

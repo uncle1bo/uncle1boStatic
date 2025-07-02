@@ -39,9 +39,29 @@ const paths = {
     return path.join(this.prod, 'pages');
   },
   
+  // 获取生成页面路径
+  getGeneratedPagesPath: function() {
+    return path.join(this.prod, 'pages', 'generated');
+  },
+  
+  // 获取静态页面路径
+  getStaticPagesPath: function() {
+    return path.join(this.prod, 'pages', 'static');
+  },
+  
   // 获取prod目录下的多语言文件路径
   getLocalesPath: function(lang) {
     return path.join(this.prod, 'locales', lang);
+  },
+  
+  // 获取生成页面的多语言文件路径
+  getGeneratedLocalesPath: function(lang) {
+    return path.join(this.prod, 'locales', lang, 'generated');
+  },
+  
+  // 获取静态页面的多语言文件路径
+  getStaticLocalesPath: function(lang) {
+    return path.join(this.prod, 'locales', lang, 'static');
   },
   
   // 获取临时目录下的多语言文件路径
