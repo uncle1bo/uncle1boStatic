@@ -1,88 +1,52 @@
 # .rules
 
-## 项目结构
-- `prod/` - 生产环境，必须能单独运行且不含多余代码
-- `prod/assets/` - 存放静态资源
-- `prod/js/` - 存放js文件
-- `prod/css/` - 存放css文件，除非加入了新的样式变量，否则这个文件一般不改
-- `prod/pages/` - 存放html文件，所有由页面生成器生成的文章不要再生成环境修改，参考后文。
-- `prod/locales/` - 存放本地化翻译文件
-- `prod/templates/` - 存放模板文件
-- `prod/index.html` - 项目主页网页文件
-- `prod/theme-config.js` - 主题配置文件，参考后文说明，不动它，而是修改dev中的配置，应为会被覆盖。
-- `dev/` - 开发目录
-- `dev/src/` - 存放dev的所有源代码
-- `dev/src/config.js` - 存放dev的路径配置文件
-- `dev/src/data/` - 存档文件
-- `dev/src/public/` - 存放全体公共代码
-- `dev/src/views/` - 存放dev的页面ejs文件
-- `dev/src/service/` - 存放dev所有工具的接口文件
-- `dev/src/tools/` - 存放dev的工具代码
-- `dev/src/upload/` - 存放上传的文件
-- `server.js` - 生产服务器
-- `dev/server.js` - 开发服务器
+## 开发前必读
+- 开发前必读：本规则文档 + 根目录README + 对应功能子README
+- 开发后必须维护相关文档，禁止留过程性注释
+- 文档保持简洁，去除调试和过程备注
 
-## 服务器启动
+## README文档写作规范
 
-### 生产服务器
-- 根目录执行: `npm start`
-- 访问: http://localhost:8000
+### 标准格式
+所有README文档必须包含以下四个部分：
+1. **项目结构** - 目录树展示
+2. **功能介绍** - 功能描述 + 已实现功能列表
+3. **用户使用方法** - 详细操作步骤
+4. **API使用方法** - 接口文档和示例
+5. **注意事项** - 易犯错误，用户提出的规则
 
-### 开发服务器
-- dev目录执行: `npm run dev`
-- 访问: http://localhost:3000
+### 内容要求
+- 主README通过链接分化到子README，避免冗余
+- 根目录README保留Cloudflare部署教程
+- 禁止重复内容，确保信息及时更新
+- 使用统一的Markdown格式和代码块样式
+
+## 项目结构和服务器启动
+- 查看根目录README和开发环境README
 
 ## 修改规则
 
 ### 允许修改
-- 一般不会修改 `prod/` 目录下除了`home.html`和`about.html`以外的http内容文件，和样式配置表。这些文件会被dev/页面生成器工具和dev/样式管理器更新覆盖
-- 请修改 `dev/src/` 目录下的开发工具代码和模板文件
+- `dev/src/` 目录下的开发工具代码
 - 文档文件
 
-### 需要授权
-- 删除核心文件需单独同意
-- 删除非临时文件需单独同意
-- 创建非临时文件需单独同意
-- 结构性变更需单独同意
+### 禁止修改
+- `prod/` 目录文件（由开发工具自动生成），用户明确要求修改除外
+- 核心配置文件（需授权）
 
 ### 原则
-- 只修改必要部分
-- 当我说修改的时候，一般不保留旧代码，保持简洁
-- 时刻检测修补是否会导致项目违反最佳实践，并提出重构建议
+- 只修改必要部分，保持简洁
+- 使用移动工具，不要创建后删除
+- 遵循最佳实践，及时重构
 
 ## CDN资源管理规范
 
 ### 强制要求
-- **所有新项目必须使用CDN管理器**，禁止硬编码CDN链接
-- CDN管理器必须在所有外部库加载之前初始化
-- 使用 `cdnManager.loadResource(resourceKey)` 方法加载资源
+- 必须使用CDN管理器，禁止硬编码CDN链接
+- 使用 `cdnManager.loadResource(resourceKey)` 加载资源
+- 配置主CDN + 至少2个备选CDN
 
-### 标准实现模式
-```html
-<!-- 1. 首先加载CDN管理器 -->
-<script src="/prod/js/cdn-fallback.js"></script>
-
-<!-- 2. 初始化并加载CSS资源 -->
-<script>
-    // 加载CSS资源
-    cdnManager.loadResource('bootstrap-css');
-    cdnManager.loadResource('bootstrap-icons');
-</script>
-
-<!-- 3. 在页面底部加载JS资源 -->
-<script>
-    // 加载JS资源
-    cdnManager.loadResource('bootstrap-js');
-    cdnManager.loadResource('jquery');
-</script>
-```
-
-### 配置管理
-- CDN资源配置统一在 `prod/js/cdn-fallback.js` 中维护
-- 新增CDN资源时，必须配置主要CDN和至少2个备选CDN
-- 支持的资源类型：CSS、JS
-
-### 关于图片
-- 禁止在测试文件中使用外部图片服务，除非用户明确要求
-- 优先使用 SVG 占位图片
-- 为所有图片添加适当的可访问性属性
+### 图片规范
+- 禁止外部图片服务（除非明确要求）
+- 优先使用SVG占位图片
+- 添加可访问性属性

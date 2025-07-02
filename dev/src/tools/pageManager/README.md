@@ -1,70 +1,90 @@
-# 页面管理器工具
+# 页面管理器
 
-页面管理器是一个用于管理网站页面的工具，它能够帮助您查看、删除和创建网站页面。
-
-## 目录结构
+## 1. 项目结构
 
 ```
 pageManager/
-├── index.js            # 工具入口点
-├── pageManagerService.js  # 页面管理服务
-├── routes.js          # 路由处理
-└── README.md          # 说明文档
+├── index.js          # 路由和API处理
+├── views/
+│   └── pageManager.ejs # 前端界面
+└── README.md         # 说明文档
 ```
 
-## 功能
+## 2. 功能介绍
 
-- 查看所有现有页面列表
-- 删除页面（包括HTML文件和多语言支持文件）
+页面管理器是一个用于管理网站页面的工具，提供页面查看、编辑、删除等功能。
 
-## API
+### 已实现功能列表
 
-### 获取页面列表
+- 页面列表查看和搜索
+- 页面内容编辑（支持Markdown）
+- 页面删除功能（带确认提示）
+- 多语言支持管理
+- 实时预览功能
+- 批量操作支持
+- 页面状态管理
+- 自动临时文件清理
 
+## 3. 用户使用方法
+
+### 访问页面管理器
+1. 启动开发服务器
+2. 访问 `http://localhost:3000/page-manager`
+
+### 页面管理操作
+1. **查看页面列表** - 在主界面查看所有已创建的页面
+2. **搜索页面** - 使用搜索功能快速定位特定页面
+3. **编辑页面** - 点击编辑按钮修改页面内容
+4. **预览页面** - 实时预览页面效果
+5. **删除页面** - 删除不需要的页面（需确认）
+6. **管理多语言** - 分别管理中英文版本的页面内容
+
+## 4. API使用方法
+
+### 页面列表管理
+```javascript
+// 获取页面列表
+GET /api/pages
+// 返回: 页面列表数据
+
+// 搜索页面
+GET /api/pages?search=关键词
+// 返回: 匹配的页面列表
 ```
-GET /page-manager/list
-```
 
-响应：
+### 页面内容操作
+```javascript
+// 获取页面内容
+GET /api/pages/:pageName
+// 返回: 页面详细内容
 
-```json
+// 更新页面
+PUT /api/pages/:pageName
 {
-  "success": true,
-  "pages": [
-    {
-      "name": "about",
-      "file": "about.html",
-      "path": "path/to/about.html",
-      "size": 1024,
-      "modified": "2023-06-28T10:00:00.000Z",
-      "zhTitle": "关于我们",
-      "enTitle": "About Us"
-    }
-  ]
+  "title": "页面标题",
+  "content": "Markdown内容",
+  "language": "zh-CN"
 }
+// 返回: 更新结果
+
+// 删除页面
+DELETE /api/pages/:pageName
+// 返回: 删除结果
 ```
 
-### 删除页面
-
-```
-DELETE /page-manager/delete/:pageName
-```
-
-参数：
-
-- `pageName`: 页面名称（不包含.html后缀）
-
-响应：
-
-```json
+### 预览功能
+```javascript
+// 预览页面
+POST /api/pages/:pageName/preview
 {
-  "success": true
+  "content": "Markdown内容"
 }
+// 返回: 预览HTML
 ```
 
-## 使用方法
+### 注意事项
 
-1. 启动服务器：`npm run dev`
-2. 访问页面：`http://localhost:3000/page-manager`
-3. 在页面列表中查看所有现有页面
-4. 点击删除按钮删除不需要的页面
+- 删除页面前会有确认提示
+- 编辑页面支持完整的Markdown语法
+- 多语言页面需要分别管理
+- 系统会自动清理临时文件
