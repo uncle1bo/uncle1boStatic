@@ -293,6 +293,17 @@ class CDNConfig {
                 dependencies: ['prism-core', 'prism-clike']
             },
 
+            'prism-mermaid': {
+                localPath: '/assets/libs/prism/components/prism-mermaid.min.js',
+                primary: 'https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-mermaid.min.js',
+                fallbacks: [
+                    'https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-mermaid.min.js',
+                    'https://unpkg.com/prismjs@1.29.0/components/prism-mermaid.min.js'
+                ],
+                type: 'js',
+                dependencies: ['prism-core']
+            },
+
             'prism-css-component': {
                 localPath: '/assets/libs/prism/components/prism-css.min.js',
                 primary: 'https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-css.min.js',

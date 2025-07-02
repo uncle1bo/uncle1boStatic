@@ -132,6 +132,17 @@ const cdnTesterService = {
         'https://cdnjs.cloudflare.com/ajax/libs/mermaid/10.6.1/mermaid.min.js'
       ],
       type: 'js'
+    },
+    
+    // Prism.js Mermaid Component
+    'prism-mermaid': {
+      name: 'Prism.js Mermaid',
+      primary: 'https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-mermaid.min.js',
+      fallbacks: [
+        'https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-mermaid.min.js',
+        'https://unpkg.com/prismjs@1.29.0/components/prism-mermaid.min.js'
+      ],
+      type: 'js'
     }
   },
 
