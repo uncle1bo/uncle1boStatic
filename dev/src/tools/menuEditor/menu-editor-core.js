@@ -6,6 +6,7 @@
 class MenuEditorCore {
   constructor() {
     this.menuData = { menuItems: [] };
+    this.originalMenuData = null; // 保存原始状态用于比较
     this.selectedMenuItem = null;
     this.isEditing = false;
     this.draggedItem = null;
@@ -15,6 +16,9 @@ class MenuEditorCore {
     // DOM 元素引用
     this.elements = {};
     this.initializeElements();
+    
+    // 初始化状态管理器
+    this.stateManager = null;
   }
 
   // 初始化DOM元素引用
@@ -57,6 +61,9 @@ class MenuEditorCore {
       if (result.success && result.menuItems) {
         this.menuData.menuItems = result.menuItems;
         this.renderMenuItems();
+        
+        // 保存原始状态用于后续比较
+        this.saveOriginalState();
         
         if (this.menuData.menuItems.length > 0) {
           this.elements.menuItems.classList.remove('d-none');
@@ -412,6 +419,26 @@ class MenuEditorCore {
         this.addMenuOptions(item.children, depth + 1);
       }
     });
+  }
+
+  // 创建菜单数据的深拷贝快照
+  createMenuSnapshot() {
+    return JSON.parse(JSON.stringify(this.menuData));
+  }
+
+  // 保存当前状态作为原始状态
+  saveOriginalState() {
+    this.originalMenuData = this.createMenuSnapshot();
+  }
+
+  // 比较当前状态与原始状态是否相同
+  isMenuDataChanged() {
+    if (!this.originalMenuData) {
+      return false;
+    }
+    
+    const currentSnapshot = this.createMenuSnapshot();
+    return JSON.stringify(currentSnapshot) !== JSON.stringify(this.originalMenuData);
   }
 }
 

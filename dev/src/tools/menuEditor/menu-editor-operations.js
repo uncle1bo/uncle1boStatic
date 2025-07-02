@@ -26,6 +26,9 @@ class MenuEditorOperations {
       topOption.textContent = '顶级菜单';
     }
     
+    // 清除未保存更改状态
+    this.clearUnsavedChanges();
+    
     // 聚焦到名称输入框
     this.core.elements.menuItemNameZh.focus();
   }
@@ -85,6 +88,9 @@ class MenuEditorOperations {
       console.error('未找到要编辑的菜单项');
       return;
     }
+    
+    // 清除未保存更改状态（开始新的编辑）
+    this.clearUnsavedChanges();
     
     this.core.selectMenuItem(itemId);
   }
@@ -147,6 +153,9 @@ class MenuEditorOperations {
       // 重新渲染菜单
       this.core.renderMenuItems();
       
+      // 显示未保存更改提示
+      this.showUnsavedChanges();
+      
       // 显示成功消息
       this.showMessage('菜单项已删除', 'success');
     } else {
@@ -171,6 +180,9 @@ class MenuEditorOperations {
     if (this.core.selectedMenuItem && this.core.selectedMenuItem.id === itemId) {
       this.core.populateForm(item);
     }
+    
+    // 显示未保存更改提示
+    this.showUnsavedChanges();
     
     const status = item.locked ? '锁定' : '解锁';
     this.showMessage(`菜单项已${status}`, 'success');
@@ -241,6 +253,9 @@ class MenuEditorOperations {
     this.core.selectedMenuItem = null;
     this.core.isEditing = false;
     
+    // 显示未保存更改提示
+    this.showUnsavedChanges();
+    
     this.showMessage('菜单项已更新', 'success');
   }
 
@@ -275,6 +290,9 @@ class MenuEditorOperations {
     
     // 清空表单
     this.clearForm();
+    
+    // 显示未保存更改提示
+    this.showUnsavedChanges();
     
     this.showMessage('菜单项已添加', 'success');
   }
@@ -342,6 +360,9 @@ class MenuEditorOperations {
     document.querySelectorAll('.menu-item.active').forEach(item => {
       item.classList.remove('active');
     });
+    
+    // 清除未保存更改状态
+    this.clearUnsavedChanges();
   }
 
   // 清空表单
@@ -384,10 +405,19 @@ class MenuEditorOperations {
       if (result.success) {
         this.showMessage('导航菜单结构已成功保存！', 'success');
         
+        // 更新原始状态快照
+        this.core.saveOriginalState();
+        
         // 重置保存按钮状态
         this.core.elements.saveAllBtn.classList.remove('btn-warning');
         this.core.elements.saveAllBtn.classList.add('btn-success');
         this.core.elements.saveAllBtn.innerHTML = '<i class="bi bi-check"></i> 保存所有更改';
+        
+        // 隐藏顶部提示横幅
+        const unsavedAlert = document.getElementById('unsavedChangesAlert');
+        if (unsavedAlert) {
+          unsavedAlert.classList.add('d-none');
+        }
         
         // 重新初始化主题切换功能（因为DOM元素被重新创建）
         if (window.parent && window.parent.reinitThemeToggle) {
@@ -409,6 +439,11 @@ class MenuEditorOperations {
     }
   }
 
+  // 显示未保存更改提示（委托给状态管理器）
+  showUnsavedChanges() {
+    this.core.stateManager.updateUnsavedState();
+  }
+
   // 显示消息
   showMessage(message, type = 'info') {
     const isSuccess = type === 'success';
@@ -427,6 +462,11 @@ class MenuEditorOperations {
     setTimeout(() => {
       alertElement.classList.add('d-none');
     }, 3000);
+  }
+
+  // 清除未保存更改状态（委托给状态管理器）
+  clearUnsavedChanges() {
+    this.core.stateManager.clearUnsavedChanges();
   }
 
   // 生成唯一ID

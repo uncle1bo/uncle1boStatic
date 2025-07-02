@@ -25,6 +25,9 @@ class MenuEditor {
       // 初始化核心模块
       this.core = new MenuEditorCore();
       
+      // 初始化状态管理模块
+      this.core.stateManager = new MenuEditorState(this.core);
+      
       // 初始化拖拽模块
       this.drag = new MenuEditorDrag(this.core);
       
@@ -99,8 +102,15 @@ class MenuEditor {
     if (this.core.elements.parentMenuItem) {
       this.core.elements.parentMenuItem.addEventListener('change', () => {
         this.updateMenuLevelDisplay();
+        // 如果正在编辑状态，触发未保存更改提示
+        if (this.core.isEditing) {
+          this.core.stateManager.updateUnsavedState();
+        }
       });
     }
+    
+    // 表单输入字段变化检测
+    this.setupFormChangeDetection();
     
     // 键盘快捷键
     document.addEventListener('keydown', (e) => {
@@ -130,6 +140,38 @@ class MenuEditor {
     });
   }
 
+  // 设置表单变化检测
+  setupFormChangeDetection() {
+    const formFields = [
+      this.core.elements.menuItemNameZh,
+      this.core.elements.menuItemNameEn,
+      this.core.elements.menuItemLink
+    ];
+    
+    const checkChanges = () => {
+      if (this.core.isEditing) {
+        this.core.stateManager.updateUnsavedState();
+      }
+    };
+    
+    // 使用状态管理器的防抖功能
+    const debouncedCheck = this.core.stateManager.createDebouncedUpdate();
+    
+    formFields.forEach(field => {
+      if (field) {
+        // 监听输入事件（使用防抖）
+        field.addEventListener('input', () => {
+          if (this.core.isEditing) {
+            debouncedCheck();
+          }
+        });
+        
+        // 监听变化事件（失去焦点时立即检测）
+        field.addEventListener('change', checkChanges);
+      }
+    });
+  }
+  
   // 更新菜单层级显示
   updateMenuLevelDisplay() {
     const parentId = this.core.elements.parentMenuItem.value;

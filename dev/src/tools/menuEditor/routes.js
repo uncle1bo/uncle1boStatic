@@ -68,6 +68,10 @@ router.get('/menu-editor-drag.js', (req, res) => {
   res.sendFile(path.join(__dirname, 'menu-editor-drag.js'));
 });
 
+router.get('/menu-editor-state.js', (req, res) => {
+  res.sendFile(path.join(__dirname, 'menu-editor-state.js'));
+});
+
 router.get('/menu-editor-operations.js', (req, res) => {
   res.sendFile(path.join(__dirname, 'menu-editor-operations.js'));
 });

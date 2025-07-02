@@ -145,14 +145,14 @@ class MenuEditorDrag {
     }
   }
 
-  // 显示未保存更改提示
+  // 显示未保存更改提示（委托给状态管理器）
   showUnsavedChanges() {
-    const saveAllBtn = this.core.elements.saveAllBtn;
-    if (saveAllBtn) {
-      saveAllBtn.classList.add('btn-warning');
-      saveAllBtn.classList.remove('btn-success');
-      saveAllBtn.innerHTML = '<i class="bi bi-exclamation-triangle"></i> 有未保存的更改';
-    }
+    this.core.stateManager.updateUnsavedState();
+  }
+
+  // 清除未保存更改状态（委托给状态管理器）
+  clearUnsavedChanges() {
+    this.core.stateManager.clearUnsavedChanges();
   }
 }
 
