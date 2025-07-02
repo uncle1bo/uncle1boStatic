@@ -18,6 +18,58 @@ class CDNFallbackManager {
         this.cacheExpiry = 24 * 60 * 60 * 1000; // 缓存过期时间：24小时
         this.maxCacheSize = 50 * 1024 * 1024; // 最大缓存大小：50MB
 
+        // 支持的文件类型和MIME类型映射
+        this.supportedTypes = {
+            'css': { mimeType: 'text/css', extensions: ['.css'] },
+            'js': { mimeType: 'application/javascript', extensions: ['.js'] },
+            'font': { 
+                mimeType: 'font/woff2', 
+                extensions: ['.woff2', '.woff', '.ttf', '.otf', '.eot'],
+                subTypes: {
+                    '.woff2': 'font/woff2',
+                    '.woff': 'font/woff',
+                    '.ttf': 'font/ttf',
+                    '.otf': 'font/otf',
+                    '.eot': 'application/vnd.ms-fontobject'
+                }
+            },
+            'image': { 
+                mimeType: 'image/png', 
+                extensions: ['.png', '.jpg', '.jpeg', '.gif', '.svg', '.webp', '.ico'],
+                subTypes: {
+                    '.png': 'image/png',
+                    '.jpg': 'image/jpeg',
+                    '.jpeg': 'image/jpeg',
+                    '.gif': 'image/gif',
+                    '.svg': 'image/svg+xml',
+                    '.webp': 'image/webp',
+                    '.ico': 'image/x-icon'
+                }
+            },
+            'audio': { 
+                mimeType: 'audio/mpeg', 
+                extensions: ['.mp3', '.wav', '.ogg', '.m4a'],
+                subTypes: {
+                    '.mp3': 'audio/mpeg',
+                    '.wav': 'audio/wav',
+                    '.ogg': 'audio/ogg',
+                    '.m4a': 'audio/mp4'
+                }
+            },
+            'video': { 
+                mimeType: 'video/mp4', 
+                extensions: ['.mp4', '.webm', '.ogg'],
+                subTypes: {
+                    '.mp4': 'video/mp4',
+                    '.webm': 'video/webm',
+                    '.ogg': 'video/ogg'
+                }
+            },
+            'json': { mimeType: 'application/json', extensions: ['.json'] },
+            'xml': { mimeType: 'application/xml', extensions: ['.xml'] },
+            'text': { mimeType: 'text/plain', extensions: ['.txt', '.md'] }
+        };
+
         // CDN备选资源配置
         this.cdnResources = {
             // Bootstrap CSS
@@ -42,7 +94,7 @@ class CDNFallbackManager {
                 readyCheck: () => typeof bootstrap !== 'undefined'
             },
 
-            // Bootstrap Icons
+            // Bootstrap Icons CSS
             'bootstrap-icons': {
                 primary: 'https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css',
                 fallbacks: [
@@ -50,6 +102,25 @@ class CDNFallbackManager {
                     'https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.min.css'
                 ],
                 type: 'css'
+            },
+
+            // Bootstrap Icons Font Files
+            'bootstrap-icons-woff2': {
+                primary: 'https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/fonts/bootstrap-icons.woff2',
+                fallbacks: [
+                    'https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.10.5/font/fonts/bootstrap-icons.woff2'
+                ],
+                type: 'font',
+                localPath: '/assets/fonts/bootstrap-icons.woff2'
+            },
+
+            'bootstrap-icons-woff': {
+                primary: 'https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/fonts/bootstrap-icons.woff',
+                fallbacks: [
+                    'https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.10.5/font/fonts/bootstrap-icons.woff'
+                ],
+                type: 'font',
+                localPath: '/assets/fonts/bootstrap-icons.woff'
             },
 
             // jQuery
@@ -284,9 +355,9 @@ class CDNFallbackManager {
     }
 
     /**
-     * 从缓存获取资源内容
+     * 从缓存获取资源内容（增强版）
      */
-    getCachedContent(url) {
+    async getCachedContent(url) {
         if (!this.enableLocalCache) return null;
         
         const cacheKey = this.generateCacheKey(url);
@@ -295,18 +366,69 @@ class CDNFallbackManager {
         try {
             const cacheData = localStorage.getItem(cacheKey);
             const cache = JSON.parse(cacheData);
-            console.log(`从缓存加载资源: ${url}`);
+            
+            // 验证缓存完整性
+            if (this.enableIntegrityCheck) {
+                const isValid = await this.validateCacheIntegrity(cache);
+                if (!isValid) {
+                    console.warn(`缓存完整性校验失败，删除损坏的缓存: ${url}`);
+                    localStorage.removeItem(cacheKey);
+                    return null;
+                }
+            }
+            
+            console.log(`从缓存加载资源: ${url} (哈希: ${cache.hash ? cache.hash.substring(0, 8) + '...' : '无'})`);
             return cache.content;
         } catch (error) {
             console.warn('缓存读取失败:', error);
+            // 删除损坏的缓存
+            try {
+                localStorage.removeItem(cacheKey);
+            } catch (e) {
+                console.warn('删除损坏缓存失败:', e);
+            }
             return null;
         }
     }
 
     /**
-     * 将资源内容保存到缓存
+     * 计算内容哈希值（用于完整性校验）
      */
-    setCachedContent(url, content, type) {
+    async calculateContentHash(content) {
+        const encoder = new TextEncoder();
+        const data = encoder.encode(content);
+        const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+        const hashArray = Array.from(new Uint8Array(hashBuffer));
+        return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+    }
+
+    /**
+     * 验证缓存内容完整性
+     */
+    async validateCacheIntegrity(cacheData) {
+        try {
+            if (!cacheData.hash) {
+                console.warn('缓存数据缺少哈希值，跳过完整性校验');
+                return true; // 向后兼容
+            }
+            
+            const currentHash = await this.calculateContentHash(cacheData.content);
+            if (currentHash !== cacheData.hash) {
+                console.warn('缓存内容哈希不匹配，可能已损坏');
+                return false;
+            }
+            
+            return true;
+        } catch (error) {
+            console.warn('缓存完整性校验失败:', error);
+            return false;
+        }
+    }
+
+    /**
+     * 将资源内容保存到缓存（增强版）
+     */
+    async setCachedContent(url, content, type) {
         if (!this.enableLocalCache) return;
         
         try {
@@ -325,17 +447,22 @@ class CDNFallbackManager {
                 this.cleanOldestCache();
             }
             
+            // 计算内容哈希
+            const contentHash = await this.calculateContentHash(content);
+            
             const cacheKey = this.generateCacheKey(url);
             const cacheData = {
                 url: url,
                 content: content,
                 type: type,
                 timestamp: Date.now(),
-                size: contentSize
+                size: contentSize,
+                hash: contentHash,
+                version: '2.0' // 缓存版本号
             };
             
             localStorage.setItem(cacheKey, JSON.stringify(cacheData));
-            console.log(`资源已缓存: ${url}`);
+            console.log(`资源已缓存: ${url} (哈希: ${contentHash.substring(0, 8)}...)`);
         } catch (error) {
             console.warn('缓存保存失败:', error);
         }
@@ -480,7 +607,7 @@ class CDNFallbackManager {
     loadCSS(url, id) {
         return new Promise(async (resolve, reject) => {
             // 检查缓存
-            const cachedContent = this.getCachedContent(url);
+            const cachedContent = await this.getCachedContent(url);
             if (cachedContent) {
                 try {
                     // 从缓存创建CSS
@@ -548,7 +675,7 @@ class CDNFallbackManager {
     loadJS(url, id) {
         return new Promise(async (resolve, reject) => {
             // 检查缓存
-            const cachedContent = this.getCachedContent(url);
+            const cachedContent = await this.getCachedContent(url);
             if (cachedContent) {
                 try {
                     // 从缓存创建JS
@@ -610,7 +737,208 @@ class CDNFallbackManager {
     }
 
     /**
-     * 并发竞速加载资源 - 真正的竞速机制
+     * 检测文件类型
+     */
+    detectFileType(url) {
+        const urlPath = new URL(url, window.location.href).pathname.toLowerCase();
+        
+        for (const [type, config] of Object.entries(this.supportedTypes)) {
+            if (config.extensions.some(ext => urlPath.endsWith(ext))) {
+                return type;
+            }
+        }
+        
+        return 'unknown';
+    }
+
+    /**
+     * 获取文件的MIME类型
+     */
+    getMimeType(url, fileType = null) {
+        const detectedType = fileType || this.detectFileType(url);
+        const typeConfig = this.supportedTypes[detectedType];
+        
+        if (!typeConfig) return 'application/octet-stream';
+        
+        if (typeConfig.subTypes) {
+            const urlPath = new URL(url, window.location.href).pathname.toLowerCase();
+            for (const [ext, mimeType] of Object.entries(typeConfig.subTypes)) {
+                if (urlPath.endsWith(ext)) {
+                    return mimeType;
+                }
+            }
+        }
+        
+        return typeConfig.mimeType;
+    }
+
+    /**
+     * 加载字体文件
+     */
+    loadFont(url, id) {
+        return new Promise(async (resolve, reject) => {
+            // 检查缓存
+            const cachedContent = await this.getCachedContent(url);
+            if (cachedContent) {
+                try {
+                    // 从缓存创建字体
+                    const fontFace = new FontFace(id || 'cached-font', `url(data:${this.getMimeType(url, 'font')};base64,${cachedContent})`);
+                    await fontFace.load();
+                    document.fonts.add(fontFace);
+                    resolve(url);
+                    return;
+                } catch (error) {
+                    console.warn('缓存字体应用失败，回退到网络加载:', error);
+                }
+            }
+
+            // 网络加载
+            const timeout = setTimeout(() => {
+                reject(new Error(`Font load timeout: ${url}`));
+            }, this.timeout);
+
+            try {
+                const response = await fetch(url);
+                if (!response.ok) {
+                    throw new Error(`Font fetch failed: ${response.status}`);
+                }
+                
+                const arrayBuffer = await response.arrayBuffer();
+                const fontData = new Uint8Array(arrayBuffer);
+                
+                // 创建字体
+                const fontFace = new FontFace(id || 'loaded-font', arrayBuffer);
+                await fontFace.load();
+                document.fonts.add(fontFace);
+                
+                clearTimeout(timeout);
+                
+                // 缓存字体内容
+                if (this.enableLocalCache) {
+                    const base64Content = btoa(String.fromCharCode(...fontData));
+                    this.setCachedContent(url, base64Content, 'font');
+                }
+                
+                resolve(url);
+            } catch (error) {
+                clearTimeout(timeout);
+                reject(new Error(`Font load failed: ${url} - ${error.message}`));
+            }
+        });
+    }
+
+    /**
+     * 加载图片文件
+     */
+    loadImage(url, id) {
+        return new Promise(async (resolve, reject) => {
+            // 检查缓存
+            const cachedContent = await this.getCachedContent(url);
+            if (cachedContent) {
+                try {
+                    // 从缓存创建图片
+                    const img = new Image();
+                    if (id) img.id = id;
+                    img.src = `data:${this.getMimeType(url, 'image')};base64,${cachedContent}`;
+                    img.onload = () => resolve(url);
+                    img.onerror = () => {
+                        console.warn('缓存图片应用失败，回退到网络加载');
+                        this.loadImageFromNetwork(url, id, resolve, reject);
+                    };
+                    return;
+                } catch (error) {
+                    console.warn('缓存图片应用失败，回退到网络加载:', error);
+                }
+            }
+
+            this.loadImageFromNetwork(url, id, resolve, reject);
+        });
+    }
+
+    /**
+     * 从网络加载图片
+     */
+    loadImageFromNetwork(url, id, resolve, reject) {
+        const img = new Image();
+        if (id) img.id = id;
+        
+        const timeout = setTimeout(() => {
+            reject(new Error(`Image load timeout: ${url}`));
+        }, this.timeout);
+
+        img.onload = async () => {
+            clearTimeout(timeout);
+            
+            // 缓存图片内容
+            if (this.enableLocalCache) {
+                try {
+                    const response = await fetch(url);
+                    if (response.ok) {
+                        const arrayBuffer = await response.arrayBuffer();
+                        const base64Content = btoa(String.fromCharCode(...new Uint8Array(arrayBuffer)));
+                        this.setCachedContent(url, base64Content, 'image');
+                    }
+                } catch (error) {
+                    console.warn('图片缓存失败:', error);
+                }
+            }
+            
+            resolve(url);
+        };
+
+        img.onerror = () => {
+            clearTimeout(timeout);
+            reject(new Error(`Image load failed: ${url}`));
+        };
+
+        img.src = url;
+    }
+
+    /**
+     * 加载通用资源文件（JSON、XML、文本等）
+     */
+    loadGenericResource(url, type, id) {
+        return new Promise(async (resolve, reject) => {
+            // 检查缓存
+            const cachedContent = await this.getCachedContent(url);
+            if (cachedContent) {
+                try {
+                    resolve({ url, content: cachedContent, fromCache: true });
+                    return;
+                } catch (error) {
+                    console.warn('缓存资源应用失败，回退到网络加载:', error);
+                }
+            }
+
+            // 网络加载
+            const timeout = setTimeout(() => {
+                reject(new Error(`Resource load timeout: ${url}`));
+            }, this.timeout);
+
+            try {
+                const response = await fetch(url);
+                if (!response.ok) {
+                    throw new Error(`Resource fetch failed: ${response.status}`);
+                }
+                
+                const content = await response.text();
+                clearTimeout(timeout);
+                
+                // 缓存资源内容
+                if (this.enableLocalCache) {
+                    this.setCachedContent(url, content, type);
+                }
+                
+                resolve({ url, content, fromCache: false });
+            } catch (error) {
+                clearTimeout(timeout);
+                reject(new Error(`Resource load failed: ${url} - ${error.message}`));
+            }
+        });
+    }
+
+    /**
+     * 并发竞速加载资源 - 真正的竞速机制（增强版）
      */
     async raceLoadResource(resourceKey, urls) {
         const resource = this.cdnResources[resourceKey];
@@ -621,10 +949,32 @@ class CDNFallbackManager {
         // 创建所有加载任务
         const loadTasks = urls.map(async (url) => {
             try {
-                if (resource.type === 'css') {
-                    await this.loadCSS(url, `${resourceKey}-race`);
-                } else {
-                    await this.loadJS(url, `${resourceKey}-race`);
+                switch (resource.type) {
+                    case 'css':
+                        await this.loadCSS(url, `${resourceKey}-race`);
+                        break;
+                    case 'js':
+                        await this.loadJS(url, `${resourceKey}-race`);
+                        break;
+                    case 'font':
+                        await this.loadFont(url, `${resourceKey}-race`);
+                        break;
+                    case 'image':
+                        await this.loadImage(url, `${resourceKey}-race`);
+                        break;
+                    case 'json':
+                    case 'xml':
+                    case 'text':
+                        await this.loadGenericResource(url, resource.type, `${resourceKey}-race`);
+                        break;
+                    default:
+                        // 自动检测文件类型
+                        const detectedType = this.detectFileType(url);
+                        if (detectedType !== 'unknown') {
+                            await this.loadGenericResource(url, detectedType, `${resourceKey}-race`);
+                        } else {
+                            throw new Error(`Unsupported resource type: ${resource.type}`);
+                        }
                 }
                 return { success: true, url, error: null };
             } catch (error) {
@@ -1255,10 +1605,203 @@ class CDNFallbackManager {
     }
 
     /**
+     * 批量加载多个资源
+     */
+    async loadMultipleResources(resourceKeys, options = {}) {
+        const { parallel = true, stopOnError = false } = options;
+        const results = [];
+        
+        console.log(`开始批量加载资源 (${parallel ? '并行' : '串行'}):`, resourceKeys);
+        
+        if (parallel) {
+            // 并行加载
+            const loadPromises = resourceKeys.map(async (resourceKey) => {
+                try {
+                    await this.loadResourceWithDependencies(resourceKey);
+                    return { resourceKey, success: true, error: null };
+                } catch (error) {
+                    return { resourceKey, success: false, error: error.message };
+                }
+            });
+            
+            const loadResults = await Promise.allSettled(loadPromises);
+            loadResults.forEach((result, index) => {
+                if (result.status === 'fulfilled') {
+                    results.push(result.value);
+                } else {
+                    results.push({ 
+                        resourceKey: resourceKeys[index], 
+                        success: false, 
+                        error: result.reason.message 
+                    });
+                }
+            });
+        } else {
+            // 串行加载
+            for (const resourceKey of resourceKeys) {
+                try {
+                    await this.loadResourceWithDependencies(resourceKey);
+                    results.push({ resourceKey, success: true, error: null });
+                } catch (error) {
+                    const errorResult = { resourceKey, success: false, error: error.message };
+                    results.push(errorResult);
+                    
+                    if (stopOnError) {
+                        console.error(`串行加载在 ${resourceKey} 处停止:`, error.message);
+                        break;
+                    }
+                }
+            }
+        }
+        
+        console.log('批量加载完成:', results);
+        return results;
+    }
+
+    /**
+     * 缓存修复和优化
+     */
+    async repairCache() {
+        console.log('开始缓存修复和优化...');
+        const repairResults = {
+            checked: 0,
+            repaired: 0,
+            removed: 0,
+            errors: []
+        };
+        
+        const keysToCheck = [];
+        for (let i = 0; i < localStorage.length; i++) {
+            const key = localStorage.key(i);
+            if (key && key.startsWith(this.cachePrefix)) {
+                keysToCheck.push(key);
+            }
+        }
+        
+        for (const key of keysToCheck) {
+            repairResults.checked++;
+            
+            try {
+                const cacheData = localStorage.getItem(key);
+                const cache = JSON.parse(cacheData);
+                
+                // 检查缓存版本
+                if (!cache.version || cache.version < '2.0') {
+                    console.log(`升级旧版本缓存: ${cache.url}`);
+                    localStorage.removeItem(key);
+                    repairResults.removed++;
+                    continue;
+                }
+                
+                // 验证完整性
+                if (this.enableIntegrityCheck && cache.hash) {
+                    const isValid = await this.validateCacheIntegrity(cache);
+                    if (!isValid) {
+                        console.log(`修复损坏的缓存: ${cache.url}`);
+                        localStorage.removeItem(key);
+                        repairResults.repaired++;
+                        continue;
+                    }
+                }
+                
+                // 检查过期
+                if (Date.now() - cache.timestamp > this.cacheExpiry) {
+                    console.log(`删除过期缓存: ${cache.url}`);
+                    localStorage.removeItem(key);
+                    repairResults.removed++;
+                }
+                
+            } catch (error) {
+                console.warn(`缓存修复错误 ${key}:`, error);
+                localStorage.removeItem(key);
+                repairResults.errors.push({ key, error: error.message });
+                repairResults.removed++;
+            }
+        }
+        
+        console.log('缓存修复完成:', repairResults);
+        return repairResults;
+    }
+
+    /**
+     * 获取性能统计
+     */
+    getPerformanceStats() {
+        const stats = {
+            loadedResources: this.loadedResources.size,
+            failedResources: this.failedResources.size,
+            activePromises: this.loadingPromises.size,
+            cacheStats: this.getCacheStats(),
+            preferredCDNs: Object.keys(this.preferredCDNs).length,
+            supportedTypes: Object.keys(this.supportedTypes).length,
+            configuredResources: Object.keys(this.cdnResources).length
+        };
+        
+        return stats;
+    }
+
+    /**
+     * 导出缓存数据
+     */
+    exportCacheData() {
+        const exportData = {
+            version: '2.0',
+            timestamp: Date.now(),
+            cachePrefix: this.cachePrefix,
+            items: []
+        };
+        
+        for (let i = 0; i < localStorage.length; i++) {
+            const key = localStorage.key(i);
+            if (key && key.startsWith(this.cachePrefix)) {
+                try {
+                    const cacheData = localStorage.getItem(key);
+                    const cache = JSON.parse(cacheData);
+                    exportData.items.push({
+                        key,
+                        url: cache.url,
+                        type: cache.type,
+                        size: cache.size,
+                        timestamp: cache.timestamp,
+                        hash: cache.hash
+                    });
+                } catch (error) {
+                    console.warn(`导出缓存数据错误 ${key}:`, error);
+                }
+            }
+        }
+        
+        return exportData;
+    }
+
+    /**
+     * 重置CDN管理器
+     */
+    reset() {
+        console.log('重置CDN管理器...');
+        
+        // 清理状态
+        this.loadedResources.clear();
+        this.failedResources.clear();
+        this.loadingPromises.clear();
+        this.preferredCDNs = {};
+        
+        // 清理缓存
+        this.clearAllCache();
+        
+        // 重新保存偏好
+        this.savePreferredCDNs();
+        
+        console.log('CDN管理器已重置');
+    }
+
+    /**
      * 初始化CDN管理器
      */
     async init() {
-        // CDN Fallback Manager initialized
+        console.log('CDN Fallback Manager initialized with enhanced features');
+        console.log('支持的文件类型:', Object.keys(this.supportedTypes));
+        console.log('配置的资源数量:', Object.keys(this.cdnResources).length);
         
         // 清理过期缓存
         if (this.enableLocalCache) {
@@ -1274,6 +1817,11 @@ class CDNFallbackManager {
 
         // 智能检测并备选CDN资源
         await this.checkAndFallbackCDNs();
+        
+        // 定期缓存修复（每小时一次）
+        setInterval(() => {
+            this.repairCache();
+        }, 60 * 60 * 1000);
     }
 }
 
