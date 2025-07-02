@@ -9,8 +9,13 @@
   <script>
     // 使用CDN管理器加载CSS资源
     window.cdnManager = new CDNFallbackManager();
-    cdnManager.loadResource('bootstrap-css');
-    cdnManager.loadResource('bootstrap-icons');
+    // 异步加载CSS资源，确保完全加载后再继续
+    Promise.all([
+      cdnManager.loadResource('bootstrap-css'),
+      cdnManager.loadResource('bootstrap-icons')
+    ]).catch(error => {
+      console.warn('CDN资源加载失败，使用备选方案:', error);
+    });
   </script>
   <!-- Custom CSS -->
   <link rel="stylesheet" href="/css/styles.css">
@@ -228,8 +233,13 @@
   
   <!-- Bootstrap JS Bundle with Popper -->
   <script>
-  // 使用CDN管理器加载JS资源
-  cdnManager.loadResource('bootstrap-js');
+  // 使用CDN管理器加载JS资源，确保完全加载后再执行业务逻辑
+  cdnManager.loadResource('bootstrap-js').then(() => {
+    console.log('Bootstrap JS 加载完成');
+    // 这里可以添加依赖Bootstrap的业务逻辑
+  }).catch(error => {
+    console.warn('Bootstrap JS 加载失败:', error);
+  });
 </script>
 </body>
 </html>

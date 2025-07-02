@@ -139,6 +139,44 @@ POST /api/theme/save
 
 ## 5. 注意事项
 
+### CDN资源管理
+
+⚠️ **重要警告**：必须等待CDN资源完全加载后再执行依赖这些资源的业务逻辑
+
+**错误示例**（会导致功能异常）：
+```javascript
+// ❌ 错误：立即执行依赖jQuery的代码
+cdnManager.loadResource('jquery');
+$(document).ready(function() {
+  // 可能出错：jQuery可能还未加载完成
+});
+```
+
+**正确示例**（安全可靠）：
+```javascript
+// ✅ 正确：等待CDN加载完成后再执行
+cdnManager.loadResource('jquery').then(() => {
+  $(document).ready(function() {
+    // 安全：jQuery已确保加载完成
+  });
+}).catch(error => {
+  console.warn('jQuery加载失败:', error);
+});
+```
+
+**多资源加载**：
+```javascript
+// 并发加载多个资源
+Promise.all([
+  cdnManager.loadResource('bootstrap-js'),
+  cdnManager.loadResource('jquery')
+]).then(() => {
+  // 所有资源都已加载完成
+}).catch(error => {
+  console.warn('CDN资源加载失败:', error);
+});
+```
+
 ### 页面分离架构
 
 - **生成页面**：由页面生成器创建，存储在 `prod/pages/generated/` 目录，支持编辑和删除

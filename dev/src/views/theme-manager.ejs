@@ -660,12 +660,17 @@
 
   <!-- Bootstrap JS Bundle with Popper -->
   <!-- CDN Fallback Manager -->
-<script src="/prod/js/cdn-fallback.js"></script>
-<script>
-  // 使用CDN管理器加载JS资源
-  window.cdnManager = new CDNFallbackManager();
-  cdnManager.loadResource('bootstrap-js');
-</script>
+  <script src="/prod/js/cdn-fallback.js"></script>
+  <script>
+    // 使用CDN管理器加载JS资源，确保完全加载后再执行业务逻辑
+    window.cdnManager = new CDNFallbackManager();
+    cdnManager.loadResource('bootstrap-js').then(() => {
+      console.log('Bootstrap JS 加载完成');
+      // 这里可以添加依赖Bootstrap的业务逻辑
+    }).catch(error => {
+      console.warn('Bootstrap JS 加载失败:', error);
+    });
+  </script>
   
   <!-- 主题管理器脚本 -->
   <script src="/tools/themeManager/theme-manager.js"></script>

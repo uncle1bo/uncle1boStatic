@@ -153,12 +153,17 @@
 
   <!-- Bootstrap JS Bundle with Popper -->
   <!-- CDN Fallback Manager -->
-<script src="/prod/js/cdn-fallback.js"></script>
-<script>
-  // 使用CDN管理器加载JS资源
-  window.cdnManager = new CDNFallbackManager();
-  cdnManager.loadResource('bootstrap-js');
-</script>
+  <script src="/prod/js/cdn-fallback.js"></script>
+  <script>
+    // 使用CDN管理器加载JS资源，确保完全加载后再执行业务逻辑
+    window.cdnManager = new CDNFallbackManager();
+    cdnManager.loadResource('bootstrap-js').then(() => {
+      console.log('Bootstrap JS 加载完成');
+      // 这里可以添加依赖Bootstrap的业务逻辑
+    }).catch(error => {
+      console.warn('Bootstrap JS 加载失败:', error);
+    });
+  </script>
   
   <!-- CDN测试器脚本 -->
   <script>
@@ -1006,14 +1011,27 @@
     // 初始化CDN测试工具
     const cdnTester = new CDNTester();
     
-    // 页面加载完成后初始化
-    document.addEventListener('DOMContentLoaded', function() {
+    // 等待CDN资源和DOM都加载完成后初始化
+    Promise.all([
+      new Promise(resolve => {
+        if (document.readyState === 'loading') {
+          document.addEventListener('DOMContentLoaded', resolve);
+        } else {
+          resolve();
+        }
+      }),
+      window.cdnManager.loadResource('bootstrap-js')
+    ]).then(() => {
       // 默认显示结果区域
       document.getElementById('detailedResults').classList.remove('d-none');
       // 显示初始的资源列表
       if (typeof cdnTester.showInitialResourceList === 'function') {
         cdnTester.showInitialResourceList();
       }
+    }).catch(error => {
+      console.warn('CDN资源加载失败，CDN测试工具可能无法正常工作:', error);
+      // 即使CDN加载失败，也尝试显示基本界面
+      document.getElementById('detailedResults').classList.remove('d-none');
     });
   </script>
 </body>

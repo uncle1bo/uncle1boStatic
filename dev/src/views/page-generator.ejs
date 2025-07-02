@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -9,12 +10,18 @@
   <script>
     // 使用CDN管理器加载CSS资源
     window.cdnManager = new CDNFallbackManager();
-    cdnManager.loadResource('bootstrap-css');
-    cdnManager.loadResource('bootstrap-icons');
+    // 异步加载CSS资源，确保完全加载后再继续
+    Promise.all([
+      cdnManager.loadResource('bootstrap-css'),
+      cdnManager.loadResource('bootstrap-icons')
+    ]).catch(error => {
+      console.warn('CDN资源加载失败，使用备选方案:', error);
+    });
   </script>
   <!-- Custom CSS -->
   <link rel="stylesheet" href="/css/styles.css">
 </head>
+
 <body>
   <div class="container mt-5">
     <div class="row justify-content-center">
@@ -36,134 +43,142 @@
               <i class="bi bi-info-circle-fill me-2"></i>
               在这里您可以创建新的网站页面，支持多语言和模板系统。
             </div>
-            
+
             <!-- 页面生成表单 -->
             <form id="pageGeneratorForm">
               <!-- 页面名称 -->
               <div class="mb-4">
                 <label for="pageName" class="form-label">页面名称 <span class="text-danger">*</span></label>
-                <input type="text" class="form-control" id="pageName" name="pageName" required 
-                       placeholder="例如: my-new-page (只能包含字母、数字和连字符)">
+                <input type="text" class="form-control" id="pageName" name="pageName" required
+                  placeholder="例如: my-new-page (只能包含字母、数字和连字符)">
                 <div class="form-text">页面名称将用作文件名，只能包含字母、数字和连字符。</div>
                 <div class="invalid-feedback" id="pageNameError"></div>
               </div>
-              
+
               <!-- 选项卡标题 -->
               <div class="mb-4">
                 <label class="form-label">选项卡标题 <span class="text-danger">*</span></label>
                 <ul class="nav nav-tabs" id="tabTitleTabs" role="tablist">
                   <li class="nav-item" role="presentation">
-                    <button class="nav-link active" id="tab-title-zh-tab" data-bs-toggle="tab" data-bs-target="#tab-title-zh" type="button" role="tab">
+                    <button class="nav-link active" id="tab-title-zh-tab" data-bs-toggle="tab"
+                      data-bs-target="#tab-title-zh" type="button" role="tab">
                       <i class="bi bi-translate me-1"></i>中文
                     </button>
                   </li>
                   <li class="nav-item" role="presentation">
-                    <button class="nav-link" id="tab-title-en-tab" data-bs-toggle="tab" data-bs-target="#tab-title-en" type="button" role="tab">
+                    <button class="nav-link" id="tab-title-en-tab" data-bs-toggle="tab" data-bs-target="#tab-title-en"
+                      type="button" role="tab">
                       <i class="bi bi-globe me-1"></i>English
                     </button>
                   </li>
                 </ul>
                 <div class="tab-content border border-top-0 p-3">
                   <div class="tab-pane fade show active" id="tab-title-zh" role="tabpanel">
-                    <input type="text" class="form-control" id="tabTitleZh" name="tabTitleZh" required 
-                           placeholder="输入中文选项卡标题（显示在浏览器标签页）">
+                    <input type="text" class="form-control" id="tabTitleZh" name="tabTitleZh" required
+                      placeholder="输入中文选项卡标题（显示在浏览器标签页）">
                   </div>
                   <div class="tab-pane fade" id="tab-title-en" role="tabpanel">
-                    <input type="text" class="form-control" id="tabTitleEn" name="tabTitleEn" 
-                           placeholder="输入英文选项卡标题（留空则使用中文标题）">
+                    <input type="text" class="form-control" id="tabTitleEn" name="tabTitleEn"
+                      placeholder="输入英文选项卡标题（留空则使用中文标题）">
                   </div>
                 </div>
                 <div class="form-text">选项卡标题将显示在浏览器标签页上，用于SEO和用户体验。</div>
               </div>
-              
+
               <!-- 页面标题 -->
               <div class="mb-4">
                 <label class="form-label">页面标题 <span class="text-danger">*</span></label>
                 <ul class="nav nav-tabs" id="pageTitleTabs" role="tablist">
                   <li class="nav-item" role="presentation">
-                    <button class="nav-link active" id="page-title-zh-tab" data-bs-toggle="tab" data-bs-target="#page-title-zh" type="button" role="tab">
+                    <button class="nav-link active" id="page-title-zh-tab" data-bs-toggle="tab"
+                      data-bs-target="#page-title-zh" type="button" role="tab">
                       <i class="bi bi-translate me-1"></i>中文
                     </button>
                   </li>
                   <li class="nav-item" role="presentation">
-                    <button class="nav-link" id="page-title-en-tab" data-bs-toggle="tab" data-bs-target="#page-title-en" type="button" role="tab">
+                    <button class="nav-link" id="page-title-en-tab" data-bs-toggle="tab" data-bs-target="#page-title-en"
+                      type="button" role="tab">
                       <i class="bi bi-globe me-1"></i>English
                     </button>
                   </li>
                 </ul>
                 <div class="tab-content border border-top-0 p-3">
                   <div class="tab-pane fade show active" id="page-title-zh" role="tabpanel">
-                    <input type="text" class="form-control" id="pageTitleZh" name="pageTitleZh" required 
-                           placeholder="输入中文页面标题（显示在页面内容区域）">
+                    <input type="text" class="form-control" id="pageTitleZh" name="pageTitleZh" required
+                      placeholder="输入中文页面标题（显示在页面内容区域）">
                   </div>
                   <div class="tab-pane fade" id="page-title-en" role="tabpanel">
-                    <input type="text" class="form-control" id="pageTitleEn" name="pageTitleEn" 
-                           placeholder="输入英文页面标题（留空则使用中文标题）">
+                    <input type="text" class="form-control" id="pageTitleEn" name="pageTitleEn"
+                      placeholder="输入英文页面标题（留空则使用中文标题）">
                   </div>
                 </div>
                 <div class="form-text">页面标题将显示在页面内容的顶部，作为主要标题。</div>
               </div>
-              
+
               <!-- SEO描述 -->
               <div class="mb-4">
                 <label class="form-label">SEO描述</label>
                 <ul class="nav nav-tabs" id="seoDescTabs" role="tablist">
                   <li class="nav-item" role="presentation">
-                    <button class="nav-link active" id="seo-desc-zh-tab" data-bs-toggle="tab" data-bs-target="#seo-desc-zh" type="button" role="tab">
+                    <button class="nav-link active" id="seo-desc-zh-tab" data-bs-toggle="tab"
+                      data-bs-target="#seo-desc-zh" type="button" role="tab">
                       <i class="bi bi-translate me-1"></i>中文
                     </button>
                   </li>
                   <li class="nav-item" role="presentation">
-                    <button class="nav-link" id="seo-desc-en-tab" data-bs-toggle="tab" data-bs-target="#seo-desc-en" type="button" role="tab">
+                    <button class="nav-link" id="seo-desc-en-tab" data-bs-toggle="tab" data-bs-target="#seo-desc-en"
+                      type="button" role="tab">
                       <i class="bi bi-globe me-1"></i>English
                     </button>
                   </li>
                 </ul>
                 <div class="tab-content border border-top-0 p-3">
                   <div class="tab-pane fade show active" id="seo-desc-zh" role="tabpanel">
-                    <textarea class="form-control" id="seoDescriptionZh" name="seoDescriptionZh" rows="3" 
-                              placeholder="输入中文SEO描述（建议150-160字符）"></textarea>
+                    <textarea class="form-control" id="seoDescriptionZh" name="seoDescriptionZh" rows="3"
+                      placeholder="输入中文SEO描述（建议150-160字符）"></textarea>
                   </div>
                   <div class="tab-pane fade" id="seo-desc-en" role="tabpanel">
-                    <textarea class="form-control" id="seoDescriptionEn" name="seoDescriptionEn" rows="3" 
-                              placeholder="输入英文SEO描述（留空则使用中文描述）"></textarea>
+                    <textarea class="form-control" id="seoDescriptionEn" name="seoDescriptionEn" rows="3"
+                      placeholder="输入英文SEO描述（留空则使用中文描述）"></textarea>
                   </div>
                 </div>
                 <div class="form-text">SEO描述将显示在搜索引擎结果中，建议控制在150-160字符以内。</div>
               </div>
-              
+
               <!-- SEO关键词 -->
               <div class="mb-4">
                 <label class="form-label">SEO关键词</label>
                 <ul class="nav nav-tabs" id="seoKeywordsTabs" role="tablist">
                   <li class="nav-item" role="presentation">
-                    <button class="nav-link active" id="seo-keywords-zh-tab" data-bs-toggle="tab" data-bs-target="#seo-keywords-zh" type="button" role="tab">
+                    <button class="nav-link active" id="seo-keywords-zh-tab" data-bs-toggle="tab"
+                      data-bs-target="#seo-keywords-zh" type="button" role="tab">
                       <i class="bi bi-translate me-1"></i>中文
                     </button>
                   </li>
                   <li class="nav-item" role="presentation">
-                    <button class="nav-link" id="seo-keywords-en-tab" data-bs-toggle="tab" data-bs-target="#seo-keywords-en" type="button" role="tab">
+                    <button class="nav-link" id="seo-keywords-en-tab" data-bs-toggle="tab"
+                      data-bs-target="#seo-keywords-en" type="button" role="tab">
                       <i class="bi bi-globe me-1"></i>English
                     </button>
                   </li>
                 </ul>
                 <div class="tab-content border border-top-0 p-3">
                   <div class="tab-pane fade show active" id="seo-keywords-zh" role="tabpanel">
-                    <input type="text" class="form-control" id="seoKeywordsZh" name="seoKeywordsZh" 
-                           placeholder="输入中文关键词，用逗号分隔">
+                    <input type="text" class="form-control" id="seoKeywordsZh" name="seoKeywordsZh"
+                      placeholder="输入中文关键词，用逗号分隔">
                   </div>
                   <div class="tab-pane fade" id="seo-keywords-en" role="tabpanel">
-                    <input type="text" class="form-control" id="seoKeywordsEn" name="seoKeywordsEn" 
-                           placeholder="输入英文关键词，用逗号分隔（留空则使用中文关键词）">
+                    <input type="text" class="form-control" id="seoKeywordsEn" name="seoKeywordsEn"
+                      placeholder="输入英文关键词，用逗号分隔（留空则使用中文关键词）">
                   </div>
                 </div>
                 <div class="form-text">SEO关键词用于搜索引擎优化，建议使用3-5个相关关键词，用逗号分隔。</div>
               </div>
-              
+
               <!-- 页面内容 -->
               <div class="mb-4">
                 <label class="form-label">页面内容 <span class="text-danger">*</span></label>
-                
+
                 <!-- 内容工具栏 -->
                 <div class="mb-2">
                   <div class="btn-group" role="group">
@@ -179,23 +194,25 @@
                     </button>
                   </div>
                 </div>
-                
+
                 <ul class="nav nav-tabs" id="contentTabs" role="tablist">
                   <li class="nav-item" role="presentation">
-                    <button class="nav-link active" id="content-zh-tab" data-bs-toggle="tab" data-bs-target="#content-zh" type="button" role="tab">
+                    <button class="nav-link active" id="content-zh-tab" data-bs-toggle="tab"
+                      data-bs-target="#content-zh" type="button" role="tab">
                       <i class="bi bi-translate me-1"></i>中文内容
                     </button>
                   </li>
                   <li class="nav-item" role="presentation">
-                    <button class="nav-link" id="content-en-tab" data-bs-toggle="tab" data-bs-target="#content-en" type="button" role="tab">
+                    <button class="nav-link" id="content-en-tab" data-bs-toggle="tab" data-bs-target="#content-en"
+                      type="button" role="tab">
                       <i class="bi bi-globe me-1"></i>English Content
                     </button>
                   </li>
                 </ul>
                 <div class="tab-content border border-top-0 p-3">
                   <div class="tab-pane fade show active" id="content-zh" role="tabpanel">
-                    <textarea class="form-control" id="pageContentZh" name="pageContentZh" rows="15" required 
-                              placeholder="输入Markdown格式的页面内容...
+                    <textarea class="form-control" id="pageContentZh" name="pageContentZh" rows="15" required
+                      placeholder="输入Markdown格式的页面内容...
 
 例如：
 # 标题
@@ -212,8 +229,7 @@
                     <div class="form-text">支持Markdown格式，将自动转换为HTML，内容将被包装在Bootstrap容器中。</div>
                   </div>
                   <div class="tab-pane fade" id="content-en" role="tabpanel">
-                    <textarea class="form-control" id="pageContentEn" name="pageContentEn" rows="15" 
-                              placeholder="输入Markdown格式的英文内容...
+                    <textarea class="form-control" id="pageContentEn" name="pageContentEn" rows="15" placeholder="输入Markdown格式的英文内容...
 
 Example:
 # Heading
@@ -233,7 +249,7 @@ This is a paragraph.
                   </div>
                 </div>
               </div>
-              
+
               <!-- 操作按钮 -->
               <div class="d-flex gap-2 justify-content-end">
                 <button type="button" class="btn btn-outline-primary" id="previewBtn">
@@ -249,432 +265,432 @@ This is a paragraph.
       </div>
     </div>
   </div>
-  
 
-  
+
+
   <script>
-    // 使用CDN管理器加载JS资源
-    cdnManager.loadResource('bootstrap-js');
-    cdnManager.loadResource('jquery');
-  </script>
-  
-  <script>
-    // 当页面加载完成后执行
-    $(document).ready(function() {
-      // 检查URL参数
-      const urlParams = new URLSearchParams(window.location.search);
-      const fromPageManager = urlParams.get('from') === 'page-manager';
-      const editPageName = urlParams.get('edit');
-      
-      if (fromPageManager) {
-        $('#backToManagerBtn').show();
-      }
-    
-    // 清理预览页面
-    function cleanupPreviewPage(previewPageName) {
-      if (!previewPageName) return;
-      
-      $.ajax({
-        url: `/page-generator/preview/${previewPageName}`,
-        method: 'DELETE',
-        success: function(response) {
-          console.log('预览页面已清理:', previewPageName);
-        },
-        error: function(xhr) {
-          console.error('清理预览页面失败:', xhr.responseJSON?.error || '服务器错误');
+    // 使用CDN管理器加载JS资源，确保完全加载后再执行业务逻辑
+    Promise.all([
+      cdnManager.loadResource('bootstrap-js'),
+      cdnManager.loadResource('jquery')
+    ]).then(() => {
+      console.log('所有JS资源加载完成');
+      // 当页面和CDN资源都加载完成后执行
+      $(document).ready(function () {
+        // 检查URL参数
+        const urlParams = new URLSearchParams(window.location.search);
+        const fromPageManager = urlParams.get('from') === 'page-manager';
+        const editPageName = urlParams.get('edit');
+
+        if (fromPageManager) {
+          $('#backToManagerBtn').show();
         }
-      });
-    }
-      
-      // 如果是编辑模式，加载页面数据
-      if (editPageName) {
-        loadPageForEdit(editPageName);
-      } else {
-        // 否则自动加载草稿
-        loadDraft();
-      }
-      
-      // 页面卸载时清理预览文件
-      window.addEventListener('beforeunload', function() {
-        if (window.currentPreviewPage) {
-          // 使用 navigator.sendBeacon 确保清理请求能够发送
-          const cleanupData = JSON.stringify({ previewPageName: window.currentPreviewPage });
-          navigator.sendBeacon('/page-generator/cleanup-on-unload', cleanupData);
-        }
-      });
-      
-      // 页面隐藏时也尝试清理（用户切换标签页等）
-      document.addEventListener('visibilitychange', function() {
-        if (document.visibilityState === 'hidden' && window.currentPreviewPage) {
-          cleanupPreviewPage(window.currentPreviewPage);
-        }
-      });
-      
-      // 页面名称验证
-      $('#pageName').on('input', function() {
-        const pageName = $(this).val();
-        if (pageName) {
-          validatePageName(pageName);
-        }
-      });
-      
-      // 导入Markdown文件
-      $('#importMarkdownBtn').on('click', function() {
-        $('#markdownFile').click();
-      });
-      
-      $('#markdownFile').on('change', function() {
-        const file = this.files[0];
-        if (file) {
-          importMarkdownFile(file);
-        }
-      });
-      
-      // 保存草稿
-      $('#saveDraftBtn').on('click', function() {
-        saveDraft();
-      });
-      
-      // 加载草稿
-      $('#loadDraftBtn').on('click', function() {
-        loadDraft();
-      });
-      
-      // 预览页面
-      $('#previewBtn').on('click', function() {
-        previewPage();
-      });
-      
-      // 表单提交
-      $('#pageGeneratorForm').on('submit', function(e) {
-        e.preventDefault();
-        generatePage();
-      });
-      
-      // 标题同步功能
-      $('#pageTitleZh').on('input', function() {
-        const zhTitle = $(this).val();
-        const enTitle = $('#pageTitleEn').val();
-        if (!enTitle) {
-          $('#pageTitleEn').attr('placeholder', `输入英文标题（留空则使用：${zhTitle}）`);
-        }
-      });
-      
-      // 内容同步功能
-      $('#pageContentZh').on('input', function() {
-        const zhContent = $(this).val();
-        const enContent = $('#pageContentEn').val();
-        if (!enContent) {
-          $('#pageContentEn').attr('placeholder', '输入英文内容（留空则使用中文内容）');
-        }
-      });
-    });
-    
-    // 验证页面名称
-    function validatePageName(pageName) {
-      $.ajax({
-        url: '/page-generator/validate-name',
-        method: 'POST',
-        contentType: 'application/json',
-        data: JSON.stringify({ pageName }),
-        success: function(response) {
-          if (response.success && response.valid) {
-            $('#pageName').removeClass('is-invalid').addClass('is-valid');
-            $('#pageNameError').text('');
-          } else {
-            $('#pageName').removeClass('is-valid').addClass('is-invalid');
-            $('#pageNameError').text('页面名称只能包含字母、数字和连字符');
-          }
-        },
-        error: function() {
-          $('#pageName').removeClass('is-valid').addClass('is-invalid');
-          $('#pageNameError').text('验证失败');
-        }
-      });
-    }
-    
-    // 导入Markdown文件
-    function importMarkdownFile(file) {
-      const formData = new FormData();
-      formData.append('markdown', file);
-      
-      $.ajax({
-        url: '/page-generator/upload-markdown',
-        method: 'POST',
-        data: formData,
-        processData: false,
-        contentType: false,
-        success: function(response) {
-          if (response.success) {
-            $('#pageContentZh').val(response.content);
-            showAlert('success', 'Markdown文件导入成功');
-          } else {
-            showAlert('danger', '导入失败: ' + (response.error || '未知错误'));
-          }
-        },
-        error: function(xhr) {
-          showAlert('danger', '导入失败: ' + (xhr.responseJSON?.error || '服务器错误'));
-        }
-      });
-    }
-    
-    // 保存草稿
-    function saveDraft() {
-      const draft = {
-        pageName: $('#pageName').val(),
-        tabTitleZh: $('#tabTitleZh').val(),
-        tabTitleEn: $('#tabTitleEn').val(),
-        pageTitleZh: $('#pageTitleZh').val(),
-        pageTitleEn: $('#pageTitleEn').val(),
-        seoDescriptionZh: $('#seoDescriptionZh').val(),
-        seoDescriptionEn: $('#seoDescriptionEn').val(),
-        seoKeywordsZh: $('#seoKeywordsZh').val(),
-        seoKeywordsEn: $('#seoKeywordsEn').val(),
-        pageContentZh: $('#pageContentZh').val(),
-        pageContentEn: $('#pageContentEn').val(),
-        timestamp: new Date().toISOString()
-      };
-      
-      $.ajax({
-        url: '/page-generator/draft/save',
-        method: 'POST',
-        contentType: 'application/json',
-        data: JSON.stringify(draft),
-        success: function(response) {
-          if (response.success) {
-            showAlert('success', '草稿保存成功');
-          } else {
-            showAlert('danger', '保存失败: ' + (response.error || '未知错误'));
-          }
-        },
-        error: function(xhr) {
-          showAlert('danger', '保存失败: ' + (xhr.responseJSON?.error || '服务器错误'));
-        }
-      });
-    }
-    
-    // 加载草稿
-    function loadDraft() {
-      $.ajax({
-        url: '/page-generator/draft/load',
-        method: 'GET',
-        success: function(response) {
-          if (response.success && response.draft) {
-            const draft = response.draft;
-            $('#pageName').val(draft.pageName || '');
-            $('#tabTitleZh').val(draft.tabTitleZh || '');
-            $('#tabTitleEn').val(draft.tabTitleEn || '');
-            $('#pageTitleZh').val(draft.pageTitleZh || '');
-            $('#pageTitleEn').val(draft.pageTitleEn || '');
-            $('#seoDescriptionZh').val(draft.seoDescriptionZh || '');
-            $('#seoDescriptionEn').val(draft.seoDescriptionEn || '');
-            $('#seoKeywordsZh').val(draft.seoKeywordsZh || '');
-            $('#seoKeywordsEn').val(draft.seoKeywordsEn || '');
-            $('#pageContentZh').val(draft.pageContentZh || '');
-            $('#pageContentEn').val(draft.pageContentEn || '');
-            
-            if (draft.timestamp) {
-              showAlert('info', `已加载草稿（保存时间：${new Date(draft.timestamp).toLocaleString()}）`);
+
+        // 清理预览页面
+        function cleanupPreviewPage(previewPageName) {
+          if (!previewPageName) return;
+
+          $.ajax({
+            url: `/page-generator/preview/${previewPageName}`,
+            method: 'DELETE',
+            success: function (response) {
+              console.log('预览页面已清理:', previewPageName);
+            },
+            error: function (xhr) {
+              console.error('清理预览页面失败:', xhr.responseJSON?.error || '服务器错误');
             }
+          });
+        }
+
+        // 如果是编辑模式，加载页面数据
+        if (editPageName) {
+          loadPageForEdit(editPageName);
+        } else {
+          // 否则自动加载草稿
+          loadDraft();
+        }
+
+        // 页面卸载时清理预览文件
+        window.addEventListener('beforeunload', function () {
+          if (window.currentPreviewPage) {
+            // 使用 navigator.sendBeacon 确保清理请求能够发送
+            const cleanupData = JSON.stringify({ previewPageName: window.currentPreviewPage });
+            navigator.sendBeacon('/page-generator/cleanup-on-unload', cleanupData);
           }
-        },
-        error: function(xhr) {
-          console.error('加载草稿失败:', xhr.responseJSON?.error || '服务器错误');
-        }
+        });
+
+        // 页面隐藏时也尝试清理（用户切换标签页等）
+        document.addEventListener('visibilitychange', function () {
+          if (document.visibilityState === 'hidden' && window.currentPreviewPage) {
+            cleanupPreviewPage(window.currentPreviewPage);
+          }
+        });
+
+        // 页面名称验证
+        $('#pageName').on('input', function () {
+          const pageName = $(this).val();
+          if (pageName) {
+            validatePageName(pageName);
+          }
+        });
+
+        // 导入Markdown文件
+        $('#importMarkdownBtn').on('click', function () {
+          $('#markdownFile').click();
+        });
+
+        $('#markdownFile').on('change', function () {
+          const file = this.files[0];
+          if (file) {
+            importMarkdownFile(file);
+          }
+        });
+
+        // 保存草稿
+        $('#saveDraftBtn').on('click', function () {
+          saveDraft();
+        });
+
+        // 加载草稿
+        $('#loadDraftBtn').on('click', function () {
+          loadDraft();
+        });
+
+        // 预览页面
+        $('#previewBtn').on('click', function () {
+          previewPage();
+        });
+
+        // 表单提交
+        $('#pageGeneratorForm').on('submit', function (e) {
+          e.preventDefault();
+          generatePage();
+        });
+
+        // 标题同步功能
+        $('#pageTitleZh').on('input', function () {
+          const zhTitle = $(this).val();
+          const enTitle = $('#pageTitleEn').val();
+          if (!enTitle) {
+            $('#pageTitleEn').attr('placeholder', `输入英文标题（留空则使用：${zhTitle}）`);
+          }
+        });
+
+        // 内容同步功能
+        $('#pageContentZh').on('input', function () {
+          const zhContent = $(this).val();
+          const enContent = $('#pageContentEn').val();
+          if (!enContent) {
+            $('#pageContentEn').attr('placeholder', '输入英文内容（留空则使用中文内容）');
+          }
+        });
       });
-    }
-    
-    // 预览页面
-    function previewPage() {
-      const pageName = $('#pageName').val() || 'preview';
-      const tabTitleZh = $('#tabTitleZh').val() || '预览页面';
-      const tabTitleEn = $('#tabTitleEn').val();
-      const pageTitleZh = $('#pageTitleZh').val() || '预览页面';
-      const pageTitleEn = $('#pageTitleEn').val();
-      const seoDescriptionZh = $('#seoDescriptionZh').val();
-      const seoDescriptionEn = $('#seoDescriptionEn').val();
-      const seoKeywordsZh = $('#seoKeywordsZh').val();
-      const seoKeywordsEn = $('#seoKeywordsEn').val();
-      const pageContentZh = $('#pageContentZh').val();
-      const pageContentEn = $('#pageContentEn').val();
-      
-      if (!pageContentZh) {
-        showAlert('warning', '请先输入页面内容');
-        return;
-      }
-      
-      // 准备翻译数据，与生成页面时保持一致
-      const translations = {
-        'zh-CN': {
-          'meta.title': tabTitleZh,
-          'meta.description': seoDescriptionZh,
-          'meta.keywords': seoKeywordsZh,
-          [`${pageName}.title`]: pageTitleZh,
-          [`${pageName}.content`]: pageContentZh,
-          title: pageTitleZh,
-          content: pageContentZh
-        },
-        'en': {
-          'meta.title': tabTitleEn || tabTitleZh,
-          'meta.description': seoDescriptionEn || seoDescriptionZh,
-          'meta.keywords': seoKeywordsEn || seoKeywordsZh,
-          [`${pageName}.title`]: pageTitleEn || pageTitleZh,
-          [`${pageName}.content`]: pageContentEn || pageContentZh,
-          title: pageTitleEn || pageTitleZh,
-          content: pageContentEn || pageContentZh
-        }
-      };
-      
-      // 显示加载提示
-      showAlert('info', '正在生成预览页面，请稍候...');
-      
-      $.ajax({
-        url: '/page-generator/preview',
-        method: 'POST',
-        contentType: 'application/json',
-        data: JSON.stringify({ 
-          pageName,
-          tabTitle: tabTitleZh,
-          pageTitle: pageTitleZh,
-          seoDescription: seoDescriptionZh,
-          seoKeywords: seoKeywordsZh,
-          content: pageContentZh,
-          translations
-        }),
-        success: function(response) {
-          if (response.success) {
-            // 在新窗口中打开预览页面
-            const previewWindow = window.open(response.previewUrl, '_blank');
-            
-            if (previewWindow) {
-              showAlert('success', '预览页面已在新窗口中打开');
-              
-              // 清理之前的预览页面（如果存在）
-              if (window.currentPreviewPage && window.currentPreviewCleanup) {
-                clearInterval(window.currentPreviewCleanup);
-                cleanupPreviewPage(window.currentPreviewPage);
-              }
-              
-              // 存储预览页面名称，用于后续清理
-              window.currentPreviewPage = response.previewPageName;
-              
-              // 监听窗口关闭事件，自动清理预览页面
-              let checkCount = 0;
-              const maxChecks = 3600; // 最多检查1小时（3600秒）
-              
-              window.currentPreviewCleanup = setInterval(() => {
-                checkCount++;
-                
-                try {
-                  // 检查窗口是否关闭
-                  if (previewWindow.closed) {
-                    clearInterval(window.currentPreviewCleanup);
-                    cleanupPreviewPage(response.previewPageName);
-                    window.currentPreviewPage = null;
-                    window.currentPreviewCleanup = null;
-                    return;
-                  }
-                  
-                  // 超时清理（1小时后自动清理）
-                  if (checkCount >= maxChecks) {
-                    clearInterval(window.currentPreviewCleanup);
-                    cleanupPreviewPage(response.previewPageName);
-                    window.currentPreviewPage = null;
-                    window.currentPreviewCleanup = null;
-                    console.log('预览页面超时自动清理:', response.previewPageName);
-                  }
-                } catch (error) {
-                  // 如果无法访问窗口（可能由于跨域），也进行清理
-                  console.warn('无法检测预览窗口状态，执行清理:', error.message);
-                  clearInterval(window.currentPreviewCleanup);
-                  cleanupPreviewPage(response.previewPageName);
-                  window.currentPreviewPage = null;
-                  window.currentPreviewCleanup = null;
-                }
-              }, 1000);
+
+      // 验证页面名称
+      function validatePageName(pageName) {
+        $.ajax({
+          url: '/page-generator/validate-name',
+          method: 'POST',
+          contentType: 'application/json',
+          data: JSON.stringify({ pageName }),
+          success: function (response) {
+            if (response.success && response.valid) {
+              $('#pageName').removeClass('is-invalid').addClass('is-valid');
+              $('#pageNameError').text('');
             } else {
-              showAlert('warning', '无法打开预览窗口，请检查浏览器弹窗设置');
+              $('#pageName').removeClass('is-valid').addClass('is-invalid');
+              $('#pageNameError').text('页面名称只能包含字母、数字和连字符');
             }
-          } else {
-            showAlert('danger', '预览失败: ' + response.message);
+          },
+          error: function () {
+            $('#pageName').removeClass('is-valid').addClass('is-invalid');
+            $('#pageNameError').text('验证失败');
           }
-        },
-        error: function(xhr) {
-          showAlert('danger', '预览失败: ' + (xhr.responseJSON?.error || '服务器错误'));
-        }
-      });
-    }
-    
-    // 生成页面
-    function generatePage() {
-      const pageName = $('#pageName').val();
-      const tabTitleZh = $('#tabTitleZh').val();
-      const tabTitleEn = $('#tabTitleEn').val();
-      const pageTitleZh = $('#pageTitleZh').val();
-      const pageTitleEn = $('#pageTitleEn').val();
-      const seoDescriptionZh = $('#seoDescriptionZh').val();
-      const seoDescriptionEn = $('#seoDescriptionEn').val();
-      const seoKeywordsZh = $('#seoKeywordsZh').val();
-      const seoKeywordsEn = $('#seoKeywordsEn').val();
-      const pageContentZh = $('#pageContentZh').val();
-      const pageContentEn = $('#pageContentEn').val();
-      
-      if (!pageName || !tabTitleZh || !pageTitleZh || !pageContentZh) {
-        showAlert('warning', '请填写必要字段（页面名称、选项卡标题、页面标题、页面内容）');
-        return;
+        });
       }
-      
-      // 准备翻译数据
-      const translations = {
-        'zh-CN': {
-          'meta.title': tabTitleZh,
-          'meta.description': seoDescriptionZh,
-          'meta.keywords': seoKeywordsZh,
-          [`${pageName}.title`]: pageTitleZh,
-          [`${pageName}.content`]: pageContentZh,
-          title: pageTitleZh,
-          content: pageContentZh
-        },
-        'en': {
-          'meta.title': tabTitleEn || tabTitleZh,
-          'meta.description': seoDescriptionEn || seoDescriptionZh,
-          'meta.keywords': seoKeywordsEn || seoKeywordsZh,
-          [`${pageName}.title`]: pageTitleEn || pageTitleZh,
-          [`${pageName}.content`]: pageContentEn || pageContentZh,
-          title: pageTitleEn || pageTitleZh,
-          content: pageContentEn || pageContentZh
+
+      // 导入Markdown文件
+      function importMarkdownFile(file) {
+        const formData = new FormData();
+        formData.append('markdown', file);
+
+        $.ajax({
+          url: '/page-generator/upload-markdown',
+          method: 'POST',
+          data: formData,
+          processData: false,
+          contentType: false,
+          success: function (response) {
+            if (response.success) {
+              $('#pageContentZh').val(response.content);
+              showAlert('success', 'Markdown文件导入成功');
+            } else {
+              showAlert('danger', '导入失败: ' + (response.error || '未知错误'));
+            }
+          },
+          error: function (xhr) {
+            showAlert('danger', '导入失败: ' + (xhr.responseJSON?.error || '服务器错误'));
+          }
+        });
+      }
+
+      // 保存草稿
+      function saveDraft() {
+        const draft = {
+          pageName: $('#pageName').val(),
+          tabTitleZh: $('#tabTitleZh').val(),
+          tabTitleEn: $('#tabTitleEn').val(),
+          pageTitleZh: $('#pageTitleZh').val(),
+          pageTitleEn: $('#pageTitleEn').val(),
+          seoDescriptionZh: $('#seoDescriptionZh').val(),
+          seoDescriptionEn: $('#seoDescriptionEn').val(),
+          seoKeywordsZh: $('#seoKeywordsZh').val(),
+          seoKeywordsEn: $('#seoKeywordsEn').val(),
+          pageContentZh: $('#pageContentZh').val(),
+          pageContentEn: $('#pageContentEn').val(),
+          timestamp: new Date().toISOString()
+        };
+
+        $.ajax({
+          url: '/page-generator/draft/save',
+          method: 'POST',
+          contentType: 'application/json',
+          data: JSON.stringify(draft),
+          success: function (response) {
+            if (response.success) {
+              showAlert('success', '草稿保存成功');
+            } else {
+              showAlert('danger', '保存失败: ' + (response.error || '未知错误'));
+            }
+          },
+          error: function (xhr) {
+            showAlert('danger', '保存失败: ' + (xhr.responseJSON?.error || '服务器错误'));
+          }
+        });
+      }
+
+      // 加载草稿
+      function loadDraft() {
+        $.ajax({
+          url: '/page-generator/draft/load',
+          method: 'GET',
+          success: function (response) {
+            if (response.success && response.draft) {
+              const draft = response.draft;
+              $('#pageName').val(draft.pageName || '');
+              $('#tabTitleZh').val(draft.tabTitleZh || '');
+              $('#tabTitleEn').val(draft.tabTitleEn || '');
+              $('#pageTitleZh').val(draft.pageTitleZh || '');
+              $('#pageTitleEn').val(draft.pageTitleEn || '');
+              $('#seoDescriptionZh').val(draft.seoDescriptionZh || '');
+              $('#seoDescriptionEn').val(draft.seoDescriptionEn || '');
+              $('#seoKeywordsZh').val(draft.seoKeywordsZh || '');
+              $('#seoKeywordsEn').val(draft.seoKeywordsEn || '');
+              $('#pageContentZh').val(draft.pageContentZh || '');
+              $('#pageContentEn').val(draft.pageContentEn || '');
+
+              if (draft.timestamp) {
+                showAlert('info', `已加载草稿（保存时间：${new Date(draft.timestamp).toLocaleString()}）`);
+              }
+            }
+          },
+          error: function (xhr) {
+            console.error('加载草稿失败:', xhr.responseJSON?.error || '服务器错误');
+          }
+        });
+      }
+
+      // 预览页面
+      function previewPage() {
+        const pageName = $('#pageName').val() || 'preview';
+        const tabTitleZh = $('#tabTitleZh').val() || '预览页面';
+        const tabTitleEn = $('#tabTitleEn').val();
+        const pageTitleZh = $('#pageTitleZh').val() || '预览页面';
+        const pageTitleEn = $('#pageTitleEn').val();
+        const seoDescriptionZh = $('#seoDescriptionZh').val();
+        const seoDescriptionEn = $('#seoDescriptionEn').val();
+        const seoKeywordsZh = $('#seoKeywordsZh').val();
+        const seoKeywordsEn = $('#seoKeywordsEn').val();
+        const pageContentZh = $('#pageContentZh').val();
+        const pageContentEn = $('#pageContentEn').val();
+
+        if (!pageContentZh) {
+          showAlert('warning', '请先输入页面内容');
+          return;
         }
-      };
-      
-      // 检测是否为编辑模式
-      const urlParams = new URLSearchParams(window.location.search);
-      const isEdit = urlParams.get('edit') !== null;
-      
-      $.ajax({
-        url: '/page-generator/generate',
-        method: 'POST',
-        contentType: 'application/json',
-        data: JSON.stringify({
-          pageName,
-          tabTitle: tabTitleZh,
-          pageTitle: pageTitleZh,
-          seoDescription: seoDescriptionZh,
-          seoKeywords: seoKeywordsZh,
-          content: pageContentZh,
-          translations,
-          isEdit
-        }),
-        success: function(response) {
-          if (response.success) {
-            // 检查是否来自页面管理器
-            const urlParams = new URLSearchParams(window.location.search);
-            const fromPageManager = urlParams.get('from') === 'page-manager';
-            
-            let successMessage = `页面 "${pageName}" 生成成功！`;
-            let actionButtons = '';
-            
-            if (fromPageManager) {
-              actionButtons = `
+
+        // 准备翻译数据，与生成页面时保持一致
+        const translations = {
+          'zh-CN': {
+            'meta.title': tabTitleZh,
+            'meta.description': seoDescriptionZh,
+            'meta.keywords': seoKeywordsZh,
+            [`${pageName}.title`]: pageTitleZh,
+            [`${pageName}.content`]: pageContentZh,
+            title: pageTitleZh,
+            content: pageContentZh
+          },
+          'en': {
+            'meta.title': tabTitleEn || tabTitleZh,
+            'meta.description': seoDescriptionEn || seoDescriptionZh,
+            'meta.keywords': seoKeywordsEn || seoKeywordsZh,
+            [`${pageName}.title`]: pageTitleEn || pageTitleZh,
+            [`${pageName}.content`]: pageContentEn || pageContentZh,
+            title: pageTitleEn || pageTitleZh,
+            content: pageContentEn || pageContentZh
+          }
+        };
+
+        // 显示加载提示
+        showAlert('info', '正在生成预览页面，请稍候...');
+
+        $.ajax({
+          url: '/page-generator/preview',
+          method: 'POST',
+          contentType: 'application/json',
+          data: JSON.stringify({
+            pageName,
+            tabTitle: tabTitleZh,
+            pageTitle: pageTitleZh,
+            seoDescription: seoDescriptionZh,
+            seoKeywords: seoKeywordsZh,
+            content: pageContentZh,
+            translations
+          }),
+          success: function (response) {
+            if (response.success) {
+              // 在新窗口中打开预览页面
+              const previewWindow = window.open(response.previewUrl, '_blank');
+
+              if (previewWindow) {
+                showAlert('success', '预览页面已在新窗口中打开');
+
+                // 清理之前的预览页面（如果存在）
+                if (window.currentPreviewPage && window.currentPreviewCleanup) {
+                  clearInterval(window.currentPreviewCleanup);
+                  cleanupPreviewPage(window.currentPreviewPage);
+                }
+
+                // 存储预览页面名称，用于后续清理
+                window.currentPreviewPage = response.previewPageName;
+
+                // 监听窗口关闭事件，自动清理预览页面
+                let checkCount = 0;
+                const maxChecks = 3600; // 最多检查1小时（3600秒）
+
+                window.currentPreviewCleanup = setInterval(() => {
+                  checkCount++;
+
+                  try {
+                    // 检查窗口是否关闭
+                    if (previewWindow.closed) {
+                      clearInterval(window.currentPreviewCleanup);
+                      cleanupPreviewPage(response.previewPageName);
+                      window.currentPreviewPage = null;
+                      window.currentPreviewCleanup = null;
+                      return;
+                    }
+
+                    // 超时清理（1小时后自动清理）
+                    if (checkCount >= maxChecks) {
+                      clearInterval(window.currentPreviewCleanup);
+                      cleanupPreviewPage(response.previewPageName);
+                      window.currentPreviewPage = null;
+                      window.currentPreviewCleanup = null;
+                      console.log('预览页面超时自动清理:', response.previewPageName);
+                    }
+                  } catch (error) {
+                    // 如果无法访问窗口（可能由于跨域），也进行清理
+                    console.warn('无法检测预览窗口状态，执行清理:', error.message);
+                    clearInterval(window.currentPreviewCleanup);
+                    cleanupPreviewPage(response.previewPageName);
+                    window.currentPreviewPage = null;
+                    window.currentPreviewCleanup = null;
+                  }
+                }, 1000);
+              } else {
+                showAlert('warning', '无法打开预览窗口，请检查浏览器弹窗设置');
+              }
+            } else {
+              showAlert('danger', '预览失败: ' + response.message);
+            }
+          },
+          error: function (xhr) {
+            showAlert('danger', '预览失败: ' + (xhr.responseJSON?.error || '服务器错误'));
+          }
+        });
+      }
+
+      // 生成页面
+      function generatePage() {
+        const pageName = $('#pageName').val();
+        const tabTitleZh = $('#tabTitleZh').val();
+        const tabTitleEn = $('#tabTitleEn').val();
+        const pageTitleZh = $('#pageTitleZh').val();
+        const pageTitleEn = $('#pageTitleEn').val();
+        const seoDescriptionZh = $('#seoDescriptionZh').val();
+        const seoDescriptionEn = $('#seoDescriptionEn').val();
+        const seoKeywordsZh = $('#seoKeywordsZh').val();
+        const seoKeywordsEn = $('#seoKeywordsEn').val();
+        const pageContentZh = $('#pageContentZh').val();
+        const pageContentEn = $('#pageContentEn').val();
+
+        if (!pageName || !tabTitleZh || !pageTitleZh || !pageContentZh) {
+          showAlert('warning', '请填写必要字段（页面名称、选项卡标题、页面标题、页面内容）');
+          return;
+        }
+
+        // 准备翻译数据
+        const translations = {
+          'zh-CN': {
+            'meta.title': tabTitleZh,
+            'meta.description': seoDescriptionZh,
+            'meta.keywords': seoKeywordsZh,
+            [`${pageName}.title`]: pageTitleZh,
+            [`${pageName}.content`]: pageContentZh,
+            title: pageTitleZh,
+            content: pageContentZh
+          },
+          'en': {
+            'meta.title': tabTitleEn || tabTitleZh,
+            'meta.description': seoDescriptionEn || seoDescriptionZh,
+            'meta.keywords': seoKeywordsEn || seoKeywordsZh,
+            [`${pageName}.title`]: pageTitleEn || pageTitleZh,
+            [`${pageName}.content`]: pageContentEn || pageContentZh,
+            title: pageTitleEn || pageTitleZh,
+            content: pageContentEn || pageContentZh
+          }
+        };
+
+        // 检测是否为编辑模式
+        const urlParams = new URLSearchParams(window.location.search);
+        const isEdit = urlParams.get('edit') !== null;
+
+        $.ajax({
+          url: '/page-generator/generate',
+          method: 'POST',
+          contentType: 'application/json',
+          data: JSON.stringify({
+            pageName,
+            tabTitle: tabTitleZh,
+            pageTitle: pageTitleZh,
+            seoDescription: seoDescriptionZh,
+            seoKeywords: seoKeywordsZh,
+            content: pageContentZh,
+            translations,
+            isEdit
+          }),
+          success: function (response) {
+            if (response.success) {
+              // 检查是否来自页面管理器
+              const urlParams = new URLSearchParams(window.location.search);
+              const fromPageManager = urlParams.get('from') === 'page-manager';
+
+              let successMessage = `页面 "${pageName}" 生成成功！`;
+              let actionButtons = '';
+
+              if (fromPageManager) {
+                actionButtons = `
                 <div class="mt-3">
                   <a href="/page-manager" class="btn btn-primary me-2">
                     <i class="bi bi-arrow-left me-1"></i>返回页面管理器
@@ -684,135 +700,138 @@ This is a paragraph.
                   </button>
                 </div>
               `;
-            } else {
-              successMessage += ' 您可以在页面管理器中查看。';
-            }
-            
-            showAlert('success', successMessage + actionButtons);
-            
-            // 如果不是来自页面管理器，清空表单
-            if (!fromPageManager) {
-              $('#pageGeneratorForm')[0].reset();
-              $('#pageName').removeClass('is-valid is-invalid');
-            }
-          } else {
-            showAlert('danger', '生成失败: ' + (response.error || '未知错误'));
-          }
-        },
-        error: function(xhr) {
-          showAlert('danger', '生成失败: ' + (xhr.responseJSON?.error || '服务器错误'));
-        }
-      });
-    }
-    
-    // 加载页面数据进行编辑
-    function loadPageForEdit(pageName) {
-      $.ajax({
-        url: `/page-generator/load-page/${pageName}`,
-        method: 'GET',
-        success: function(response) {
-          if (response.success && response.pageData) {
-            const data = response.pageData;
-            
-            // 填充表单数据
-            $('#pageName').val(data.pageName).prop('readonly', true); // 编辑模式下页面名称不可修改
-            
-            // 填充基本字段数据
-            if (data.tabTitle) {
-              $('#tabTitleZh').val(data.tabTitle);
-            }
-            if (data.pageTitle) {
-              $('#pageTitleZh').val(data.pageTitle);
-            }
-            if (data.seoDescription) {
-              $('#seoDescriptionZh').val(data.seoDescription);
-            }
-            if (data.seoKeywords) {
-              $('#seoKeywordsZh').val(data.seoKeywords);
-            }
-            if (data.content) {
-              $('#pageContentZh').val(data.content);
-            }
-            
-            // 填充多语言数据
-            if (data.translations) {
-              if (data.translations['zh-CN']) {
-                // 选项卡标题
-                if (data.translations['zh-CN']['meta.title']) {
-                  $('#tabTitleZh').val(data.translations['zh-CN']['meta.title']);
-                }
-                // SEO描述
-                if (data.translations['zh-CN']['meta.description']) {
-                  $('#seoDescriptionZh').val(data.translations['zh-CN']['meta.description']);
-                }
-                // SEO关键词
-                if (data.translations['zh-CN']['meta.keywords']) {
-                  $('#seoKeywordsZh').val(data.translations['zh-CN']['meta.keywords']);
-                }
-                // 页面标题和内容
-                if (data.translations['zh-CN'].title || data.translations['zh-CN'][`${data.pageName}.title`]) {
-                  $('#pageTitleZh').val(data.translations['zh-CN'].title || data.translations['zh-CN'][`${data.pageName}.title`]);
-                }
-                if (data.translations['zh-CN'].content || data.translations['zh-CN'][`${data.pageName}.content`]) {
-                  $('#pageContentZh').val(data.translations['zh-CN'].content || data.translations['zh-CN'][`${data.pageName}.content`]);
-                }
+              } else {
+                successMessage += ' 您可以在页面管理器中查看。';
               }
-              if (data.translations['en']) {
-                // 选项卡标题
-                if (data.translations['en']['meta.title']) {
-                  $('#tabTitleEn').val(data.translations['en']['meta.title']);
-                }
-                // SEO描述
-                if (data.translations['en']['meta.description']) {
-                  $('#seoDescriptionEn').val(data.translations['en']['meta.description']);
-                }
-                // SEO关键词
-                if (data.translations['en']['meta.keywords']) {
-                  $('#seoKeywordsEn').val(data.translations['en']['meta.keywords']);
-                }
-                // 页面标题和内容
-                if (data.translations['en'].title || data.translations['en'][`${data.pageName}.title`]) {
-                  $('#pageTitleEn').val(data.translations['en'].title || data.translations['en'][`${data.pageName}.title`]);
-                }
-                if (data.translations['en'].content || data.translations['en'][`${data.pageName}.content`]) {
-                  $('#pageContentEn').val(data.translations['en'].content || data.translations['en'][`${data.pageName}.content`]);
-                }
-              }
-            }
-            
-            // 显示编辑模式提示
-            showAlert('info', `<i class="bi bi-pencil me-2"></i>正在编辑页面：<strong>${data.pageName}</strong>`);
-            
-            // 修改按钮文本
-            $('#pageGeneratorForm button[type="submit"]').html('<i class="bi bi-check-circle me-1"></i>更新页面');
-          } else {
-            showAlert('danger', '加载页面数据失败: ' + (response.error || '页面不存在或不可编辑'));
-          }
-        },
-        error: function(xhr) {
-          showAlert('danger', '加载页面数据失败: ' + (xhr.responseJSON?.error || '服务器错误'));
-        }
-      });
-    }
 
-    // 显示提示信息
-    function showAlert(type, message) {
-      const alertHtml = `
+              showAlert('success', successMessage + actionButtons);
+
+              // 如果不是来自页面管理器，清空表单
+              if (!fromPageManager) {
+                $('#pageGeneratorForm')[0].reset();
+                $('#pageName').removeClass('is-valid is-invalid');
+              }
+            } else {
+              showAlert('danger', '生成失败: ' + (response.error || '未知错误'));
+            }
+          },
+          error: function (xhr) {
+            showAlert('danger', '生成失败: ' + (xhr.responseJSON?.error || '服务器错误'));
+          }
+        });
+      }
+
+      // 加载页面数据进行编辑
+      function loadPageForEdit(pageName) {
+        $.ajax({
+          url: `/page-generator/load-page/${pageName}`,
+          method: 'GET',
+          success: function (response) {
+            if (response.success && response.pageData) {
+              const data = response.pageData;
+
+              // 填充表单数据
+              $('#pageName').val(data.pageName).prop('readonly', true); // 编辑模式下页面名称不可修改
+
+              // 填充基本字段数据
+              if (data.tabTitle) {
+                $('#tabTitleZh').val(data.tabTitle);
+              }
+              if (data.pageTitle) {
+                $('#pageTitleZh').val(data.pageTitle);
+              }
+              if (data.seoDescription) {
+                $('#seoDescriptionZh').val(data.seoDescription);
+              }
+              if (data.seoKeywords) {
+                $('#seoKeywordsZh').val(data.seoKeywords);
+              }
+              if (data.content) {
+                $('#pageContentZh').val(data.content);
+              }
+
+              // 填充多语言数据
+              if (data.translations) {
+                if (data.translations['zh-CN']) {
+                  // 选项卡标题
+                  if (data.translations['zh-CN']['meta.title']) {
+                    $('#tabTitleZh').val(data.translations['zh-CN']['meta.title']);
+                  }
+                  // SEO描述
+                  if (data.translations['zh-CN']['meta.description']) {
+                    $('#seoDescriptionZh').val(data.translations['zh-CN']['meta.description']);
+                  }
+                  // SEO关键词
+                  if (data.translations['zh-CN']['meta.keywords']) {
+                    $('#seoKeywordsZh').val(data.translations['zh-CN']['meta.keywords']);
+                  }
+                  // 页面标题和内容
+                  if (data.translations['zh-CN'].title || data.translations['zh-CN'][`${data.pageName}.title`]) {
+                    $('#pageTitleZh').val(data.translations['zh-CN'].title || data.translations['zh-CN'][`${data.pageName}.title`]);
+                  }
+                  if (data.translations['zh-CN'].content || data.translations['zh-CN'][`${data.pageName}.content`]) {
+                    $('#pageContentZh').val(data.translations['zh-CN'].content || data.translations['zh-CN'][`${data.pageName}.content`]);
+                  }
+                }
+                if (data.translations['en']) {
+                  // 选项卡标题
+                  if (data.translations['en']['meta.title']) {
+                    $('#tabTitleEn').val(data.translations['en']['meta.title']);
+                  }
+                  // SEO描述
+                  if (data.translations['en']['meta.description']) {
+                    $('#seoDescriptionEn').val(data.translations['en']['meta.description']);
+                  }
+                  // SEO关键词
+                  if (data.translations['en']['meta.keywords']) {
+                    $('#seoKeywordsEn').val(data.translations['en']['meta.keywords']);
+                  }
+                  // 页面标题和内容
+                  if (data.translations['en'].title || data.translations['en'][`${data.pageName}.title`]) {
+                    $('#pageTitleEn').val(data.translations['en'].title || data.translations['en'][`${data.pageName}.title`]);
+                  }
+                  if (data.translations['en'].content || data.translations['en'][`${data.pageName}.content`]) {
+                    $('#pageContentEn').val(data.translations['en'].content || data.translations['en'][`${data.pageName}.content`]);
+                  }
+                }
+              }
+
+              // 显示编辑模式提示
+              showAlert('info', `<i class="bi bi-pencil me-2"></i>正在编辑页面：<strong>${data.pageName}</strong>`);
+
+              // 修改按钮文本
+              $('#pageGeneratorForm button[type="submit"]').html('<i class="bi bi-check-circle me-1"></i>更新页面');
+            } else {
+              showAlert('danger', '加载页面数据失败: ' + (response.error || '页面不存在或不可编辑'));
+            }
+          },
+          error: function (xhr) {
+            showAlert('danger', '加载页面数据失败: ' + (xhr.responseJSON?.error || '服务器错误'));
+          }
+        });
+      }
+
+      // 显示提示信息
+      function showAlert(type, message) {
+        const alertHtml = `
         <div class="alert alert-${type} alert-dismissible fade show" role="alert">
           ${message}
           <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
       `;
-      
-      // 移除现有的alert
-      $('.alert').remove();
-      
-      // 添加新的alert
-      $('.card-body').prepend(alertHtml);
-      
-      // 滚动到顶部
-      $('html, body').animate({ scrollTop: 0 }, 300);
-    }
+
+        // 移除现有的alert
+        $('.alert').remove();
+
+        // 添加新的alert
+        $('.card-body').prepend(alertHtml);
+
+        // 滚动到顶部
+        $('html, body').animate({ scrollTop: 0 }, 300);
+      }
+    }).catch(error => {
+      console.warn('CDN资源加载失败，部分功能可能不可用:', error);
+    }); // 结束 Promise.all; // 结束 $(document).ready
   </script>
 </body>
 </html>
