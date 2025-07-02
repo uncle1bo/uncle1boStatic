@@ -34,7 +34,8 @@ class CDNFallbackManager {
                     'https://cdn.staticfile.org/twitter-bootstrap/5.3.0/js/bootstrap.bundle.min.js',
                     'https://ajax.aspnetcdn.com/ajax/bootstrap/5.3.0/bootstrap.bundle.min.js'
                 ],
-                type: 'js'
+                type: 'js',
+                readyCheck: () => typeof bootstrap !== 'undefined'
             },
 
             // Bootstrap Icons
@@ -56,7 +57,8 @@ class CDNFallbackManager {
                     'https://code.jquery.com/jquery-3.6.0.min.js',
                     'https://cdn.staticfile.org/jquery/3.6.0/jquery.min.js'
                 ],
-                type: 'js'
+                type: 'js',
+                readyCheck: () => typeof $ !== 'undefined' && typeof jQuery !== 'undefined'
             },
 
             // Prism.js CSS
@@ -83,7 +85,8 @@ class CDNFallbackManager {
                 fallbacks: [
                     'https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js'
                 ],
-                type: 'js'
+                type: 'js',
+                readyCheck: () => typeof Prism !== 'undefined' && typeof Prism.highlight !== 'undefined'
             },
 
             // Prism.js Autoloader
@@ -92,7 +95,9 @@ class CDNFallbackManager {
                 fallbacks: [
                     'https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js'
                 ],
-                type: 'js'
+                type: 'js',
+                dependencies: ['prism-core'],
+                readyCheck: () => typeof Prism !== 'undefined' && typeof Prism.plugins !== 'undefined' && typeof Prism.plugins.autoloader !== 'undefined'
             },
 
             // Prism.js Toolbar
@@ -101,7 +106,9 @@ class CDNFallbackManager {
                 fallbacks: [
                     'https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/toolbar/prism-toolbar.min.js'
                 ],
-                type: 'js'
+                type: 'js',
+                dependencies: ['prism-core'],
+                readyCheck: () => typeof Prism !== 'undefined' && typeof Prism.plugins !== 'undefined' && typeof Prism.plugins.toolbar !== 'undefined'
             },
 
             // Prism.js Copy to Clipboard
@@ -110,7 +117,9 @@ class CDNFallbackManager {
                 fallbacks: [
                     'https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/copy-to-clipboard/prism-copy-to-clipboard.min.js'
                 ],
-                type: 'js'
+                type: 'js',
+                dependencies: ['prism-toolbar'],
+                readyCheck: () => typeof Prism !== 'undefined' && typeof Prism.plugins !== 'undefined' && typeof Prism.plugins.clipboard !== 'undefined'
             },
 
             // KaTeX CSS
@@ -145,7 +154,9 @@ class CDNFallbackManager {
                     'https://cdnjs.cloudflare.com/ajax/libs/datatables/1.13.4/js/jquery.dataTables.min.js',
                     'https://cdn.jsdelivr.net/npm/datatables.net@1.13.4/js/jquery.dataTables.min.js'
                 ],
-                type: 'js'
+                type: 'js',
+                dependencies: ['jquery'], // 依赖jQuery
+                readyCheck: () => typeof $ !== 'undefined' && typeof $.fn.DataTable !== 'undefined' && typeof $.fn.DataTable.defaults !== 'undefined'
             },
 
             // DataTables Bootstrap 5 Integration
@@ -155,7 +166,9 @@ class CDNFallbackManager {
                     'https://cdnjs.cloudflare.com/ajax/libs/datatables/1.13.4/js/dataTables.bootstrap5.min.js',
                     'https://cdn.jsdelivr.net/npm/datatables.net-bs5@1.13.4/js/dataTables.bootstrap5.min.js'
                 ],
-                type: 'js'
+                type: 'js',
+                dependencies: ['dataTables', 'bootstrap-js'], // 依赖DataTables核心和Bootstrap
+                readyCheck: () => typeof $ !== 'undefined' && typeof $.fn.DataTable !== 'undefined' && typeof $.fn.DataTable.ext !== 'undefined' && typeof $.fn.DataTable.ext.classes !== 'undefined' && typeof $.fn.DataTable.ext.classes.sWrapper !== 'undefined'
             }
         };
     }
@@ -340,7 +353,104 @@ class CDNFallbackManager {
     }
 
     /**
-     * 线程安全的资源加载
+     * 解析资源依赖关系，返回正确的加载顺序
+     */
+    resolveDependencies(resourceKey, visited = new Set(), path = []) {
+        // 检测循环依赖
+        if (visited.has(resourceKey)) {
+            throw new Error(`Circular dependency detected: ${path.join(' -> ')} -> ${resourceKey}`);
+        }
+
+        const resource = this.cdnResources[resourceKey];
+        if (!resource) {
+            throw new Error(`Unknown resource: ${resourceKey}`);
+        }
+
+        visited.add(resourceKey);
+        path.push(resourceKey);
+
+        let dependencies = [];
+        
+        // 递归解析依赖
+        if (resource.dependencies && resource.dependencies.length > 0) {
+            for (const dep of resource.dependencies) {
+                const depOrder = this.resolveDependencies(dep, new Set(visited), [...path]);
+                dependencies = dependencies.concat(depOrder);
+            }
+        }
+
+        // 添加当前资源（如果还没有添加）
+        if (!dependencies.includes(resourceKey)) {
+            dependencies.push(resourceKey);
+        }
+
+        return dependencies;
+    }
+
+    /**
+     * 等待资源就绪
+     */
+    async waitForResourceReady(resourceKey, maxAttempts = 50, checkInterval = 100) {
+        const resource = this.cdnResources[resourceKey];
+        if (!resource || !resource.readyCheck) {
+            return true; // 没有就绪检查函数，认为已就绪
+        }
+
+        return new Promise((resolve, reject) => {
+            let attempts = 0;
+            
+            const checkReady = () => {
+                attempts++;
+                console.log(`检查 ${resourceKey} 就绪状态 (${attempts}/${maxAttempts})`);
+                
+                try {
+                    if (resource.readyCheck()) {
+                        console.log(`${resourceKey} 已就绪`);
+                        resolve(true);
+                        return;
+                    }
+                } catch (error) {
+                    console.warn(`${resourceKey} 就绪检查出错:`, error.message);
+                }
+                
+                if (attempts >= maxAttempts) {
+                    reject(new Error(`${resourceKey} 就绪检查超时`));
+                } else {
+                    setTimeout(checkReady, checkInterval);
+                }
+            };
+            
+            checkReady();
+        });
+    }
+
+    /**
+     * 带依赖管理的资源加载
+     */
+    async loadResourceWithDependencies(resourceKey) {
+        console.log(`开始加载资源及其依赖: ${resourceKey}`);
+        
+        // 解析依赖顺序
+        const loadOrder = this.resolveDependencies(resourceKey);
+        console.log(`${resourceKey} 的加载顺序:`, loadOrder);
+        
+        // 按顺序加载每个资源
+        for (const resource of loadOrder) {
+            if (!this.loadedResources.has(resource)) {
+                console.log(`加载资源: ${resource}`);
+                await this.loadResource(resource);
+                await this.waitForResourceReady(resource);
+                console.log(`资源 ${resource} 加载并就绪完成`);
+            } else {
+                console.log(`资源 ${resource} 已加载，跳过`);
+            }
+        }
+        
+        console.log(`所有依赖资源加载完成: ${resourceKey}`);
+    }
+
+    /**
+     * 线程安全的资源加载（原有方法，用于单个资源加载）
      */
     async loadResource(resourceKey) {
         // 线程安全：如果已经加载，直接返回
@@ -686,6 +796,60 @@ class CDNFallbackManager {
         if (url.includes('katex')) return 'katex';
         if (url.includes('mermaid')) return 'mermaid';
         return url.split('/').pop().split('.')[0];
+    }
+
+    /**
+     * 批量加载多个资源及其依赖
+     */
+    async loadMultipleResourcesWithDependencies(resourceKeys) {
+        console.log('开始批量加载资源:', resourceKeys);
+        
+        // 收集所有需要加载的资源（包括依赖）
+        const allResources = new Set();
+        
+        for (const resourceKey of resourceKeys) {
+            const dependencies = this.resolveDependencies(resourceKey);
+            dependencies.forEach(dep => allResources.add(dep));
+        }
+        
+        const loadOrder = Array.from(allResources);
+        console.log('批量加载顺序:', loadOrder);
+        
+        // 按顺序加载所有资源
+        for (const resource of loadOrder) {
+            if (!this.loadedResources.has(resource)) {
+                console.log(`批量加载资源: ${resource}`);
+                await this.loadResource(resource);
+                await this.waitForResourceReady(resource);
+                console.log(`批量加载完成: ${resource}`);
+            } else {
+                console.log(`资源 ${resource} 已加载，跳过`);
+            }
+        }
+        
+        console.log('批量加载完成:', resourceKeys);
+    }
+
+    /**
+     * 获取资源的依赖信息（用于调试）
+     */
+    getDependencyInfo(resourceKey) {
+        try {
+            const dependencies = this.resolveDependencies(resourceKey);
+            return {
+                resource: resourceKey,
+                dependencies: dependencies,
+                loaded: dependencies.map(dep => ({
+                    name: dep,
+                    isLoaded: this.loadedResources.has(dep)
+                }))
+            };
+        } catch (error) {
+            return {
+                resource: resourceKey,
+                error: error.message
+            };
+        }
     }
 
     /**

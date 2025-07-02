@@ -90,25 +90,19 @@
     // 使用CDN管理器加载JS资源，确保完全加载后再执行业务逻辑
     window.cdnManager = new CDNFallbackManager();
     
-    // 创建全局Promise，供页面管理器等待CDN资源加载完成
+    // CDN资源加载Promise - 使用新的依赖管理功能
     window.cdnResourcesReady = Promise.all([
       cdnManager.loadResource('bootstrap-css'),
-      cdnManager.loadResource('bootstrap-icons'),
-      cdnManager.loadResource('bootstrap-js'),
-      cdnManager.loadResource('jquery')
+      cdnManager.loadResource('bootstrap-icons')
     ]).then(() => {
-      console.log('jQuery和Bootstrap JS 加载完成');
-      // 加载DataTables（需要jQuery先加载完成）
-      return Promise.all([
-        cdnManager.loadResource('dataTables'),
-        cdnManager.loadResource('dataTables-bootstrap')
-      ]);
+      // 使用新的依赖管理功能自动处理DataTables及其依赖
+      console.log('开始加载DataTables及其依赖...');
+      return cdnManager.loadResourceWithDependencies('dataTables-bootstrap');
     }).then(() => {
-      console.log('所有JS资源加载完成，可以安全使用DataTables功能');
-      // 这里可以添加依赖DataTables的业务逻辑
+      console.log('所有资源及依赖加载完成，可以安全使用DataTables功能');
       return true; // 标记资源加载完成
     }).catch(error => {
-      console.warn('CDN资源加载失败，部分功能可能不可用:', error);
+      console.error('CDN资源加载失败:', error);
       throw error;
     });
   </script>
@@ -132,11 +126,12 @@
           console.warn('CDN资源加载Promise不存在，直接初始化页面管理器');
         }
         
-        // 确保jQuery已加载
-        if (typeof $ === 'undefined') {
-          console.error('jQuery未加载，无法初始化页面管理器');
-          return;
+        // CDN管理器已自动处理所有依赖检查，这里只做最基本的验证
+        if (typeof $ === 'undefined' || typeof $.fn.DataTable === 'undefined') {
+          throw new Error('必要的依赖库未正确加载');
         }
+        
+        console.log('开始初始化DataTable...');
       // 初始化DataTable
       const table = $('#pagesTable').DataTable({
         language: {
@@ -159,7 +154,7 @@
             render: function(data) {
               let buttons = `
                 <div class="btn-group btn-group-sm" role="group">
-                  <a href="/prod/pages/${data.file}" target="_blank" class="btn btn-outline-primary" title="查看页面">
+                  <a href="/prod/pages/${data.type}/${data.file}" target="_blank" class="btn btn-outline-primary" title="查看页面">
                     <i class="bi bi-eye"></i>
                   </a>`;
               

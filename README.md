@@ -79,6 +79,7 @@ uncle1boStatic/
 详细使用方法请参考各工具的README文档：
 
 - [开发工具集总览](dev/README.md)
+- [生产环境文档](prod_docs/README.md)
 - [站点地图更新器](dev/src/tools/sitemapUpdater/README.md)
 - [目录编辑器](dev/src/tools/menuEditor/README.md)
 - [页面生成器](dev/src/tools/pageGenerator/README.md)
