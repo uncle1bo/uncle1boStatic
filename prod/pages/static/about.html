@@ -8,10 +8,17 @@
     <title data-i18n="meta.title">关于我们 - Uncle1bo Static Website</title>
     <!-- CDN Fallback Manager - 必须在其他CDN资源之前加载 -->
     <script src="../js/cdn-fallback.js"></script>
-    <!-- Bootstrap CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Bootstrap Icons -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <script>
+        // 使用CDN管理器加载CSS资源
+        window.cdnManager = new CDNFallbackManager();
+        // 创建全局Promise用于CDN资源加载
+        window.cdnResourcesReady = Promise.all([
+            cdnManager.loadResource('bootstrap-css'),
+            cdnManager.loadResource('bootstrap-icons')
+        ]).catch(error => {
+            console.warn('CDN资源加载失败，使用备选方案:', error);
+        });
+    </script>
     <!-- Custom CSS -->
     <link rel="stylesheet" href="../css/styles.css">
     <!-- Template Processor -->
@@ -39,18 +46,41 @@
         <div id="footer-template"></div>
     </div>
     
-    <!-- Bootstrap JS Bundle with Popper -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <!-- Custom JavaScript -->
     <script src="../js/main.js"></script>
     <!-- 多语言支持 -->
     <script src="../js/i18n.js"></script>
     <script>
-        // 初始化多语言支持
-        document.addEventListener('DOMContentLoaded', function() {
-            // 初始化多语言支持，指定当前页面名称
-            initI18n('about');
-        });
+        // 等待CDN资源和DOM加载完成后初始化
+        async function initializePage() {
+            try {
+                // 等待DOM加载完成
+                await new Promise(resolve => {
+                    if (document.readyState === 'loading') {
+                        document.addEventListener('DOMContentLoaded', resolve);
+                    } else {
+                        resolve();
+                    }
+                });
+                
+                // 等待CDN资源加载完成
+                await window.cdnResourcesReady;
+                
+                // 加载Bootstrap JS
+                await cdnManager.loadResource('bootstrap-js');
+                
+                // 初始化多语言支持
+                if (typeof initI18n === 'function') {
+                    initI18n('about');
+                }
+                
+            } catch (error) {
+                console.error('页面初始化失败:', error);
+            }
+        }
+        
+        // 启动初始化
+        initializePage();
     </script>
 </body>
 </html>

@@ -241,24 +241,38 @@ class MenuEditor {
 // 自动初始化
 let menuEditor = null;
 
-// 等待所有脚本加载完成后初始化
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', () => {
+// 等待CDN资源和所有脚本加载完成后初始化
+async function initializeMenuEditor() {
+  try {
+    // 等待DOM加载完成
+    if (document.readyState === 'loading') {
+      await new Promise(resolve => {
+        document.addEventListener('DOMContentLoaded', resolve);
+      });
+    }
+    
+    // 等待CDN资源加载完成
+    if (window.cdnResourcesReady) {
+      await window.cdnResourcesReady;
+      console.log('CDN资源加载完成，开始初始化菜单编辑器');
+    } else {
+      console.warn('CDN资源加载Promise不存在，直接初始化菜单编辑器');
+    }
+    
     // 确保所有依赖的类都已加载
     if (window.MenuEditorCore && window.MenuEditorDrag && window.MenuEditorOperations) {
       menuEditor = new MenuEditor();
+      console.log('菜单编辑器初始化成功');
     } else {
       console.error('菜单编辑器依赖模块未完全加载');
     }
-  });
-} else {
-  // DOM已加载，检查依赖
-  if (window.MenuEditorCore && window.MenuEditorDrag && window.MenuEditorOperations) {
-    menuEditor = new MenuEditor();
-  } else {
-    console.error('菜单编辑器依赖模块未完全加载');
+  } catch (error) {
+    console.error('菜单编辑器初始化过程中发生错误:', error);
   }
 }
+
+// 启动初始化
+initializeMenuEditor();
 
 // 导出到全局
 window.MenuEditor = MenuEditor;

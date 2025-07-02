@@ -31,9 +31,17 @@ class MenuEditorCore {
       this.elements[id] = document.getElementById(id);
     });
     
-    // Bootstrap模态框
-    this.deleteConfirmModal = new bootstrap.Modal(document.getElementById('deleteConfirmModal'));
+    // Bootstrap模态框 - 延迟初始化，避免在Bootstrap加载前初始化
+    this.deleteConfirmModal = null;
     this.elements.confirmDeleteBtn = document.getElementById('confirmDeleteBtn');
+  }
+  
+  // 获取删除确认模态框（懒加载）
+  getDeleteConfirmModal() {
+    if (!this.deleteConfirmModal && window.bootstrap) {
+      this.deleteConfirmModal = new bootstrap.Modal(document.getElementById('deleteConfirmModal'));
+    }
+    return this.deleteConfirmModal;
   }
 
   // 加载菜单结构

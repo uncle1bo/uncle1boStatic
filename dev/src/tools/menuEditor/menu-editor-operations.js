@@ -98,12 +98,20 @@ class MenuEditorOperations {
     }
     
     // 显示确认对话框
-    this.core.deleteConfirmModal.show();
+    const modal = this.core.getDeleteConfirmModal();
+      if (modal) {
+        modal.show();
+      } else {
+        console.error('Bootstrap Modal未初始化，无法显示删除确认对话框');
+      }
     
     // 设置确认删除按钮的事件
     this.core.elements.confirmDeleteBtn.onclick = () => {
       this.confirmDeleteMenuItem(itemId);
-      this.core.deleteConfirmModal.hide();
+      const modal = this.core.getDeleteConfirmModal();
+      if (modal) {
+        modal.hide();
+      }
     };
   }
 

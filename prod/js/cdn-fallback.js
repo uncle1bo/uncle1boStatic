@@ -53,7 +53,8 @@ class CDNFallbackManager {
                 fallbacks: [
                     'https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js',
                     'https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js',
-                    'https://libs.baidu.com/jquery/3.6.0/jquery.min.js'
+                    'https://code.jquery.com/jquery-3.6.0.min.js',
+                    'https://cdn.staticfile.org/jquery/3.6.0/jquery.min.js'
                 ],
                 type: 'js'
             },
@@ -152,6 +153,44 @@ class CDNFallbackManager {
             }
         }
         return {};
+    }
+
+    /**
+     * 智能CDN选择策略 - 根据地理位置和可靠性优化CDN顺序
+     */
+    optimizeCDNOrder(urls) {
+        // 检测用户地理位置（简单的语言检测）
+        const isChineseUser = navigator.language.startsWith('zh') || 
+                             navigator.languages.some(lang => lang.startsWith('zh'));
+        
+        // CDN优先级权重
+        const cdnWeights = {
+            'cdn.jsdelivr.net': isChineseUser ? 90 : 95, // jsDelivr - 全球最可靠
+            'cdnjs.cloudflare.com': 85, // Cloudflare - 全球分布好
+            'ajax.googleapis.com': 80, // Google - 可能被某些地区阻止
+            'code.jquery.com': 85, // jQuery官方 - 稳定
+            'cdn.staticfile.org': isChineseUser ? 88 : 70, // 七牛云 - 中国用户友好
+            'ajax.aspnetcdn.com': 75 // Microsoft - 一般可靠性
+        };
+        
+        // 根据权重排序URL
+        return urls.sort((a, b) => {
+            const weightA = this.getCDNWeight(a, cdnWeights);
+            const weightB = this.getCDNWeight(b, cdnWeights);
+            return weightB - weightA; // 降序排列
+        });
+    }
+
+    /**
+     * 获取CDN权重
+     */
+    getCDNWeight(url, weights) {
+        for (const [domain, weight] of Object.entries(weights)) {
+            if (url.includes(domain)) {
+                return weight;
+            }
+        }
+        return 50; // 默认权重
     }
 
     /**
@@ -305,7 +344,7 @@ class CDNFallbackManager {
         }
 
         // 构建URL列表，优先使用偏好的CDN
-        const urls = [];
+        let urls = [];
         const preferred = this.preferredCDNs[resourceKey];
 
         if (preferred) {
@@ -323,6 +362,10 @@ class CDNFallbackManager {
                 urls.push(url);
             }
         });
+
+        // 使用智能CDN选择策略优化URL顺序
+        urls = this.optimizeCDNOrder(urls);
+        console.log(`Optimized CDN order for ${resourceKey}:`, urls.map(url => url.split('/')[2]));
 
         // 创建加载Promise并存储，确保线程安全
         const loadingPromise = this.raceLoadResource(resourceKey, urls)
@@ -509,6 +552,110 @@ class CDNFallbackManager {
     }
 
     /**
+     * CDN健康监测 - 定期检测CDN可用性
+     */
+    async startCDNHealthMonitoring() {
+        // 每5分钟检测一次CDN健康状态
+        setInterval(async () => {
+            await this.performCDNHealthCheck();
+        }, 5 * 60 * 1000);
+
+        // 立即执行一次检测
+        setTimeout(() => this.performCDNHealthCheck(), 1000);
+    }
+
+    /**
+     * 执行CDN健康检测
+     */
+    async performCDNHealthCheck() {
+        const healthResults = {};
+        
+        for (const [resourceKey, resource] of Object.entries(this.cdnResources)) {
+            const allUrls = [resource.primary, ...resource.fallbacks];
+            
+            for (const url of allUrls.slice(0, 3)) { // 只检测前3个CDN
+                try {
+                    const startTime = Date.now();
+                    const response = await fetch(url, { 
+                        method: 'HEAD', 
+                        cache: 'no-cache',
+                        signal: AbortSignal.timeout(3000) // 3秒超时
+                    });
+                    const responseTime = Date.now() - startTime;
+                    
+                    if (response.ok) {
+                        const domain = new URL(url).hostname;
+                        if (!healthResults[domain]) {
+                            healthResults[domain] = { success: 0, total: 0, avgTime: 0 };
+                        }
+                        healthResults[domain].success++;
+                        healthResults[domain].total++;
+                        healthResults[domain].avgTime = 
+                            (healthResults[domain].avgTime + responseTime) / 2;
+                    }
+                } catch (error) {
+                    const domain = new URL(url).hostname;
+                    if (!healthResults[domain]) {
+                        healthResults[domain] = { success: 0, total: 0, avgTime: 0 };
+                    }
+                    healthResults[domain].total++;
+                }
+            }
+        }
+        
+        // 更新CDN性能数据
+        this.updateCDNPerformanceData(healthResults);
+    }
+
+    /**
+     * 更新CDN性能数据
+     */
+    updateCDNPerformanceData(healthResults) {
+        const performanceData = JSON.parse(localStorage.getItem('cdn-performance') || '{}');
+        
+        for (const [domain, stats] of Object.entries(healthResults)) {
+            if (!performanceData[domain]) {
+                performanceData[domain] = { reliability: 100, avgResponseTime: 1000 };
+            }
+            
+            // 计算可靠性（成功率）
+            const reliability = (stats.success / stats.total) * 100;
+            performanceData[domain].reliability = 
+                (performanceData[domain].reliability * 0.7) + (reliability * 0.3);
+            
+            // 更新平均响应时间
+            if (stats.avgTime > 0) {
+                performanceData[domain].avgResponseTime = 
+                    (performanceData[domain].avgResponseTime * 0.7) + (stats.avgTime * 0.3);
+            }
+        }
+        
+        localStorage.setItem('cdn-performance', JSON.stringify(performanceData));
+        console.log('CDN性能数据已更新:', performanceData);
+    }
+
+    /**
+     * 根据性能数据优化CDN选择
+     */
+    getPerformanceOptimizedCDNOrder(urls) {
+        const performanceData = JSON.parse(localStorage.getItem('cdn-performance') || '{}');
+        
+        return urls.sort((a, b) => {
+            const domainA = new URL(a).hostname;
+            const domainB = new URL(b).hostname;
+            
+            const perfA = performanceData[domainA] || { reliability: 50, avgResponseTime: 2000 };
+            const perfB = performanceData[domainB] || { reliability: 50, avgResponseTime: 2000 };
+            
+            // 综合评分：可靠性权重70%，响应时间权重30%
+            const scoreA = perfA.reliability * 0.7 + (3000 - perfA.avgResponseTime) / 3000 * 30;
+            const scoreB = perfB.reliability * 0.7 + (3000 - perfB.avgResponseTime) / 3000 * 30;
+            
+            return scoreB - scoreA;
+        });
+    }
+
+    /**
      * 提取资源标识符
      */
     extractResourceIdentifier(url) {
@@ -544,6 +691,15 @@ window.cdnManager = new CDNFallbackManager();
 
 // 自动初始化
 window.cdnManager.init().catch(console.error);
+
+// 自动启动CDN健康监测
+if (typeof window !== 'undefined') {
+    window.addEventListener('load', () => {
+        if (window.cdnManager && typeof window.cdnManager.startCDNHealthMonitoring === 'function') {
+            window.cdnManager.startCDNHealthMonitoring();
+        }
+    });
+}
 
 // 导出供其他模块使用
 if (typeof module !== 'undefined' && module.exports) {

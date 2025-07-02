@@ -128,17 +128,34 @@
   <script>
     // 使用CDN管理器加载JS资源，确保完全加载后再执行业务逻辑
     window.cdnManager = new CDNFallbackManager();
-    cdnManager.loadResource('bootstrap-js').then(() => {
-      console.log('Bootstrap JS 加载完成');
-      // 这里可以添加依赖Bootstrap的业务逻辑
-    }).catch(error => {
-      console.warn('Bootstrap JS 加载失败:', error);
-    });
+    // 创建全局Promise用于CDN资源加载
+    window.cdnResourcesReady = Promise.all([
+      cdnManager.loadResource('bootstrap-js'),
+      cdnManager.loadResource('jquery')
+    ]);
   </script>
   
   <!-- Custom JavaScript -->
   <script>
-    document.addEventListener('DOMContentLoaded', function() {
+    async function initializeSitemapUpdater() {
+      try {
+        // 等待DOM加载完成
+        await new Promise(resolve => {
+          if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', resolve);
+          } else {
+            resolve();
+          }
+        });
+        
+        // 等待CDN资源加载完成
+        await window.cdnResourcesReady;
+        console.log('所有CDN资源加载完成');
+        
+        // 检查jQuery是否加载
+        if (typeof $ === 'undefined') {
+          console.warn('jQuery未加载，某些功能可能受限');
+        }
       const sitemapForm = document.getElementById('sitemapForm');
       const updateButton = document.getElementById('updateButton');
       const resultSection = document.getElementById('resultSection');
@@ -198,7 +215,15 @@
           updateButton.innerHTML = '<i class="bi bi-arrow-repeat me-2"></i>更新站点地图';
         }
       });
-    });
+      
+      console.log('站点地图更新器初始化完成');
+    } catch (error) {
+      console.error('站点地图更新器初始化失败:', error);
+    }
+  }
+  
+  // 启动初始化
+  initializeSitemapUpdater();
   </script>
 </body>
 </html>

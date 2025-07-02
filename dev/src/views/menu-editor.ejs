@@ -269,18 +269,22 @@
   <script>
     // 使用CDN管理器加载JS资源，确保完全加载后再执行业务逻辑
     window.cdnManager = new CDNFallbackManager();
-    Promise.all([
+    
+    // 创建全局Promise，供菜单编辑器等待CDN资源加载完成
+    window.cdnResourcesReady = Promise.all([
       cdnManager.loadResource('jquery'),
       cdnManager.loadResource('bootstrap-js')
     ]).then(() => {
       console.log('jQuery和Bootstrap JS 加载完成');
       // 加载jQuery UI（需要jQuery先加载完成）
-      return cdnManager.loadResource('https://code.jquery.com/ui/1.13.2/jquery-ui.min.js', 'js');
+      return cdnManager.loadJS('https://code.jquery.com/ui/1.13.2/jquery-ui.min.js', 'jquery-ui');
     }).then(() => {
       console.log('所有JS资源加载完成，可以安全使用jQuery UI功能');
       // 这里可以添加依赖jQuery UI的业务逻辑
+      return true; // 标记资源加载完成
     }).catch(error => {
       console.warn('CDN资源加载失败，部分功能可能不可用:', error);
+      throw error;
     });
   </script>
   

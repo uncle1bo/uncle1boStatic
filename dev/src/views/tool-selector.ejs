@@ -233,12 +233,18 @@
   
   <!-- Bootstrap JS Bundle with Popper -->
   <script>
-  // 使用CDN管理器加载JS资源，确保完全加载后再执行业务逻辑
-  cdnManager.loadResource('bootstrap-js').then(() => {
-    console.log('Bootstrap JS 加载完成');
-    // 这里可以添加依赖Bootstrap的业务逻辑
+  // 创建全局Promise用于CDN资源加载
+  window.cdnResourcesReady = Promise.all([
+    cdnManager.loadResource('bootstrap-js'),
+    cdnManager.loadResource('jquery')
+  ]);
+  
+  // 等待CDN资源加载完成
+  window.cdnResourcesReady.then(() => {
+    console.log('所有CDN资源加载完成');
+    // 这里可以添加依赖Bootstrap和jQuery的业务逻辑
   }).catch(error => {
-    console.warn('Bootstrap JS 加载失败:', error);
+    console.error('CDN资源加载失败:', error);
   });
 </script>
 </body>

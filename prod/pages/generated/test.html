@@ -8,18 +8,21 @@
     <title data-i18n="meta.title">测试123</title>
     <!-- CDN自动切换逻辑 -->
     <script src="../js/cdn-fallback.js"></script>
-    <!-- Bootstrap CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Bootstrap Icons -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <script>
+        // 使用CDN管理器加载CSS资源
+        window.cdnManager = new CDNFallbackManager();
+        // 创建全局Promise用于CDN资源加载
+        window.cdnResourcesReady = Promise.all([
+            cdnManager.loadResource('bootstrap-css'),
+            cdnManager.loadResource('bootstrap-icons'),
+            cdnManager.loadResource('prism-css'),
+            cdnManager.loadResource('katex-css')
+        ]).catch(error => {
+            console.warn('CDN资源加载失败，使用备选方案:', error);
+        });
+    </script>
     <!-- Custom CSS -->
     <link rel="stylesheet" href="../css/styles.css">
-
-    <!-- Prism.js CSS for code highlighting -->
-    <!-- 主题CSS由主题管理器动态加载 -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/plugins/toolbar/prism-toolbar.min.css">
-    <!-- KaTeX CSS for math rendering -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
     <!-- Template Processor -->
     <script src="../js/template-processor.js"></script>
 </head>
@@ -321,36 +324,57 @@ $</div></p>
         <div id="footer-template"></div>
     </div>
     
-    <!-- Bootstrap JS Bundle with Popper -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <!-- Custom JavaScript -->
     <script src="../js/main.js"></script>
     <!-- 多语言支持 -->
     <script src="../js/i18n.js"></script>
-    <!-- Enhanced Markdown rendering libraries -->
-    <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-core.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/plugins/toolbar/prism-toolbar.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/plugins/copy-to-clipboard/prism-copy-to-clipboard.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/mermaid@10.6.1/dist/mermaid.min.js"></script>
     <script>
-        // 初始化多语言支持和增强渲染
-        document.addEventListener('DOMContentLoaded', function() {
-            // 初始化多语言支持，指定当前页面名称
-            initI18n('test');
-            
-            // 初始化增强Markdown渲染
-            initEnhancedMarkdown();
-            
-            // 监听主题变化事件
-            document.addEventListener('themeChanged', function(event) {
-                // 重新高亮所有代码块
-                if (window.Prism) {
-                    Prism.highlightAll();
+        // 等待CDN资源和DOM加载完成后初始化
+        async function initializePage() {
+            try {
+                // 等待DOM加载完成
+                await new Promise(resolve => {
+                    if (document.readyState === 'loading') {
+                        document.addEventListener('DOMContentLoaded', resolve);
+                    } else {
+                        resolve();
+                    }
+                });
+                
+                // 等待CDN资源加载完成
+                await window.cdnResourcesReady;
+                
+                // 加载JavaScript资源
+                await Promise.all([
+                    cdnManager.loadResource('bootstrap-js'),
+                    cdnManager.loadResource('prism-js'),
+                    cdnManager.loadResource('katex-js'),
+                    cdnManager.loadResource('mermaid-js')
+                ]);
+                
+                // 初始化多语言支持
+                if (typeof initI18n === 'function') {
+                    initI18n('test');
                 }
-            });
-        });
+                
+                // 初始化增强Markdown渲染
+                initEnhancedMarkdown();
+                
+                // 监听主题变化事件
+                document.addEventListener('themeChanged', function(event) {
+                    // 重新高亮所有代码块
+                    if (window.Prism) {
+                        Prism.highlightAll();
+                    }
+                });
+                
+            } catch (error) {
+                console.error('页面初始化失败:', error);
+            }
+        }
+        
+        // 启动初始化
+        initializePage();
         
         // 加载完整主题配置
         function loadThemeConfig() {

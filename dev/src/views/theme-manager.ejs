@@ -664,15 +664,30 @@
   <script>
     // 使用CDN管理器加载JS资源，确保完全加载后再执行业务逻辑
     window.cdnManager = new CDNFallbackManager();
-    cdnManager.loadResource('bootstrap-js').then(() => {
-      console.log('Bootstrap JS 加载完成');
-      // 这里可以添加依赖Bootstrap的业务逻辑
+    
+    // 创建全局Promise用于CDN资源加载
+    window.cdnResourcesReady = Promise.all([
+      cdnManager.loadResource('bootstrap-js'),
+      cdnManager.loadResource('jquery')
+    ]);
+    
+    // 等待CDN资源加载完成后再加载主题管理器
+    window.cdnResourcesReady.then(() => {
+      console.log('所有CDN资源加载完成，开始加载主题管理器');
+      
+      // 动态加载主题管理器脚本
+      const script = document.createElement('script');
+      script.src = '/tools/themeManager/theme-manager.js';
+      script.onload = () => {
+        console.log('主题管理器脚本加载完成');
+      };
+      script.onerror = (error) => {
+        console.error('主题管理器脚本加载失败:', error);
+      };
+      document.head.appendChild(script);
     }).catch(error => {
-      console.warn('Bootstrap JS 加载失败:', error);
+      console.error('CDN资源加载失败:', error);
     });
   </script>
-  
-  <!-- 主题管理器脚本 -->
-  <script src="/tools/themeManager/theme-manager.js"></script>
 </body>
 </html>

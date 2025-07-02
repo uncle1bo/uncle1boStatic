@@ -93,27 +93,52 @@
   <script>
     // 使用CDN管理器加载JS资源，确保完全加载后再执行业务逻辑
     window.cdnManager = new CDNFallbackManager();
-    Promise.all([
+    
+    // 创建全局Promise，供页面管理器等待CDN资源加载完成
+    window.cdnResourcesReady = Promise.all([
       cdnManager.loadResource('bootstrap-js'),
       cdnManager.loadResource('jquery')
     ]).then(() => {
       console.log('jQuery和Bootstrap JS 加载完成');
       // 加载DataTables（需要jQuery先加载完成）
       return Promise.all([
-        cdnManager.loadResource('https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js', 'js'),
-        cdnManager.loadResource('https://cdn.datatables.net/1.13.4/js/dataTables.bootstrap5.min.js', 'js')
+        cdnManager.loadJS('https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js', 'dataTables'),
+        cdnManager.loadJS('https://cdn.datatables.net/1.13.4/js/dataTables.bootstrap5.min.js', 'dataTables-bootstrap')
       ]);
     }).then(() => {
       console.log('所有JS资源加载完成，可以安全使用DataTables功能');
       // 这里可以添加依赖DataTables的业务逻辑
+      return true; // 标记资源加载完成
     }).catch(error => {
       console.warn('CDN资源加载失败，部分功能可能不可用:', error);
+      throw error;
     });
   </script>
   
   <script>
-    // 当页面加载完成后执行
-    $(document).ready(function() {
+    // 等待CDN资源加载完成后再初始化页面功能
+    async function initializePageManager() {
+      try {
+        // 等待DOM加载完成
+        if (document.readyState === 'loading') {
+          await new Promise(resolve => {
+            document.addEventListener('DOMContentLoaded', resolve);
+          });
+        }
+        
+        // 等待CDN资源加载完成
+        if (window.cdnResourcesReady) {
+          await window.cdnResourcesReady;
+          console.log('CDN资源加载完成，开始初始化页面管理器');
+        } else {
+          console.warn('CDN资源加载Promise不存在，直接初始化页面管理器');
+        }
+        
+        // 确保jQuery已加载
+        if (typeof $ === 'undefined') {
+          console.error('jQuery未加载，无法初始化页面管理器');
+          return;
+        }
       // 初始化DataTable
       const table = $('#pagesTable').DataTable({
         language: {
@@ -258,7 +283,15 @@
           $('.alert-dismissible').alert('close');
         }, 5000);
       }
-    });
+      
+      console.log('页面管理器初始化完成');
+    } catch (error) {
+      console.error('页面管理器初始化失败:', error);
+    }
+  }
+  
+  // 启动初始化
+  initializePageManager();
   </script>
 </body>
 </html>
