@@ -22,6 +22,27 @@ const menuEditorService = {
       const headerPath = path.join(paths.prod, 'templates', 'header.html');
       const headerContent = await fs.readFile(headerPath, 'utf8');
       
+      // 读取多语言文件
+      const zhCommonPath = path.join(paths.prod, 'locales', 'zh-CN', 'common.json');
+      const enCommonPath = path.join(paths.prod, 'locales', 'en', 'common.json');
+      
+      let zhCommon = {};
+      let enCommon = {};
+      
+      try {
+        const zhContent = await fs.readFile(zhCommonPath, 'utf8');
+        zhCommon = JSON.parse(zhContent);
+      } catch (error) {
+        console.warn('无法读取中文多语言文件:', error.message);
+      }
+      
+      try {
+        const enContent = await fs.readFile(enCommonPath, 'utf8');
+        enCommon = JSON.parse(enContent);
+      } catch (error) {
+        console.warn('无法读取英文多语言文件:', error.message);
+      }
+      
       // 使用cheerio解析HTML
       const $ = cheerio.load(headerContent);
       
@@ -47,11 +68,21 @@ const menuEditorService = {
         if ($(element).hasClass('dropdown')) {
           // 处理下拉菜单（父菜单）
           const dropdownToggle = $(element).find('.dropdown-toggle');
-          const menuName = dropdownToggle.text().trim();
+          const i18nKey = dropdownToggle.attr('data-i18n');
+          const menuNameZh = dropdownToggle.text().trim();
+          
+          // 从多语言文件中获取英文名称
+          let menuNameEn = menuNameZh; // 默认使用中文
+          if (i18nKey && enCommon.nav && enCommon.nav[i18nKey.replace('nav.', '')]) {
+            menuNameEn = enCommon.nav[i18nKey.replace('nav.', '')];
+          }
           
           const parentItem = {
             id: `menu-${index}`,
-            name: menuName, // 保持字符串格式，前端会转换为多语言对象
+            name: {
+              zh: menuNameZh,
+              en: menuNameEn
+            },
             link: dropdownToggle.attr('href') || '#',
             locked: false,
             children: []
@@ -64,11 +95,22 @@ const menuEditorService = {
               return;
             }
             
-            const childName = $(childElement).text().trim();
+            const childI18nKey = $(childElement).attr('data-i18n');
+            const childNameZh = $(childElement).text().trim();
             const childLink = $(childElement).attr('href') || '#';
+            
+            // 从多语言文件中获取英文名称
+            let childNameEn = childNameZh; // 默认使用中文
+            if (childI18nKey && enCommon.nav && enCommon.nav[childI18nKey.replace('nav.', '')]) {
+              childNameEn = enCommon.nav[childI18nKey.replace('nav.', '')];
+            }
+            
             parentItem.children.push({
               id: `menu-${index}-${childIndex}`,
-              name: childName, // 保持字符串格式，前端会转换为多语言对象
+              name: {
+                zh: childNameZh,
+                en: childNameEn
+              },
               link: childLink,
               locked: childLink.includes('index.html'),
               parent: parentItem.id
@@ -79,8 +121,15 @@ const menuEditorService = {
         } else {
           // 处理普通菜单项
           const link = $(element).find('.nav-link');
-          const menuName = link.text().trim();
+          const i18nKey = link.attr('data-i18n');
+          const menuNameZh = link.text().trim();
           const activeClass = link.attr('class') || '';
+          
+          // 从多语言文件中获取英文名称
+          let menuNameEn = menuNameZh; // 默认使用中文
+          if (i18nKey && enCommon.nav && enCommon.nav[i18nKey.replace('nav.', '')]) {
+            menuNameEn = enCommon.nav[i18nKey.replace('nav.', '')];
+          }
           
           // 提取活动状态占位符
           let activePlaceholder = '';
@@ -94,7 +143,10 @@ const menuEditorService = {
           const menuLink = link.attr('href') || '#';
           menuItems.push({
             id: `menu-${index}`,
-            name: menuName, // 保持字符串格式，前端会转换为多语言对象
+            name: {
+              zh: menuNameZh,
+              en: menuNameEn
+            },
             link: menuLink,
             activePlaceholder: activePlaceholder,
             locked: menuLink.includes('index.html'),
@@ -176,6 +228,20 @@ const menuEditorService = {
       // 临时移除语言选择器和黑暗模式切换器
       languageSelector.remove();
       themeToggle.remove();
+      
+      // 先为菜单项生成i18n键
+      const generateI18nKeys = (items) => {
+        items.forEach((item, index) => {
+          item.i18nKey = `nav.menu_${index}`;
+          if (item.children && item.children.length > 0) {
+            item.children.forEach((child, childIndex) => {
+              child.i18nKey = `nav.menu_${index}_${childIndex}`;
+            });
+          }
+        });
+      };
+      
+      generateI18nKeys(menuData.menuItems);
       
       // 添加新的菜单项
       menuData.menuItems.forEach(item => {

@@ -412,7 +412,16 @@ class MenuEditorCore {
     items.forEach(item => {
       const option = document.createElement('option');
       option.value = item.id;
-      option.textContent = '  '.repeat(depth) + item.name;
+      
+      // 获取显示名称（优先使用中文）
+      let displayName;
+      if (typeof item.name === 'object' && item.name !== null) {
+        displayName = item.name.zh || item.name.en || '未命名';
+      } else {
+        displayName = item.name || '未命名';
+      }
+      
+      option.textContent = '  '.repeat(depth) + displayName;
       this.elements.parentMenuItem.appendChild(option);
       
       if (item.children && item.children.length > 0) {
