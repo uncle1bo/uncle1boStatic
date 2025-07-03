@@ -17,7 +17,7 @@ prod/
 ├── css/                # CSS样式
 │   └── styles.css      # 主样式文件
 ├── js/                 # JavaScript文件
-│   ├── cdn-fallback.js # CDN资源管理器
+│   ├── dependency-manager.js # 依赖资源管理器
 │   ├── i18n.js         # 国际化支持
 │   ├── main.js         # 主脚本
 │   └── template-processor.js # 模板处理器
@@ -49,7 +49,7 @@ prod/
 - **静态网站**：完整的静态网站文件，支持直接部署
 - **多语言支持**：内置中英文国际化支持
 - **响应式设计**：Bootstrap 5框架，适配所有设备
-- **CDN资源管理**：智能CDN资源加载和故障转移
+- **依赖资源管理**：智能依赖资源加载和故障转移
 - **模板系统**：支持页面模板和动态内容替换
 - **SEO优化**：包含sitemap.xml、robots.txt等SEO文件
 - **Cloudflare优化**：针对Cloudflare Pages优化的配置
@@ -137,28 +137,29 @@ locales/
 
 ### 前端JavaScript API
 
-#### CDN资源管理器
+#### 依赖资源管理器
+
+**核心功能：**
 
 ```javascript
-// 加载CDN资源
-// CDN管理器会自动初始化，无需手动创建实例
+// 加载依赖资源
+// 依赖管理器会自动初始化，无需手动创建实例
 
-// 基本用法
-await window.cdnManager.loadResource('bootstrap-css');
+// 基础用法
+await window.dependencyManager.loadResource('bootstrap-css');
 
-// 带依赖的资源加载
-await cdnManager.loadResourceWithDependencies('dataTables-bootstrap');
+// 加载带依赖的资源
+await dependencyManager.loadResourceWithDependencies('dataTables-bootstrap');
 
 // 批量加载
-await cdnManager.loadMultipleResourcesWithDependencies([
+await dependencyManager.loadMultipleResourcesWithDependencies([
   'bootstrap-css',
   'bootstrap-js',
-  'dataTables-bootstrap'
+  'jquery'
 ]);
 
 // 获取依赖信息
-const info = cdnManager.getDependencyInfo('dataTables-bootstrap');
-console.log(info);
+const info = dependencyManager.getDependencyInfo('dataTables-bootstrap');
 ```
 
 #### 国际化API
@@ -222,7 +223,7 @@ fetch('/theme-config.json')
 
 1. **文件完整性**：确保所有必要文件都包含在部署中
 2. **路径配置**：检查所有资源路径是否正确
-3. **CDN配置**：确认CDN资源可以正常访问
+3. **依赖配置**：确认依赖资源可以正常访问
 4. **语言文件**：验证所有语言包文件完整
 
 ### 性能优化

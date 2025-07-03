@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>主题管理器 - Uncle1bo静态站点工具集</title>
-  <!-- Bootstrap CSS和Icons通过CDN管理器动态加载 -->
+  <!-- Bootstrap CSS和Icons通过依赖资源管理器动态加载 -->
   <!-- Custom CSS -->
   <link rel="stylesheet" href="/css/styles.css">
   <style>
@@ -591,8 +591,50 @@
                         <option value="okaidia">Okaidia （深色优雅主题）</option>
                         <option value="twilight">Twilight （暮光主题）</option>
                         <option value="coy">Coy （简洁主题）</option>
+                        <option value="tomorrow">Tomorrow （明日主题）</option>
                         <option value="solarizedlight">Solarized Light （护眼浅色主题）</option>
+                        <option value="material-dark">Material Dark （材料设计深色）</option>
+                        <option value="dracula">Dracula （德古拉主题）</option>
+                        <option value="nord">Nord （北欧主题）</option>
+                        <option value="one-dark">One Dark （VS Code深色）</option>
+                        <option value="vsc-dark-plus">VS Code Dark+ （VS Code增强深色）</option>
+                        <option value="atom-dark">Atom Dark （Atom编辑器深色）</option>
                       </select>
+                    </div>
+                  </div>
+                  
+                  <!-- 代码预览区域 -->
+                  <div class="mt-4">
+                    <h6 class="fw-bold mb-3">
+                      <i class="bi bi-code-square me-2"></i>代码主题预览
+                    </h6>
+                    <div class="code-preview-container" style="border: 1px solid #dee2e6; border-radius: 8px; overflow: hidden;">
+                      <pre><code class="language-javascript" id="code-preview">// JavaScript 示例代码
+function greetUser(name) {
+  const message = `Hello, ${name}!`;
+  console.log(message);
+  
+  // 条件判断
+  if (name === 'Admin') {
+    return {
+      role: 'administrator',
+      permissions: ['read', 'write', 'delete']
+    };
+  }
+  
+  // 数组操作
+  const numbers = [1, 2, 3, 4, 5];
+  const doubled = numbers.map(n => n * 2);
+  
+  return {
+    greeting: message,
+    doubled: doubled
+  };
+}
+
+// 调用函数
+const result = greetUser('Developer');
+console.log(result);</code></pre>
                     </div>
                   </div>
                 </div>
@@ -656,42 +698,42 @@
   </div>
 
   <!-- Bootstrap JS Bundle with Popper -->
-  <!-- CDN Fallback Manager - 必须在其他CDN资源之前加载 -->
-  <!-- CDN模块化组件 -->
-  <script src="/prod/js/cdn/config.js"></script>
-  <script src="/prod/js/cdn/cache.js"></script>
-  <script src="/prod/js/cdn/loader.js"></script>
-  <script src="/prod/js/cdn/optimizer.js"></script>
-  <script src="/prod/js/cdn/dependency.js"></script>
-  <!-- CDN主管理器 -->
-  <script src="/prod/js/cdn-fallback.js"></script>
+  <!-- 依赖资源管理器 - 必须在其他依赖资源之前加载 -->
+  <!-- 依赖资源模块化组件 -->
+  <!-- 依赖资源主管理器 -->
+  <script src="/prod/js/dependency-manager.js"></script>
   <script>
-    // CDN管理器会自动初始化，无需手动创建实例
+    // 依赖资源管理器会自动初始化，无需手动创建实例
     
-    // 创建全局Promise用于CDN资源加载
-    window.cdnResourcesReady = Promise.all([
-      window.cdnManager.loadResource('bootstrap-css'),
-      window.cdnManager.loadResource('bootstrap-icons'),
-      window.cdnManager.loadResource('bootstrap-js'),
-      window.cdnManager.loadResource('jquery')
+    // 创建全局Promise用于依赖资源加载
+        window.dependencyResourcesReady = Promise.all([
+      window.dependencyManager.loadResource('bootstrap-css'),
+window.dependencyManager.loadResource('bootstrap-icons'),
+window.dependencyManager.loadResource('bootstrap-js'),
+window.dependencyManager.loadResource('jquery'),
+window.dependencyManager.loadResource('prism-core'),
+window.dependencyManager.loadResource('prism-theme-css')
     ]);
     
-    // 等待CDN资源加载完成后再加载主题管理器
-    window.cdnResourcesReady.then(() => {
-      console.log('所有CDN资源加载完成，开始加载主题管理器');
+    // 等待依赖资源加载完成后再加载主题管理器
+        window.dependencyResourcesReady.then(async () => {
+      console.log('所有依赖资源加载完成，开始加载主题管理器');
       
       // 动态加载主题管理器脚本
       const script = document.createElement('script');
       script.src = '/tools/themeManager/theme-manager.js';
-      script.onload = () => {
+      script.onload = async () => {
         console.log('主题管理器脚本加载完成');
+        // 初始化主题管理器
+        const themeManager = new ThemeManager();
+        await themeManager.init();
       };
       script.onerror = (error) => {
         console.error('主题管理器脚本加载失败:', error);
       };
       document.head.appendChild(script);
     }).catch(error => {
-      console.error('CDN资源加载失败:', error);
+      console.error('依赖资源加载失败:', error);
     });
   </script>
 </body>

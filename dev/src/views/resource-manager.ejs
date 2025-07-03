@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>外部资源管理器 - Uncle1bo静态站点工具集</title>
+  
+  <!-- 依赖管理器 -->
+  <script src="/prod/js/dependency-manager.js"></script>
+  
+  <!-- 加载Bootstrap CSS -->
+  <script>
+    window.dependencyManager.loadResource('bootstrap-css');
+    window.dependencyManager.loadResource('bootstrap-icons');
+  </script>
+  
+  <style>
+    .resource-item {
+      transition: all 0.3s ease;
+    }
+    .resource-item:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+    .progress-container {
+      display: none;
+    }
+    .log-container {
+      max-height: 300px;
+      overflow-y: auto;
+      background-color: #f8f9fa;
+      border: 1px solid #dee2e6;
+      border-radius: 0.375rem;
+      padding: 1rem;
+      font-family: 'Courier New', monospace;
+      font-size: 0.875rem;
+    }
+    .status-badge {
+      font-size: 0.75rem;
+    }
+    .resource-card {
+      border-left: 4px solid #dc3545;
+    }
+    .resource-card.available {
+      border-left-color: #28a745;
+    }
+    .btn-download {
+      transition: all 0.2s ease;
+    }
+    .btn-download:hover {
+      transform: scale(1.05);
+    }
+  </style>
+</head>
+<body>
+  <div class="container-fluid py-4">
+    <!-- 页面标题 -->
+    <div class="row mb-4">
+      <div class="col">
+        <div class="d-flex justify-content-between align-items-center">
+          <div>
+            <h1 class="h3 mb-1">
+              <i class="bi bi-cloud-download me-2 text-success"></i>
+              外部资源管理器
+            </h1>
+            <p class="text-muted mb-0">检测并下载本地缺失的依赖资源</p>
+          </div>
+          <div>
+            <a href="/" class="btn btn-outline-secondary me-2">
+              <i class="bi bi-house me-1"></i>返回首页
+            </a>
+            <button id="refreshBtn" class="btn btn-primary">
+              <i class="bi bi-arrow-clockwise me-1"></i>刷新检测
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 统计信息卡片 -->
+    <div class="row mb-4">
+      <div class="col-md-3">
+        <div class="card border-danger">
+          <div class="card-body text-center">
+            <h5 class="card-title text-danger">
+              <i class="bi bi-exclamation-triangle"></i>
+              缺失资源
+            </h5>
+            <h2 class="text-danger mb-0" id="missingCount">-</h2>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="card border-success">
+          <div class="card-body text-center">
+            <h5 class="card-title text-success">
+              <i class="bi bi-check-circle"></i>
+              可用资源
+            </h5>
+            <h2 class="text-success mb-0" id="availableCount">-</h2>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="card border-info">
+          <div class="card-body text-center">
+            <h5 class="card-title text-info">
+              <i class="bi bi-download"></i>
+              下载进度
+            </h5>
+            <h2 class="text-info mb-0" id="downloadProgress">0%</h2>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="card border-warning">
+          <div class="card-body text-center">
+            <h5 class="card-title text-warning">
+              <i class="bi bi-clock-history"></i>
+              总资源数
+            </h5>
+            <h2 class="text-warning mb-0" id="totalCount">-</h2>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 标签页导航 -->
+    <div class="row mb-4">
+      <div class="col">
+        <ul class="nav nav-tabs" id="resourceTabs" role="tablist">
+          <li class="nav-item" role="presentation">
+            <button class="nav-link active" id="scan-tab" data-bs-toggle="tab" data-bs-target="#scan-pane" type="button" role="tab">
+              <i class="bi bi-search me-1"></i>资源扫描
+            </button>
+          </li>
+          <li class="nav-item" role="presentation">
+            <button class="nav-link" id="404-tab" data-bs-toggle="tab" data-bs-target="#404-pane" type="button" role="tab">
+              <i class="bi bi-exclamation-triangle me-1"></i>404检测
+            </button>
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- 标签页内容 -->
+    <div class="tab-content" id="resourceTabContent">
+      <!-- 资源扫描标签页 -->
+      <div class="tab-pane fade show active" id="scan-pane" role="tabpanel">
+        <!-- 操作按钮区域 -->
+        <div class="row mb-4">
+          <div class="col">
+            <div class="card">
+              <div class="card-body">
+                <div class="d-flex flex-wrap gap-2">
+                  <button id="downloadAllBtn" class="btn btn-success" disabled>
+                    <i class="bi bi-download me-1"></i>下载所有缺失资源
+                  </button>
+                  <button id="downloadSelectedBtn" class="btn btn-warning" disabled>
+                    <i class="bi bi-check-square me-1"></i>下载选中资源
+                  </button>
+                  <button id="clearCacheBtn" class="btn btn-outline-danger">
+                    <i class="bi bi-trash me-1"></i>清除下载缓存
+                  </button>
+                  <button id="showHistoryBtn" class="btn btn-outline-info">
+                    <i class="bi bi-clock-history me-1"></i>下载历史
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 进度条区域 -->
+        <div class="row mb-4 progress-container" id="progressContainer">
+          <div class="col">
+            <div class="card">
+              <div class="card-body">
+                <h6 class="card-title">下载进度</h6>
+                <div class="progress mb-2" style="height: 20px;">
+                  <div id="progressBar" class="progress-bar progress-bar-striped progress-bar-animated" 
+                       role="progressbar" style="width: 0%" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
+                    0%
+                  </div>
+                </div>
+                <small class="text-muted" id="progressText">准备开始下载...</small>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 资源列表 -->
+        <div class="row">
+          <div class="col">
+            <div class="card">
+              <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">
+                  <i class="bi bi-list-ul me-2"></i>资源列表
+                </h5>
+                <div>
+                  <div class="form-check form-switch d-inline-block me-3">
+                    <input class="form-check-input" type="checkbox" id="showOnlyMissing">
+                    <label class="form-check-label" for="showOnlyMissing">
+                      仅显示缺失资源
+                    </label>
+                  </div>
+                  <button id="selectAllBtn" class="btn btn-sm btn-outline-primary">
+                    <i class="bi bi-check-all me-1"></i>全选
+                  </button>
+                </div>
+              </div>
+              <div class="card-body">
+                <div id="resourceList" class="row g-3">
+                  <!-- 资源项将通过JavaScript动态生成 -->
+                  <div class="col-12 text-center py-5">
+                    <div class="spinner-border text-primary" role="status">
+                      <span class="visually-hidden">加载中...</span>
+                    </div>
+                    <p class="mt-3 text-muted">正在扫描资源...</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 下载日志区域 -->
+        <div class="row mt-4" id="logSection" style="display: none;">
+          <div class="col">
+            <div class="card">
+              <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">
+                  <i class="bi bi-terminal me-2"></i>下载日志
+                </h5>
+                <button id="clearLogBtn" class="btn btn-sm btn-outline-secondary">
+                  <i class="bi bi-x-circle me-1"></i>清除日志
+                </button>
+              </div>
+              <div class="card-body">
+                <div id="downloadLog" class="log-container">
+                  <!-- 日志内容将通过JavaScript动态添加 -->
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 404检测标签页 -->
+      <div class="tab-pane fade" id="404-pane" role="tabpanel">
+        <!-- 404资源操作区域 -->
+        <div class="row mb-4">
+          <div class="col">
+            <div class="card">
+              <div class="card-body">
+                <div class="d-flex flex-wrap gap-2">
+                  <button id="refresh404Btn" class="btn btn-primary">
+                    <i class="bi bi-arrow-clockwise me-1"></i>刷新404列表
+                  </button>
+                  <button id="clear404AllBtn" class="btn btn-outline-danger">
+                    <i class="bi bi-trash me-1"></i>清除所有记录
+                  </button>
+                  <button id="download404SelectedBtn" class="btn btn-success" disabled>
+                    <i class="bi bi-download me-1"></i>下载选中资源
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 404资源统计 -->
+        <div class="row mb-4">
+          <div class="col-md-4">
+            <div class="card border-danger">
+              <div class="card-body text-center">
+                <h5 class="card-title text-danger">
+                  <i class="bi bi-exclamation-triangle"></i>
+                  404资源数
+                </h5>
+                <h2 class="text-danger mb-0" id="total404Count">-</h2>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="card border-warning">
+              <div class="card-body text-center">
+                <h5 class="card-title text-warning">
+                  <i class="bi bi-clock"></i>
+                  未下载
+                </h5>
+                <h2 class="text-warning mb-0" id="pending404Count">-</h2>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="card border-success">
+              <div class="card-body text-center">
+                <h5 class="card-title text-success">
+                  <i class="bi bi-check-circle"></i>
+                  已下载
+                </h5>
+                <h2 class="text-success mb-0" id="downloaded404Count">-</h2>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 404资源列表 -->
+        <div class="row">
+          <div class="col">
+            <div class="card">
+              <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">
+                  <i class="bi bi-list-ul me-2"></i>404资源列表
+                </h5>
+                <div>
+                  <div class="form-check form-switch d-inline-block me-3">
+                    <input class="form-check-input" type="checkbox" id="showOnlyPending404">
+                    <label class="form-check-label" for="showOnlyPending404">
+                      仅显示未下载
+                    </label>
+                  </div>
+                  <button id="selectAll404Btn" class="btn btn-sm btn-outline-primary">
+                    <i class="bi bi-check-all me-1"></i>全选
+                  </button>
+                </div>
+              </div>
+              <div class="card-body">
+                <div id="resource404List">
+                  <!-- 404资源项将通过JavaScript动态生成 -->
+                  <div class="text-center py-5">
+                    <div class="spinner-border text-primary" role="status">
+                      <span class="visually-hidden">加载中...</span>
+                    </div>
+                    <p class="mt-3 text-muted">正在加载404资源列表...</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 下载历史模态框 -->
+  <div class="modal fade" id="historyModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">
+            <i class="bi bi-clock-history me-2"></i>下载历史
+          </h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <div id="historyContent">
+            <!-- 历史记录将通过JavaScript动态生成 -->
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bootstrap JS Bundle with Popper -->
+  <script>
+  // 创建全局Promise用于依赖资源加载
+  window.dependencyResourcesReady = Promise.all([
+    window.dependencyManager.loadResource('bootstrap-js'),
+    window.dependencyManager.loadResource('jquery')
+  ]);
+  
+  // 等待依赖资源加载完成
+  window.dependencyResourcesReady.then(() => {
+    console.log('所有依赖资源加载完成');
+    // 初始化页面
+    initResourceManager();
+  }).catch(error => {
+    console.error('依赖资源加载失败:', error);
+  });
+  </script>
+  
+  <script src="/js/resource-manager.js"></script>
+</body>
+</html>

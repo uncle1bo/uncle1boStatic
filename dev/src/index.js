@@ -21,8 +21,8 @@ const menuEditorRoutes = require('./tools/menuEditor/routes');
 const pageManagerRoutes = require('./tools/pageManager/routes');
 const pageGeneratorRoutes = require('./tools/pageGenerator/routes');
 const themeManagerRoutes = require('./tools/themeManager/routes');
-const cdnTesterRoutes = require('./tools/cdnTester/routes');
-const cdnCacheManagerRoutes = require('./tools/cdnCacheManager/routes');
+// CDN测试调试工具已删除
+const resourceManagerRoutes = require('./tools/resourceManager/routes');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -76,8 +76,9 @@ app.use('/sitemap-updater', require('./tools/sitemapUpdater/routes'));
 app.use('/menu-editor', require('./tools/menuEditor/routes'));
 app.use('/page-manager', require('./tools/pageManager/routes'));
 app.use('/theme-manager', require('./tools/themeManager/routes'));
-app.use('/cdn-tester', require('./tools/cdnTester/routes'));
-app.use('/cdn-cache-manager', require('./tools/cdnCacheManager/routes'));
+// CDN测试调试工具路由已删除
+app.use('/resource-manager', require('./tools/resourceManager/routes'));
+app.use('/api/resource-manager', require('./tools/resourceManager/routes'));
 
 // 重定向管理路由
 app.use('/api/redirect', require('./routes/redirectRoutes'));
@@ -129,6 +130,30 @@ app.get('/prod', (req, res) => {
   } else {
     res.status(404).send('Index file not found');
   }
+});
+
+// 404资源检测中间件
+app.use((req, res, next) => {
+  // 如果是静态资源请求且返回404，记录到resourceManager
+  const originalSend = res.send;
+  res.send = function(body) {
+    if (res.statusCode === 404 && req.path.match(/\.(css|js|png|jpg|jpeg|gif|svg|ico|woff|woff2|ttf|eot)$/i)) {
+      // 异步记录404资源，不阻塞响应
+      setImmediate(async () => {
+        try {
+          const ResourceManagerService = require('./tools/resourceManager/resourceManagerService');
+          const resourceManager = new ResourceManagerService();
+          const fullUrl = `${req.protocol}://${req.get('host')}${req.originalUrl}`;
+          const referrer = req.get('Referer') || null;
+          await resourceManager.record404Resource(fullUrl, referrer);
+        } catch (error) {
+          console.error('记录404资源失败:', error);
+        }
+      });
+    }
+    return originalSend.call(this, body);
+  };
+  next();
 });
 
 // 这里可以添加其他工具的路由

@@ -6,16 +6,9 @@
     <meta name="description" data-i18n="meta.description" content="">
     <meta name="keywords" content="" data-i18n="meta.keywords">
     <title data-i18n="meta.title">测试123</title>
-    <!-- CDN Fallback Manager - 必须在其他CDN资源之前加载 -->
-    <!-- CDN模块化组件 -->
-    <script src="../../js/cdn/config.js"></script>
-    <script src="../../js/cdn/cache.js"></script>
-    <script src="../../js/cdn/loader.js"></script>
-    <script src="../../js/cdn/optimizer.js"></script>
-    <script src="../../js/cdn/dependency.js"></script>
-    <!-- CDN主管理器 -->
-    <script src="../../js/cdn-fallback.js"></script>
-    <!-- CSS资源通过CDN管理器动态加载 -->
+    <!-- 依赖管理器 - 必须在其他资源之前加载 -->
+    <script src="../../js/dependency-manager.js"></script>
+    <!-- CSS资源通过依赖管理器动态加载 -->
     <!-- Custom CSS -->
     <link rel="stylesheet" href="../../css/styles.css">
     <!-- Template Processor -->
@@ -199,7 +192,7 @@ $</div></p>
     G --&gt; K[完成]
     H --&gt; K
     I --&gt; K
-    J --&gt; K" data-diagram-id="mermaid-uhpy1md4e">
+    J --&gt; K" data-diagram-id="mermaid-aferqkuvu">
             <pre><code class="language-mermaid">graph TD
     A[开始] --&gt; B{检测文件类型}
     B --&gt;|XML| C[XML预览]
@@ -227,7 +220,7 @@ $</div></p>
     S--&gt;&gt;W: 返回模板内容
     W-&gt;&gt;W: 渲染页面内容
     W--&gt;&gt;B: 显示生成界面
-    B--&gt;&gt;U: 展示页面工具" data-diagram-id="mermaid-xrzeaif6a">
+    B--&gt;&gt;U: 展示页面工具" data-diagram-id="mermaid-jkmmnmr5h">
             <pre><code class="language-mermaid">sequenceDiagram
     participant U as 用户
     participant B as 浏览器
@@ -257,7 +250,7 @@ $</div></p>
     section 测试优化
     功能测试        :active, test, 2024-01-12, 2024-01-14
     性能优化        :optimize, 2024-01-14, 2024-01-16
-    文档完善        :docs, 2024-01-16, 2024-01-17" data-diagram-id="mermaid-6cc9rz0yz">
+    文档完善        :docs, 2024-01-16, 2024-01-17" data-diagram-id="mermaid-wmtwbchp8">
             <pre><code class="language-mermaid">gantt
     title 网站工具开发计划
     dateFormat  YYYY-MM-DD
@@ -319,45 +312,45 @@ $</div></p>
         <div id="footer-template"></div>
     </div>
     
-    <!-- JS资源通过CDN管理器动态加载 -->
+    <!-- JS资源通过依赖资源管理器动态加载 -->
     <!-- Custom JavaScript -->
     <script src="../../js/main.js"></script>
     <!-- 多语言支持 -->
     <script src="../../js/i18n.js"></script>
     <script>
-        // CDN管理器会自动初始化，无需手动创建实例
+        // 依赖管理器会自动初始化，无需手动创建实例
         
-        // 创建全局Promise用于CDN资源加载
-        window.cdnResourcesReady = Promise.all([
-            window.cdnManager.loadResource('bootstrap-css'),
-            window.cdnManager.loadResource('bootstrap-icons'),
-            window.cdnManager.loadResource('prism-theme-css'),
-            window.cdnManager.loadResource('prism-toolbar-css'),
-            window.cdnManager.loadResource('katex-css')
+        // 创建全局Promise用于依赖资源加载
+        window.dependencyResourcesReady = Promise.all([
+            window.dependencyManager.loadResource('bootstrap-css'),
+            window.dependencyManager.loadResource('bootstrap-icons'),
+            window.dependencyManager.loadResource('prism-theme-css'),
+            window.dependencyManager.loadResource('prism-toolbar-css'),
+            window.dependencyManager.loadResource('katex-css')
         ]).then(() => {
             return Promise.all([
-                window.cdnManager.loadResource('bootstrap-js'),
-                window.cdnManager.loadResource('prism-core'),
-                window.cdnManager.loadResource('prism-autoloader'),
-                window.cdnManager.loadResource('katex-js'),
-                window.cdnManager.loadResource('mermaid')
+                window.dependencyManager.loadResource('bootstrap-js'),
+                window.dependencyManager.loadResource('prism-core'),
+                window.dependencyManager.loadResource('prism-autoloader'),
+                window.dependencyManager.loadResource('katex-js'),
+                window.dependencyManager.loadResource('mermaid')
             ]);
         }).then(() => {
             // 在Prism核心组件加载完成后，再加载工具栏和复制功能
             return Promise.all([
-                window.cdnManager.loadResource('prism-toolbar'),
-                window.cdnManager.loadResource('prism-copy')
+                window.dependencyManager.loadResource('prism-toolbar'),
+                window.dependencyManager.loadResource('prism-copy')
             ]);
         }).catch(error => {
-            console.warn('CDN资源加载失败，使用备选方案:', error);
+            console.warn('依赖资源加载失败，使用备选方案:', error);
         });
         
         // 初始化多语言支持和增强渲染
         document.addEventListener('DOMContentLoaded', async function() {
             try {
-                // 等待CDN资源加载完成
-                await window.cdnResourcesReady;
-                console.log('所有CDN资源加载完成');
+                // 等待依赖资源加载完成
+                await window.dependencyResourcesReady;
+                console.log('所有依赖资源加载完成');
                 
                 // 初始化多语言支持，指定当前页面名称
                 await initI18n('test');
@@ -374,7 +367,7 @@ $</div></p>
                 });
             } catch (error) {
                 console.error('页面初始化失败:', error);
-                // 即使CDN资源加载失败，也要尝试初始化基本功能
+                // 即使依赖资源加载失败，也要尝试初始化基本功能
                 initI18n('test');
             }
         });
@@ -402,8 +395,8 @@ $</div></p>
                                 }
                             });
                             
-                            // 通过CDN管理器加载代码高亮主题
-                            if (config.codeTheme && window.cdnManager) {
+                            // 通过依赖管理器加载代码高亮主题
+                            if (config.codeTheme && window.dependencyManager) {
                                 loadCodeTheme(config.codeTheme);
                             }
                         }
@@ -416,10 +409,10 @@ $</div></p>
             }
         }
         
-        // 通过CDN管理器加载代码高亮主题
+        // 通过依赖管理器加载代码高亮主题
         function loadCodeTheme(codeTheme) {
-            if (!window.cdnManager) {
-                console.warn('CDN管理器未初始化，无法加载代码主题');
+            if (!window.dependencyManager) {
+                console.warn('依赖管理器未初始化，无法加载代码主题');
                 return;
             }
             
@@ -429,22 +422,19 @@ $</div></p>
                 existingThemeLink.remove();
             }
             
-            // 通过CDN管理器动态加载新主题
+            // 通过依赖管理器动态加载新主题
             const themeResourceKey = `prism-theme-${codeTheme}`;
             
-            // 如果CDN管理器中没有这个主题资源，动态添加
-            if (!window.cdnManager.config.cdnResources[themeResourceKey]) {
-                window.cdnManager.config.cdnResources[themeResourceKey] = {
+            // 如果依赖管理器中没有这个主题资源，动态添加
+            if (!window.dependencyManager.resources[themeResourceKey]) {
+                window.dependencyManager.addResource(themeResourceKey, {
                     type: 'css',
-                    primary: `https://cdn.jsdelivr.net/npm/prismjs@1.29.0/themes/prism-${codeTheme}.min.css`,
-                    fallbacks: [
-                        `https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-${codeTheme}.min.css`
-                    ]
-                };
+                    path: `assets/libs/prism/themes/prism-${codeTheme}.min.css`
+                });
             }
             
             // 加载主题
-            window.cdnManager.loadResource(themeResourceKey)
+            window.dependencyManager.loadResource(themeResourceKey)
                 .then(() => {
                     console.log(`代码高亮主题 ${codeTheme} 加载成功`);
                     // 重新高亮所有代码块
@@ -459,8 +449,8 @@ $</div></p>
         
         // 动态注册Prism组件资源
         function registerPrismComponents() {
-            if (!window.cdnManager) {
-                console.warn('CDN管理器未初始化，无法注册Prism组件');
+            if (!window.dependencyManager) {
+                console.warn('依赖管理器未初始化，无法注册Prism组件');
                 return;
             }
             
@@ -473,22 +463,18 @@ $</div></p>
                 'less', 'stylus', 'jsx', 'tsx', 'vue', 'svelte', 'graphql', 'regex'
             ];
             
-            // 为每个组件动态注册CDN资源
+            // 为每个组件动态注册依赖资源
             commonComponents.forEach(component => {
                 // 特殊处理CSS组件，避免与CSS主题文件冲突
                 const resourceKey = component === 'css' ? 'prism-css-component' : `prism-${component}`;
                 
                 // 检查是否已经注册
-                if (!window.cdnManager.config.cdnResources[resourceKey]) {
-                    window.cdnManager.config.cdnResources[resourceKey] = {
+                if (!window.dependencyManager.resources[resourceKey]) {
+                    window.dependencyManager.addResource(resourceKey, {
                         type: 'js',
-                        primary: `https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-${component}.min.js`,
-                        fallbacks: [
-                            `https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-${component}.min.js`,
-                            `https://unpkg.com/prismjs@1.29.0/components/prism-${component}.min.js`
-                        ],
+                        path: `assets/libs/prism/components/prism-${component}.min.js`,
                         dependencies: component === 'clike' ? ['prism-core'] : ['prism-core', 'prism-clike']
-                    };
+                    });
                 }
             });
             
@@ -508,33 +494,29 @@ $</div></p>
                     // 确保languages是数组
                     const languageArray = Array.isArray(languages) ? languages : [languages];
                     
-                    // 为每个语言动态注册CDN资源并加载
+                    // 为每个语言动态注册依赖资源并加载
                     const loadPromises = languageArray.map(async (lang) => {
                         // 特殊处理CSS组件，避免与CSS主题文件冲突
                         const resourceKey = lang === 'css' ? 'prism-css-component' : `prism-${lang}`;
                         
                         // 动态注册资源（如果尚未注册）
-                        if (!window.cdnManager.config.cdnResources[resourceKey]) {
-                            window.cdnManager.config.cdnResources[resourceKey] = {
+                        if (!window.dependencyManager.resources[resourceKey]) {
+                            window.dependencyManager.addResource(resourceKey, {
                                 type: 'js',
-                                primary: `https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-${lang}.min.js`,
-                                fallbacks: [
-                                    `https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-${lang}.min.js`,
-                                    `https://unpkg.com/prismjs@1.29.0/components/prism-${lang}.min.js`
-                                ],
+                                path: `assets/libs/prism/components/prism-${lang}.min.js`,
                                 dependencies: lang === 'clike' ? ['prism-core'] : ['prism-core', 'prism-clike']
-                            };
+                            });
                             console.log(`动态注册Prism组件: ${resourceKey}`);
                         }
                         
                         try {
-                            // 通过CDN管理器加载资源
-                            await window.cdnManager.loadResourceWithDependencies(resourceKey);
+                            // 通过依赖管理器加载资源
+                            await window.dependencyManager.loadResourceWithDependencies(resourceKey);
                             console.log(`Prism组件 ${lang} 加载成功`);
                             return { lang, success: true };
                         } catch (err) {
                             console.warn(`Prism组件 ${lang} 加载失败:`, err);
-                            // 如果CDN管理器加载失败，回退到原始方法
+                            // 如果依赖管理器加载失败，回退到原始方法
                             try {
                                 await new Promise((resolve, reject) => {
                                     originalLoadLanguages.call(this, lang, resolve, reject);
@@ -574,7 +556,7 @@ $</div></p>
                         });
                 };
                 
-                console.log('已拦截Prism autoloader，启用CDN管理器加载');
+                console.log('已拦截Prism autoloader，启用依赖管理器加载');
             } else {
                 console.warn('Prism autoloader未找到，无法拦截');
             }

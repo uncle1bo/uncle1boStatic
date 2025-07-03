@@ -58,7 +58,7 @@ uncle1boStatic/
 - **主题管理器**：可视化主题配色编辑，支持明亮/暗夜模式切换
 - **多语言支持**：内置国际化支持，支持中英文切换
 - **响应式设计**：适配所有设备的响应式布局
-- **CDN资源管理**：智能CDN资源管理系统，多CDN源自动切换
+- **依赖资源管理**：智能依赖资源管理系统，多源自动切换
 - **模板系统**：支持页面模板和变量替换
 
 ## 3. 用户使用方法
@@ -127,8 +127,8 @@ uncle1boStatic/
 ### 核心API概览
 
 ```javascript
-// CDN资源管理
-window.cdnManager.loadResource('bootstrap-css');
+// 依赖资源管理
+window.dependencyManager.loadResource('bootstrap-css');
 
 // 国际化
 i18n.t('key');

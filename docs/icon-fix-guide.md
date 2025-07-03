@@ -22,7 +22,7 @@
 2. 切换到 "Console"（控制台）标签页
 3. 输入以下命令清理所有CDN缓存：
    ```javascript
-   window.cdnManager.clearAllCache()
+   window.dependencyManager.clearAllCache()
    ```
 4. 刷新页面（按 F5 键）
 

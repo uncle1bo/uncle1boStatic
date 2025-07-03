@@ -8,19 +8,14 @@
     <title data-i18n="meta.title">文章预览 - Uncle1bo Static Website</title>
     <!-- CDN Fallback Manager - 必须在其他CDN资源之前加载 -->
     <!-- CDN模块化组件 -->
-    <script src="../../js/cdn/config.js"></script>
-    <script src="../../js/cdn/cache.js"></script>
-    <script src="../../js/cdn/loader.js"></script>
-    <script src="../../js/cdn/optimizer.js"></script>
-    <script src="../../js/cdn/dependency.js"></script>
     <!-- CDN主管理器 -->
-    <script src="../../js/cdn-fallback.js"></script>
+    <script src="../../js/dependency-manager.js"></script>
     <script>
         // CDN管理器会自动初始化，无需手动创建实例
-        // 创建全局Promise用于CDN资源加载
-        window.cdnResourcesReady = Promise.all([
-            window.cdnManager.loadResource('bootstrap-css'),
-            window.cdnManager.loadResource('bootstrap-icons')
+        // 创建全局Promise用于依赖资源加载
+        window.dependencyResourcesReady = Promise.all([
+            window.dependencyManager.loadResource('bootstrap-css'),
+window.dependencyManager.loadResource('bootstrap-icons')
         ]).catch(error => {
             console.warn('CDN资源加载失败，使用备选方案:', error);
         });
@@ -199,11 +194,11 @@
                     }
                 });
                 
-                // 等待CDN资源加载完成
-                await window.cdnResourcesReady;
+                // 等待依赖资源加载完成
+        await window.dependencyResourcesReady;
                 
                 // 加载Bootstrap JS
-                await window.cdnManager.loadResource('bootstrap-js');
+                await window.dependencyManager.loadResource('bootstrap-js');
                 
                 // 初始化多语言支持
                 if (typeof initI18n === 'function') {

@@ -283,7 +283,7 @@ class MenuEditor {
 // 自动初始化
 let menuEditor = null;
 
-// 等待CDN资源和所有脚本加载完成后初始化
+// 等待依赖资源和所有脚本加载完成后初始化
 async function initializeMenuEditor() {
   try {
     // 等待DOM加载完成
@@ -293,12 +293,12 @@ async function initializeMenuEditor() {
       });
     }
     
-    // 等待CDN资源加载完成
-    if (window.cdnResourcesReady) {
-      await window.cdnResourcesReady;
-      console.log('CDN资源加载完成，开始初始化菜单编辑器');
+    // 等待依赖资源加载完成
+        if (window.dependencyResourcesReady) {
+            await window.dependencyResourcesReady;
+      console.log('依赖资源加载完成，开始初始化菜单编辑器');
     } else {
-      console.warn('CDN资源加载Promise不存在，直接初始化菜单编辑器');
+      console.warn('依赖资源加载Promise不存在，直接初始化菜单编辑器');
     }
     
     // 确保所有依赖的类都已加载

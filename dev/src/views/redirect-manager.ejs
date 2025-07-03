@@ -5,19 +5,19 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>重定向管理器 - Uncle1bo静态站点工具集</title>
     <script>
-        // CDN管理器会自动初始化，无需手动创建实例
+        // 依赖资源管理器会自动初始化，无需手动创建实例
         
-        // 创建全局Promise用于CDN资源加载
-        window.cdnResourcesReady = Promise.all([
-            window.cdnManager.loadResource('bootstrap-css'),
-            window.cdnManager.loadResource('bootstrap-icons')
+        // 创建全局Promise用于依赖资源加载
+    window.dependencyResourcesReady = Promise.all([
+            window.dependencyManager.loadResource('bootstrap-css'),
+window.dependencyManager.loadResource('bootstrap-icons')
         ]).then(() => {
             return Promise.all([
-                window.cdnManager.loadResource('bootstrap-js'),
-                window.cdnManager.loadResource('jquery')
+                window.dependencyManager.loadResource('bootstrap-js'),
+window.dependencyManager.loadResource('jquery')
             ]);
         }).catch(error => {
-            console.warn('CDN资源加载失败，使用备选方案:', error);
+            console.warn('依赖资源加载失败，使用备选方案:', error);
         });
     </script>
 </head>
@@ -284,8 +284,8 @@
         // 页面加载完成后初始化
         document.addEventListener('DOMContentLoaded', async function() {
             try {
-                await window.cdnResourcesReady;
-                console.log('CDN资源加载完成');
+                await window.dependencyResourcesReady;
+                console.log('依赖资源加载完成');
                 
                 // 初始化页面
                 await loadStats();

@@ -53,24 +53,24 @@ module.exports = {
       description: 'CSS和JS文件重定向到根目录对应文件夹'
     },
     
-    // CDN 资源重定向 - 支持常见的CDN域名
+    // 依赖资源重定向 - 支持常见的资源源域名
     {
-      name: 'cdn-jsdelivr',
+      name: 'source-jsdelivr',
       pattern: /^\/cdn\/jsdelivr\/(.+)$/,
       redirect: (match) => `/assets/libs/${match[1]}`,
-      description: 'jsDelivr CDN资源重定向到本地assets'
+      description: 'jsDelivr 依赖资源重定向到本地assets'
     },
     {
-      name: 'cdn-cdnjs',
+      name: 'source-cdnjs',
       pattern: /^\/cdn\/cdnjs\/(.+)$/,
       redirect: (match) => `/assets/libs/${match[1]}`,
       description: 'CDNJS资源重定向到本地assets'
     },
     {
-      name: 'cdn-unpkg',
+      name: 'source-unpkg',
       pattern: /^\/cdn\/unpkg\/(.+)$/,
       redirect: (match) => `/assets/libs/${match[1]}`,
-      description: 'unpkg CDN资源重定向到本地assets'
+      description: 'unpkg 依赖资源重定向到本地assets'
     },
     
     // 外部库资源重定向

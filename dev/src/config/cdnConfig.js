@@ -1,6 +1,6 @@
 /**
- * CDN资源配置文件
- * 定义项目中使用的CDN资源和备用源
+ * 依赖资源配置文件
+ * 定义项目中使用的依赖资源和备用源
  */
 
 module.exports = {
@@ -8,7 +8,7 @@ module.exports = {
     'bootstrap-css': {
       name: 'Bootstrap CSS',
       description: 'Bootstrap 5.3 CSS框架',
-      cdns: [
+      sources: [
         {
           name: 'jsDelivr',
           url: 'https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css'
@@ -26,7 +26,7 @@ module.exports = {
     'bootstrap-js': {
       name: 'Bootstrap JavaScript',
       description: 'Bootstrap 5.3 JavaScript组件',
-      cdns: [
+      sources: [
         {
           name: 'jsDelivr',
           url: 'https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js'
@@ -44,7 +44,7 @@ module.exports = {
     'bootstrap-icons': {
       name: 'Bootstrap Icons',
       description: 'Bootstrap图标字体库',
-      cdns: [
+      sources: [
         {
           name: 'jsDelivr',
           url: 'https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css'
@@ -58,7 +58,7 @@ module.exports = {
     'jquery': {
       name: 'jQuery',
       description: 'jQuery JavaScript库',
-      cdns: [
+      sources: [
         {
           name: 'jsDelivr',
           url: 'https://cdn.jsdelivr.net/npm/jquery@3.7.0/dist/jquery.min.js'
@@ -76,7 +76,7 @@ module.exports = {
     'font-awesome': {
       name: 'Font Awesome',
       description: 'Font Awesome图标字体库',
-      cdns: [
+      sources: [
         {
           name: 'jsDelivr',
           url: 'https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css'
@@ -90,7 +90,7 @@ module.exports = {
     'highlight-js': {
       name: 'Highlight.js',
       description: '代码高亮库',
-      cdns: [
+      sources: [
         {
           name: 'jsDelivr',
           url: 'https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.8.0/build/highlight.min.js'
@@ -104,7 +104,7 @@ module.exports = {
     'marked': {
       name: 'Marked',
       description: 'Markdown解析器',
-      cdns: [
+      sources: [
         {
           name: 'jsDelivr',
           url: 'https://cdn.jsdelivr.net/npm/marked@5.1.1/marked.min.js'
@@ -117,12 +117,12 @@ module.exports = {
     }
   },
   
-  // CDN配置选项
+  // 依赖资源配置选项
   options: {
     timeout: 10000, // 请求超时时间（毫秒）
     retryCount: 3,  // 重试次数
     retryDelay: 1000, // 重试延迟（毫秒）
-    userAgent: 'CDN-Cache-Manager/1.0', // 用户代理
+    userAgent: 'Dependency-Cache-Manager/1.0', // 用户代理
     enableIntegrityCheck: true, // 启用完整性校验
     hashMinLength: 64, // hash最小长度，低于此长度判定为不完整
     cacheExpiry: 24 * 60 * 60 * 1000 // 缓存过期时间（毫秒）

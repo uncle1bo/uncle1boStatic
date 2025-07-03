@@ -14,24 +14,8 @@ class ThemeManager {
    * 初始化主题管理器
    */
   async init() {
-    try {
-      // 加载主题配置
-      await this.loadThemeConfig();
-      
-      // 初始化颜色选择器
-      this.initColorPickers();
-      
-      // 初始化事件监听器
-      this.initEventListeners();
-      
-      // 更新界面
-      this.updateUI();
-      
-      console.log('主题管理器初始化成功');
-    } catch (error) {
-      console.error('主题管理器初始化失败:', error);
-      this.showAlert('初始化失败: ' + error.message, 'danger');
-    }
+    await this.loadThemeConfig();
+    this.initEventListeners();
   }
 
   /**
@@ -39,13 +23,13 @@ class ThemeManager {
    */
   async loadThemeConfig() {
     try {
-      const response = await fetch('/theme-manager/config');
+      const response = await fetch('/api/theme/config');
       const result = await response.json();
       
       if (result.success) {
         this.themeConfig = result.data;
         // 初始化代码主题
-        this.initCodeTheme();
+        await this.initCodeTheme();
       } else {
         throw new Error(result.message || '加载主题配置失败');
       }
@@ -118,17 +102,38 @@ class ThemeManager {
   /**
    * 初始化代码主题
    */
-  initCodeTheme() {
+  async initCodeTheme() {
     if (this.themeConfig && this.themeConfig[this.currentMode]) {
       const theme = this.themeConfig[this.currentMode].codeTheme || 'default';
-      this.updateCodeTheme(theme);
+      await this.updateCodeTheme(theme);
     }
   }
 
   /**
    * 更新代码高亮主题
    */
-  updateCodeTheme(theme) {
+  async updateCodeTheme(theme) {
+    // 使用依赖管理器切换Prism主题
+    if (window.dependencyManager) {
+      try {
+        await window.dependencyManager.switchPrismTheme(theme);
+        console.log(`代码主题已更新为: ${theme}`);
+      } catch (error) {
+        console.error('切换代码主题失败:', error);
+      }
+    } else {
+      console.warn('依赖管理器未找到，使用传统方式加载主题');
+      this.fallbackUpdateCodeTheme(theme);
+    }
+    
+    // 更新代码预览
+    this.updateCodePreview();
+  }
+
+  /**
+   * 传统方式更新代码主题（备用方案）
+   */
+  fallbackUpdateCodeTheme(theme) {
     // 移除现有的Prism主题
     const existingTheme = document.querySelector('link[data-prism-theme]');
     if (existingTheme) {
@@ -139,9 +144,25 @@ class ThemeManager {
     if (theme && theme !== 'default') {
       const link = document.createElement('link');
       link.rel = 'stylesheet';
-      link.href = `https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-${theme}.min.css`;
+      // 使用本地的Prism主题文件
+      if (theme === 'prism') {
+        link.href = '/prod/assets/libs/prism/themes/prism.min.css';
+      } else {
+        link.href = `/prod/assets/libs/prism/themes/prism-${theme}.min.css`;
+      }
       link.setAttribute('data-prism-theme', theme);
       document.head.appendChild(link);
+    }
+  }
+
+  /**
+   * 更新代码预览
+   */
+  updateCodePreview() {
+    // 重新高亮代码预览区域
+    const codePreview = document.getElementById('code-preview');
+    if (codePreview && window.Prism) {
+      window.Prism.highlightElement(codePreview);
     }
   }
 
@@ -155,19 +176,6 @@ class ThemeManager {
   }
 
   /**
-   * 初始化事件监听器
-   */
-  initEventListeners() {
-    // 模式切换按钮
-    document.querySelectorAll('.mode-btn').forEach(btn => {
-      btn.addEventListener('click', (e) => {
-        const mode = e.target.closest('.mode-btn').dataset.mode;
-        this.switchMode(mode);
-      });
-    });
-  }
-
-  /**
    * 验证颜色值
    */
   isValidColor(color) {
@@ -187,6 +195,16 @@ class ThemeManager {
         this.switchMode(mode);
       });
     });
+    
+    // 代码主题选择器
+    const codeThemeSelect = document.getElementById('codeTheme-select');
+    if (codeThemeSelect) {
+      codeThemeSelect.addEventListener('change', async (e) => {
+        const theme = e.target.value;
+        this.updateThemeValue('codeTheme', theme);
+        await this.updateCodeTheme(theme);
+      });
+    }
   }
 
   /**

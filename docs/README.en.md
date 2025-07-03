@@ -119,7 +119,7 @@ For detailed API documentation, please refer to:
 
 ```javascript
 // CDN Resource Management
-window.cdnManager.loadResource('bootstrap-css');
+window.dependencyManager.loadResource('bootstrap-css');
 
 // Internationalization
 i18n.t('key');

@@ -139,27 +139,27 @@ POST /api/theme/save
 
 ## 5. 注意事项
 
-### CDN资源管理
+### 依赖资源管理
 
-⚠️ **重要警告**：必须等待CDN资源完全加载后再执行依赖这些资源的业务逻辑
+⚠️ **重要警告**：必须等待依赖资源完全加载后再执行依赖这些资源的业务逻辑
 
 #### 强制要求
-- 必须使用CDN管理器，禁止硬编码CDN链接
-- 使用 `window.cdnManager.loadResource(resourceKey)` 加载资源
-- 配置主CDN + 至少2个备选CDN
+- 必须使用依赖管理器，禁止硬编码资源链接
+- 使用 `window.dependencyManager.loadResource(resourceKey)` 加载资源
+- 配置主要源 + 至少2个备选源
 
-#### CDN资源加载时序规范
+#### 依赖资源加载时序规范
 **所有页面必须遵循以下加载模式：**
 
 ```javascript
-// 1. 创建全局Promise用于CDN资源加载
-window.cdnResourcesReady =Promise.all([
-    window.cdnManager.loadResource('bootstrap-js'),
-    window.cdnManager.loadResource('jquery')
-])// 其他必需的CDN资源
+// 1. 创建全局Promise用于依赖资源加载
+window.dependencyResourcesReady = Promise.all([
+    window.dependencyManager.loadResource('bootstrap-js'),
+    window.dependencyManager.loadResource('jquery')
+    // 其他必需的依赖资源
 ]);
 
-// 2. 等待DOM和CDN资源都加载完成
+// 2. 等待DOM和依赖资源都加载完成
 async function initializePage() {
   try {
     // 等待DOM加载完成
@@ -171,8 +171,8 @@ async function initializePage() {
       }
     });
     
-    // 等待CDN资源加载完成
-    await window.cdnResourcesReady;
+    // 等待依赖资源加载完成
+    await window.dependencyResourcesReady;
     
     // 检查关键库是否加载
     if (typeof $ === 'undefined') {
@@ -191,7 +191,7 @@ initializePage();
 ```
 
 #### Bootstrap组件初始化规范
-**禁止在CDN资源加载前直接实例化Bootstrap组件，必须使用延迟初始化：**
+**禁止在依赖资源加载前直接实例化Bootstrap组件，必须使用延迟初始化：**
 
 ```javascript
 // 错误方式 - 禁止使用
@@ -214,30 +214,30 @@ if (modal) {
 }
 ```
 
-#### CDN违规检查和修复指导
+#### 依赖资源违规检查和修复指导
 **常见违规情况：**
-1. 直接使用硬编码CDN链接（如 `<link href="https://cdn.jsdelivr.net/...">`）
-2. 未使用CDN管理器加载资源
-3. 未遵循CDN资源加载时序规范
-4. 直接实例化Bootstrap组件而不等待CDN加载
+1. 直接使用硬编码资源链接（如 `<link href="https://cdn.jsdelivr.net/...">`）
+2. 未使用依赖管理器加载资源
+3. 未遵循依赖资源加载时序规范
+4. 直接实例化Bootstrap组件而不等待依赖加载
 
 **修复步骤：**
-1. 移除所有硬编码的CDN链接
-2. 使用CDN管理器：`window.cdnManager.loadResource(resourceKey)`
-3. 实现全局Promise等待机制：`window.cdnResourcesReady`
+1. 移除所有硬编码的资源链接
+2. 使用依赖管理器：`window.dependencyManager.loadResource(resourceKey)`
+3. 实现全局Promise等待机制：`window.dependencyResourcesReady`
 4. 延迟初始化所有Bootstrap组件
 
 #### 实时性能监控规范
-**CDN健康监测系统：**
-- 自动启用：页面加载后自动开始CDN健康监测
+**依赖资源健康监测系统：**
+- 自动启用：页面加载后自动开始依赖资源健康监测
 - 监测频率：每5分钟执行一次健康检查
 - 性能数据：收集响应时间和可靠性数据
-- 自适应优化：根据性能数据动态调整CDN选择顺序
+- 自适应优化：根据性能数据动态调整资源选择顺序
 - 数据持久化：性能数据保存在localStorage中
 
 **开发工具vs生产环境：**
-- dev/tools/cdnTester：开发阶段的手动测试工具
-- prod/js/cdn-fallback.js：生产环境的自动监控系统
+- dev/tools/dependencyTester：开发阶段的手动测试工具
+- prod/js/dependency-manager.js：生产环境的自动监控系统
 - 避免重复：开发工具用于测试，生产系统用于实时监控
 
 ### 页面分离架构

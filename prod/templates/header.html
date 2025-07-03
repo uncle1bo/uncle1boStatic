@@ -4,19 +4,13 @@
     <meta name="description" content="" data-i18n="meta.description">
     <meta name="keywords" content="" data-i18n="meta.keywords">
     <title data-i18n="meta.title">Uncle1bo Static Website</title>
-    <!-- CDN Fallback Manager - 必须在其他CDN资源之前加载 -->
-    <!-- CDN模块化组件 -->
-    <script src="{{jsPath}}cdn/config.js"></script>
-    <script src="{{jsPath}}cdn/cache.js"></script>
-    <script src="{{jsPath}}cdn/loader.js"></script>
-    <script src="{{jsPath}}cdn/optimizer.js"></script>
-    <script src="{{jsPath}}cdn/dependency.js"></script>
-    <!-- CDN主管理器 -->
-    <script src="{{jsPath}}cdn-fallback.js"></script>
-    <!-- Bootstrap CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Bootstrap Icons -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <!-- 依赖管理器 -->
+    <script src="{{jsPath}}dependency-manager.js"></script>
+    <script>
+        // 加载基础样式资源
+        window.dependencyManager.loadResource('bootstrap-css');
+        window.dependencyManager.loadResource('bootstrap-icons');
+    </script>
     <!-- Custom CSS -->
     <link rel="stylesheet" href="{{cssPath}}styles.css">
 </head>
