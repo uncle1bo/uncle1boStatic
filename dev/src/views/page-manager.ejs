@@ -4,8 +4,6 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>页面管理器 - Uncle1bo静态站点工具集</title>
-  <!-- DataTables CSS -->
-  <link rel="stylesheet" href="https://cdn.datatables.net/1.13.4/css/dataTables.bootstrap5.min.css">
   <!-- Custom CSS -->
   <link rel="stylesheet" href="/css/styles.css">
 </head>
@@ -83,17 +81,14 @@
     </div>
   </div>
   
-  <!-- Bootstrap JS Bundle with Popper -->
   <!-- 依赖管理器 - 必须在其他依赖资源之前加载 -->
-  <!-- 依赖资源模块化组件 -->
-  <!-- 依赖资源主管理器 -->
   <script src="/prod/js/dependency-manager.js"></script>
   <script>
     // 依赖管理器会自动初始化，无需手动创建实例
     // 创建全局Promise用于依赖资源加载
         window.dependencyResourcesReady = Promise.all([
       window.dependencyManager.loadResource('bootstrap-css'),
-window.dependencyManager.loadResource('bootstrap-icons')
+      window.dependencyManager.loadResource('bootstrap-icons')
     ]).then(() => {
       // 加载DataTables相关资源
       return window.dependencyManager.loadResourceWithDependencies('dataTables-bootstrap');
@@ -134,7 +129,7 @@ window.dependencyManager.loadResource('bootstrap-icons')
       // 初始化DataTable
       const table = $('#pagesTable').DataTable({
         language: {
-          url: '//cdn.datatables.net/plug-ins/1.13.4/i18n/zh.json'
+          url: '/prod/assets/libs/datatables/zh.json'
         },
         order: [[3, 'desc']], // 默认按最后修改时间降序排序
         columns: [

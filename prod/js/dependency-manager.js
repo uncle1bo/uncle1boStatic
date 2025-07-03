@@ -113,6 +113,13 @@ class DependencyManager {
         dependencies: []
       },
       
+      // DataTables CSS
+      'dataTables-css': {
+        type: 'css',
+        path: 'assets/libs/datatables/dataTables.bootstrap5.min.css',
+        integrity: null
+      },
+      
       // DataTables
       'dataTables': {
         type: 'js',
@@ -126,7 +133,7 @@ class DependencyManager {
         type: 'js',
         path: 'assets/libs/datatables/dataTables.bootstrap5.min.js',
         integrity: null,
-        dependencies: ['jquery', 'dataTables', 'bootstrap-js']
+        dependencies: ['jquery', 'dataTables', 'bootstrap-js', 'dataTables-css']
       }
     };
     
