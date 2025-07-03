@@ -232,30 +232,64 @@ window.ThemeManager = {
      * @param {string} codeTheme - 代码主题名称
      */
     loadCodeTheme: function(codeTheme) {
+        if (!window.dependencyManager) {
+            console.warn('依赖管理器未初始化');
+            return;
+        }
+        
         try {
-            // 移除现有的Prism主题
-            const existingTheme = document.querySelector('link[data-prism-theme]');
-            if (existingTheme) {
-                existingTheme.remove();
+            // 确定主题文件路径
+            let themePath;
+            if (codeTheme && codeTheme !== 'default') {
+                themePath = `assets/libs/prism/themes/prism-${codeTheme}.min.css`;
+            } else {
+                themePath = 'assets/libs/prism/themes/prism.min.css';
             }
             
-            // 添加新的Prism主题
-            if (codeTheme && codeTheme !== 'default') {
-                const link = document.createElement('link');
-                link.rel = 'stylesheet';
-                link.href = 'https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-' + codeTheme + '.min.css';
-                link.setAttribute('data-prism-theme', codeTheme);
-                document.head.appendChild(link);
-                
-                // 重新高亮代码
-                if (window.Prism) {
-                    setTimeout(() => {
-                        Prism.highlightAll();
-                    }, 100);
-                }
-            }
+            // 使用依赖管理器切换主题资源
+            window.dependencyManager.switchThemeResource('prism-theme-css', themePath)
+                .then((success) => {
+                    if (success) {
+                        // 等待样式加载完成后重新高亮代码
+                        this.rehighlightCode();
+                    } else {
+                        console.warn('代码主题切换失败');
+                    }
+                })
+                .catch(error => {
+                    console.warn('代码主题加载失败:', error);
+                });
         } catch (error) {
             console.warn('加载代码主题失败:', error);
+        }
+    },
+    
+    /**
+     * 重新高亮所有代码块
+     */
+    rehighlightCode: function() {
+        if (!window.Prism) {
+            return;
+        }
+        
+        try {
+            // 移除现有的高亮类
+            const codeBlocks = document.querySelectorAll('pre[class*="language-"], code[class*="language-"]');
+            codeBlocks.forEach(block => {
+                // 清除Prism添加的类和属性
+                block.classList.remove('prism-highlighted');
+                if (block.hasAttribute('data-prism-highlighted')) {
+                    block.removeAttribute('data-prism-highlighted');
+                }
+            });
+            
+            // 使用requestAnimationFrame确保DOM更新完成
+            requestAnimationFrame(() => {
+                // 重新高亮所有代码
+                Prism.highlightAll();
+            });
+        } catch (error) {
+            console.warn('重新高亮代码失败:', error);
         }
     },
     

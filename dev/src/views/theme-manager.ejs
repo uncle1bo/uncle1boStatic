@@ -712,7 +712,9 @@ window.dependencyManager.loadResource('bootstrap-icons'),
 window.dependencyManager.loadResource('bootstrap-js'),
 window.dependencyManager.loadResource('jquery'),
 window.dependencyManager.loadResource('prism-core'),
-window.dependencyManager.loadResource('prism-theme-css')
+window.dependencyManager.loadResource('prism-theme-css'),
+window.dependencyManager.loadResource('prism-clike'),
+window.dependencyManager.loadResource('prism-javascript')
     ]);
     
     // 等待依赖资源加载完成后再加载主题管理器
@@ -728,6 +730,22 @@ window.dependencyManager.loadResource('prism-theme-css')
           // 创建全局主题管理器实例
           window.themeManager = new ThemeManager();
           await window.themeManager.init();
+          
+          // 监听主题变化事件，重新高亮代码
+          document.addEventListener('themeChanged', function(event) {
+            console.log('收到主题变化事件:', event.detail);
+            // 使用主题管理器的统一方法重新高亮代码
+            if (window.themeManager && window.themeManager.reapplyCodeHighlight) {
+              window.themeManager.reapplyCodeHighlight();
+            } else if (window.Prism) {
+              // 备用方案：使用requestAnimationFrame确保样式已应用
+              requestAnimationFrame(() => {
+                Prism.highlightAll();
+                console.log('代码高亮已更新');
+              });
+            }
+          });
+          
           console.log('主题管理器初始化成功');
         } catch (error) {
           console.error('主题管理器初始化失败:', error);

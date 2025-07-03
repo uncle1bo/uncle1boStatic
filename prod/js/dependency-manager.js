@@ -44,11 +44,61 @@ class DependencyManager {
         dependencies: ['jquery']
       },
       
-      // Prism CSS - 默认主题
+      // Prism 主题CSS
       'prism-theme-css': {
         type: 'css',
         path: 'assets/libs/prism/themes/prism.min.css',
         integrity: null
+      },
+      
+      // Prism 语言组件
+      'prism-clike': {
+        type: 'js',
+        path: 'assets/libs/prism/components/prism-clike.min.js',
+        integrity: null,
+        dependencies: ['prism-core']
+      },
+      
+      'prism-javascript': {
+        type: 'js',
+        path: 'assets/libs/prism/components/prism-javascript.min.js',
+        integrity: null,
+        dependencies: ['prism-core', 'prism-clike']
+      },
+      
+      'prism-css': {
+        type: 'js',
+        path: 'assets/libs/prism/components/prism-css.min.js',
+        integrity: null,
+        dependencies: ['prism-core']
+      },
+      
+      'prism-markup': {
+        type: 'js',
+        path: 'assets/libs/prism/components/prism-markup.min.js',
+        integrity: null,
+        dependencies: ['prism-core']
+      },
+      
+      'prism-json': {
+        type: 'js',
+        path: 'assets/libs/prism/components/prism-json.min.js',
+        integrity: null,
+        dependencies: ['prism-core']
+      },
+      
+      'prism-python': {
+        type: 'js',
+        path: 'assets/libs/prism/components/prism-python.min.js',
+        integrity: null,
+        dependencies: ['prism-core']
+      },
+      
+      'prism-bash': {
+        type: 'js',
+        path: 'assets/libs/prism/components/prism-bash.min.js',
+        integrity: null,
+        dependencies: ['prism-core']
       },
       
       // Prism Toolbar CSS
@@ -330,38 +380,115 @@ class DependencyManager {
   }
 
   /**
-   * 动态切换Prism主题
+   * 等待样式加载完成
    */
-  async switchPrismTheme(theme) {
-    // 移除现有的Prism主题
-    const existingTheme = document.querySelector('link[data-resource="prism-theme-css"]');
-    if (existingTheme) {
-      existingTheme.remove();
-      this.loadedResources.delete('prism-theme-css');
-    }
+  async waitForStylesLoaded() {
+    return new Promise((resolve) => {
+      // 使用requestAnimationFrame确保样式已应用
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          resolve();
+        });
+      });
+    });
+  }
 
-    // 更新资源配置
-    if (theme === 'default' || theme === 'prism') {
-      this.resources['prism-theme-css'].path = 'assets/libs/prism/themes/prism.min.css';
-    } else {
-      this.resources['prism-theme-css'].path = `assets/libs/prism/themes/prism-${theme}.min.css`;
-    }
-
-    // 加载新主题
-    try {
-      await this.loadResource('prism-theme-css');
-      console.log(`Prism主题已切换为: ${theme}`);
-      
-      // 重新高亮所有代码块
-      if (window.Prism && window.Prism.highlightAll) {
-        window.Prism.highlightAll();
+  /**
+   * 等待DOM元素准备就绪
+   */
+  async waitForElement(selector, timeout = 5000) {
+    return new Promise((resolve, reject) => {
+      const element = document.querySelector(selector);
+      if (element) {
+        resolve(element);
+        return;
       }
-      
-      return true;
-    } catch (error) {
-      console.error(`切换Prism主题失败: ${theme}`, error);
+
+      const observer = new MutationObserver((mutations, obs) => {
+        const element = document.querySelector(selector);
+        if (element) {
+          obs.disconnect();
+          resolve(element);
+        }
+      });
+
+      observer.observe(document.body, {
+        childList: true,
+        subtree: true
+      });
+
+      // 超时处理
+      setTimeout(() => {
+        observer.disconnect();
+        reject(new Error(`Element ${selector} not found within ${timeout}ms`));
+      }, timeout);
+    });
+  }
+
+  /**
+   * 动态切换CSS主题资源
+   * @param {string} resourceKey - 资源键名
+   * @param {string} newPath - 新的资源路径
+   * @returns {Promise<boolean>} 切换是否成功
+   */
+  async switchThemeResource(resourceKey, newPath) {
+    // 验证参数
+    if (!resourceKey || !newPath) {
+      console.error('switchThemeResource: 缺少必要参数');
       return false;
     }
+
+    // 检查资源是否存在
+    if (!this.resources[resourceKey]) {
+      console.warn(`资源 ${resourceKey} 不存在`);
+      return false;
+    }
+
+    // 如果路径相同，无需切换
+    if (this.resources[resourceKey].path === newPath) {
+      console.log(`资源 ${resourceKey} 路径未变化，跳过切换`);
+      return true;
+    }
+
+    try {
+      // 清理现有资源
+      await this.cleanupResource(resourceKey);
+      
+      // 更新资源配置
+      this.resources[resourceKey].path = newPath;
+      
+      // 加载新资源
+      await this.loadResource(resourceKey);
+      
+      // 等待CSS样式生效
+      await this.waitForStylesLoaded();
+      
+      console.log(`资源 ${resourceKey} 已成功切换为: ${newPath}`);
+      return true;
+      
+    } catch (error) {
+      console.error(`切换资源失败: ${resourceKey}`, error);
+      return false;
+    }
+  }
+
+  /**
+   * 清理指定资源
+   * @param {string} resourceKey - 资源键名
+   */
+  async cleanupResource(resourceKey) {
+    // 移除DOM中的资源元素
+    const existingResource = document.querySelector(`link[data-resource="${resourceKey}"]`);
+    if (existingResource) {
+      existingResource.remove();
+    }
+    
+    // 清理内部状态
+    this.loadedResources.delete(resourceKey);
+    this.loadingPromises.delete(resourceKey);
+    
+    // 等待DOM更新
+    await new Promise(resolve => requestAnimationFrame(resolve));
   }
 }
 

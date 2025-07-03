@@ -37,7 +37,7 @@
     "mermaidBg": "#ffffff",
     "mermaidText": "#212529",
     "mermaidBorder": "#dee2e6",
-    "codeTheme": "solarizedlight"
+    "codeTheme": "default"
   },
   "dark": {
     "primary": "#5a7cff",

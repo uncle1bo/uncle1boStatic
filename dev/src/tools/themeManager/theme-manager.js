@@ -15,14 +15,19 @@ class ThemeManager {
    */
   async init() {
     if (this.initialized) {
+      console.log('主题管理器已初始化');
       return;
     }
-    
+
+    console.log('初始化主题管理器...');
     try {
       await this.loadThemeConfig();
       this.initEventListeners();
       this.initColorPickers();
       this.updateUI();
+      // 初始化完成后更新预览
+      await this.waitForInitialization();
+      this.updatePreview();
       this.initialized = true;
       console.log('主题管理器初始化完成');
     } catch (error) {
@@ -82,7 +87,7 @@ class ThemeManager {
           this.updatePreview();
         });
 
-        // 文本输入框变化事件
+        // 文本输入框变化事件 - 实时更新
         textInput.addEventListener('input', (e) => {
           const color = e.target.value;
           if (this.isValidColor(color)) {
@@ -91,6 +96,26 @@ class ThemeManager {
             this.updateThemeValue(key, color);
             this.updatePreview();
           }
+        });
+        
+        // 文本输入框失焦事件 - 确保最终更新
+        textInput.addEventListener('blur', (e) => {
+          const color = e.target.value;
+          if (this.isValidColor(color)) {
+            colorInput.value = color;
+            preview.style.backgroundColor = color;
+            this.updateThemeValue(key, color);
+            this.updatePreview();
+          }
+        });
+        
+        // 颜色选择器实时变化事件
+        colorInput.addEventListener('input', (e) => {
+          const color = e.target.value;
+          textInput.value = color;
+          preview.style.backgroundColor = color;
+          this.updateThemeValue(key, color);
+          this.updatePreview();
         });
 
         // 预览点击事件
@@ -103,11 +128,14 @@ class ThemeManager {
     // 处理主题选择器
     const codeThemeSelect = document.getElementById('codeTheme-select');
     if (codeThemeSelect) {
-      codeThemeSelect.addEventListener('change', (e) => {
+      codeThemeSelect.addEventListener('change', async (e) => {
         const theme = e.target.value;
         this.updateThemeValue('codeTheme', theme);
-        this.updateCodeTheme(theme);
+        await this.updateCodeTheme(theme);
+        // 更新预览，确保代码主题加载完成
+        await this.waitForCodeTheme();
         this.updatePreview();
+        this.updateCodePreview();
       });
     }
   }
@@ -120,63 +148,154 @@ class ThemeManager {
       const theme = this.themeConfig[this.currentMode].codeTheme || 'default';
       await this.updateCodeTheme(theme);
     }
+    
+    // 确保代码预览区域被正确初始化
+    await this.waitForCodeTheme();
+    this.initCodePreview();
+  }
+  
+  /**
+   * 初始化代码预览区域
+   */
+  initCodePreview() {
+    const codePreview = document.getElementById('code-preview');
+    if (codePreview && window.Prism) {
+      // 确保代码内容正确设置
+      if (!codePreview.textContent.trim()) {
+        codePreview.textContent = `// JavaScript 示例代码
+function greetUser(name) {
+  const message = \`Hello, \${name}!\`;
+  console.log(message);
+  
+  // 条件判断
+  if (name === 'Admin') {
+    return {
+      role: 'administrator',
+      permissions: ['read', 'write', 'delete']
+    };
+  }
+  
+  // 数组操作
+  const numbers = [1, 2, 3, 4, 5];
+  const doubled = numbers.map(n => n * 2);
+  
+  return {
+    greeting: message,
+    doubled: doubled
+  };
+}
+
+// 调用函数
+const result = greetUser('Developer');
+console.log(result);`;
+      }
+      
+      // 应用语法高亮
+      this.updateCodePreview();
+    }
   }
 
   /**
    * 更新代码高亮主题
    */
+  /**
+   * 更新代码高亮主题
+   * @param {string} theme - 主题名称
+   */
   async updateCodeTheme(theme) {
-    // 使用依赖管理器切换Prism主题
-    if (window.dependencyManager) {
-      try {
-        await window.dependencyManager.switchPrismTheme(theme);
-        console.log(`代码主题已更新为: ${theme}`);
-      } catch (error) {
-        console.error('切换代码主题失败:', error);
+    try {
+      // 构建主题路径
+      const themePath = (theme === 'default' || theme === 'prism') 
+        ? 'assets/libs/prism/themes/prism.min.css'
+        : `assets/libs/prism/themes/prism-${theme}.min.css`;
+      
+      // 检查依赖管理器是否可用
+      if (!window.dependencyManager) {
+        console.error('依赖管理器未初始化，无法切换代码主题');
+        return;
       }
-    } else {
-      console.warn('依赖管理器未找到，使用传统方式加载主题');
-      this.fallbackUpdateCodeTheme(theme);
+      
+      // 使用依赖管理器切换主题资源
+      const success = await window.dependencyManager.switchThemeResource('prism-theme-css', themePath);
+      
+      if (success) {
+        console.log(`代码主题已更新为: ${theme}`);
+      } else {
+        console.warn(`代码主题切换失败: ${theme}`);
+      }
+      
+      // 无论成功与否，都尝试重新高亮代码
+      await this.reapplyCodeHighlight();
+      
+    } catch (error) {
+      console.error('切换代码主题失败:', error);
+      // 确保即使失败也尝试重新高亮
+      await this.reapplyCodeHighlight();
+    }
+  }
+
+  /**
+   * 重新应用代码高亮
+   */
+  async reapplyCodeHighlight() {
+    // 等待Prism库准备就绪
+    await this.waitForCodeTheme();
+    
+    if (!window.Prism) {
+      console.warn('Prism库未加载，无法重新高亮代码');
+      return;
     }
     
-    // 更新代码预览
-    this.updateCodePreview();
+    try {
+      // 移除现有的高亮类
+      const codeBlocks = document.querySelectorAll('pre[class*="language-"], code[class*="language-"]');
+      codeBlocks.forEach(block => {
+        // 清除Prism添加的类和属性
+        block.classList.remove('prism-highlighted');
+        if (block.hasAttribute('data-prism-highlighted')) {
+          block.removeAttribute('data-prism-highlighted');
+        }
+      });
+      
+      // 使用requestAnimationFrame确保DOM更新完成
+      await new Promise(resolve => {
+        requestAnimationFrame(() => {
+          // 重新高亮所有代码
+          if (window.Prism.highlightAll) {
+            window.Prism.highlightAll();
+          }
+          
+          // 特别处理代码预览区域
+          const codePreview = document.getElementById('code-preview');
+          if (codePreview && window.Prism.highlightElement) {
+            // 保存原始文本内容
+            const originalText = codePreview.textContent || codePreview.innerText;
+            
+            // 重置元素状态
+            codePreview.className = 'language-javascript';
+            codePreview.innerHTML = '';
+            codePreview.textContent = originalText;
+            
+            // 重新应用语法高亮
+            window.Prism.highlightElement(codePreview);
+          }
+          
+          resolve();
+        });
+      });
+    } catch (error) {
+      console.warn('重新高亮代码失败:', error);
+    }
+    
+    // 触发主题变化事件，通知其他组件更新
+    this.dispatchThemeChangedEvent();
   }
 
   /**
-   * 传统方式更新代码主题（备用方案）
-   */
-  fallbackUpdateCodeTheme(theme) {
-    // 移除现有的Prism主题
-    const existingTheme = document.querySelector('link[data-prism-theme]');
-    if (existingTheme) {
-      existingTheme.remove();
-    }
-
-    // 添加新的Prism主题
-    if (theme && theme !== 'default') {
-      const link = document.createElement('link');
-      link.rel = 'stylesheet';
-      // 使用本地的Prism主题文件
-      if (theme === 'prism') {
-        link.href = '/prod/assets/libs/prism/themes/prism.min.css';
-      } else {
-        link.href = `/prod/assets/libs/prism/themes/prism-${theme}.min.css`;
-      }
-      link.setAttribute('data-prism-theme', theme);
-      document.head.appendChild(link);
-    }
-  }
-
-  /**
-   * 更新代码预览
+   * 更新代码预览（保持向后兼容）
    */
   updateCodePreview() {
-    // 重新高亮代码预览区域
-    const codePreview = document.getElementById('code-preview');
-    if (codePreview && window.Prism) {
-      window.Prism.highlightElement(codePreview);
-    }
+    this.reapplyCodeHighlight();
   }
 
   /**
@@ -248,8 +367,14 @@ class ThemeManager {
     // 更新代码主题
     if (this.themeConfig && this.themeConfig[mode]) {
       const codeTheme = this.themeConfig[mode].codeTheme || 'default';
-      this.updateCodeTheme(codeTheme);
+      // 异步更新代码主题，避免阻塞UI
+      this.updateCodeTheme(codeTheme).catch(error => {
+        console.error('更新代码主题失败:', error);
+      });
     }
+    
+    // 触发主题变化事件
+    this.dispatchThemeChangedEvent();
   }
 
   /**
@@ -284,7 +409,7 @@ class ThemeManager {
       codeThemeSelect.value = currentTheme.codeTheme;
     }
     
-    // 更新预览
+    // 更新预览效果
     this.updatePreview();
   }
 
@@ -351,6 +476,9 @@ class ThemeManager {
         text.style.color = currentTheme.textSecondary;
       });
     }
+    
+    // 触发主题变化事件，通知其他组件更新
+    this.dispatchThemeChangedEvent();
   }
 
   /**
@@ -423,6 +551,60 @@ class ThemeManager {
     const hexPattern = /^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/;
     const rgbaPattern = /^rgba?\([^)]+\)$/;
     return hexPattern.test(color) || rgbaPattern.test(color);
+  }
+
+  /**
+   * 等待初始化完成
+   */
+  async waitForInitialization() {
+    return new Promise(resolve => {
+      if (document.readyState === 'complete') {
+        resolve();
+      } else {
+        window.addEventListener('load', resolve, { once: true });
+      }
+    });
+  }
+
+  /**
+   * 等待代码主题加载完成
+   */
+  async waitForCodeTheme() {
+    return new Promise(resolve => {
+      // 检查Prism是否已加载
+      if (window.Prism && window.Prism.highlightElement) {
+        resolve();
+      } else {
+        // 等待Prism加载
+        const checkPrism = () => {
+          if (window.Prism && window.Prism.highlightElement) {
+            resolve();
+          } else {
+            requestAnimationFrame(checkPrism);
+          }
+        };
+        checkPrism();
+      }
+    });
+  }
+
+  /**
+   * 触发主题变化事件
+   */
+  dispatchThemeChangedEvent() {
+    try {
+      const themeChangeEvent = new CustomEvent('themeChanged', {
+        detail: {
+          mode: this.currentMode,
+          config: this.themeConfig ? this.themeConfig[this.currentMode] : null
+        },
+        bubbles: true
+      });
+      document.dispatchEvent(themeChangeEvent);
+      console.log('主题变化事件已触发:', this.currentMode);
+    } catch (error) {
+      console.error('触发主题变化事件失败:', error);
+    }
   }
 
   /**

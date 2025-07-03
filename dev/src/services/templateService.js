@@ -239,30 +239,28 @@ const templateService = {
                 return;
             }
             
-            // 移除现有的代码主题
-            const existingThemeLink = document.getElementById('prism-theme');
-            if (existingThemeLink) {
-                existingThemeLink.remove();
+            // 确定主题文件路径
+            let themePath;
+            if (codeTheme && codeTheme !== 'default') {
+                themePath = \`assets/libs/prism/themes/prism-\${codeTheme}.min.css\`;
+            } else {
+                themePath = 'assets/libs/prism/themes/prism.min.css';
             }
             
-            // 通过依赖管理器动态加载新主题
-            const themeResourceKey = \`prism-theme-\${codeTheme}\`;
-            
-            // 如果依赖管理器中没有这个主题资源，动态添加
-            if (!window.dependencyManager.resources[themeResourceKey]) {
-                window.dependencyManager.addResource(themeResourceKey, {
-                    type: 'css',
-                    path: \`assets/libs/prism/themes/prism-\${codeTheme}.min.css\`
-                });
-            }
-            
-            // 加载主题
-            window.dependencyManager.loadResource(themeResourceKey)
-                .then(() => {
-                    console.log(\`代码高亮主题 \${codeTheme} 加载成功\`);
-                    // 重新高亮所有代码块
-                    if (window.Prism) {
-                        Prism.highlightAll();
+            // 使用依赖管理器切换主题资源
+            window.dependencyManager.switchThemeResource('prism-theme-css', themePath)
+                .then((success) => {
+                    if (success) {
+                        console.log(\`代码高亮主题 \${codeTheme} 切换成功\`);
+                        // 重新高亮所有代码块
+                        if (window.Prism) {
+                            // 使用requestAnimationFrame确保样式已应用
+                            requestAnimationFrame(() => {
+                                Prism.highlightAll();
+                            });
+                        }
+                    } else {
+                        console.warn(\`代码高亮主题 \${codeTheme} 切换失败\`);
                     }
                 })
                 .catch(error => {
