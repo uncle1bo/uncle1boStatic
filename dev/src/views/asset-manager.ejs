@@ -1,0 +1,1437 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= title %></title>
+  
+  <!-- 依赖资源管理器 -->
+  <script src="/prod/js/dependency-manager.js"></script>
+  
+  <script>
+    // 依赖资源管理器会自动初始化，无需手动创建实例
+    // 创建全局Promise用于依赖资源加载
+    window.dependencyResourcesReady = Promise.all([
+      window.dependencyManager.loadResource('bootstrap-css'),
+      window.dependencyManager.loadResource('bootstrap-icons')
+    ]).then(() => {
+      return Promise.all([
+        window.dependencyManager.loadResource('bootstrap-js'),
+        window.dependencyManager.loadResource('jquery')
+      ]);
+    }).catch(error => {
+      console.warn('依赖资源加载失败，使用备选方案:', error);
+    });
+  </script>
+  
+  <style>
+    .resource-item {
+      transition: all 0.3s ease;
+    }
+    .resource-item:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+    .progress-container {
+      display: none;
+    }
+    .log-container {
+      max-height: 300px;
+      overflow-y: auto;
+      background-color: #f8f9fa;
+      border: 1px solid #dee2e6;
+      border-radius: 0.375rem;
+      padding: 1rem;
+      font-family: 'Courier New', monospace;
+      font-size: 0.875rem;
+    }
+    .status-badge {
+      font-size: 0.75rem;
+    }
+    .resource-card {
+      border-left: 4px solid #dc3545;
+    }
+    .resource-card.available {
+      border-left-color: #28a745;
+    }
+    .btn-download {
+      transition: all 0.2s ease;
+    }
+    .btn-download:hover {
+      transform: translateY(-1px);
+    }
+    .nav-tabs .nav-link {
+      border-top-left-radius: 0.5rem;
+      border-top-right-radius: 0.5rem;
+    }
+    .nav-tabs .nav-link.active {
+      font-weight: 500;
+    }
+    .tab-content {
+      border: 1px solid #dee2e6;
+      border-top: none;
+      border-bottom-left-radius: 0.5rem;
+      border-bottom-right-radius: 0.5rem;
+      padding: 1.5rem;
+    }
+    .rule-item {
+      transition: all 0.3s ease;
+    }
+    .rule-item:hover {
+      background-color: #f8f9fa;
+    }
+    .custom-rule {
+      border-left: 3px solid #0d6efd;
+    }
+    .builtin-rule {
+      border-left: 3px solid #6c757d;
+    }
+  </style>
+</head>
+<body>
+  <div class="container-fluid py-4">
+    <!-- 页面标题 -->
+    <div class="row mb-4">
+      <div class="col-12">
+        <div class="d-flex justify-content-between align-items-center">
+          <div>
+            <h1 class="h3 mb-1">
+              <i class="bi bi-box-seam text-primary me-2"></i>
+              资源管理器
+            </h1>
+            <p class="text-muted mb-0">管理外部资源和重定向规则</p>
+          </div>
+          <a href="/" class="btn btn-outline-secondary">
+            <i class="bi bi-house me-1"></i>返回首页
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- 主要内容区域 -->
+    <div class="row">
+      <div class="col-12">
+        <!-- 选项卡导航 -->
+        <ul class="nav nav-tabs" id="assetManagerTabs" role="tablist">
+          <li class="nav-item" role="presentation">
+            <button class="nav-link <%= activeTab === 'resources' ? 'active' : '' %>" 
+                    id="resources-tab" 
+                    data-bs-toggle="tab" 
+                    data-bs-target="#resources-content" 
+                    type="button" 
+                    role="tab" 
+                    aria-controls="resources-content" 
+                    aria-selected="<%= activeTab === 'resources' ? 'true' : 'false' %>">
+              <i class="bi bi-box-seam me-1"></i>
+              资源管理
+            </button>
+          </li>
+          <li class="nav-item" role="presentation">
+            <button class="nav-link <%= activeTab === 'redirects' ? 'active' : '' %>" 
+                    id="redirects-tab" 
+                    data-bs-toggle="tab" 
+                    data-bs-target="#redirects-content" 
+                    type="button" 
+                    role="tab" 
+                    aria-controls="redirects-content" 
+                    aria-selected="<%= activeTab === 'redirects' ? 'true' : 'false' %>">
+              <i class="bi bi-arrow-repeat me-1"></i>
+              重定向管理
+            </button>
+          </li>
+          <li class="nav-item" role="presentation">
+            <button class="nav-link <%= activeTab === '404-resources' ? 'active' : '' %>" 
+                    id="404-resources-tab" 
+                    data-bs-toggle="tab" 
+                    data-bs-target="#404-resources-content" 
+                    type="button" 
+                    role="tab" 
+                    aria-controls="404-resources-content" 
+                    aria-selected="<%= activeTab === '404-resources' ? 'true' : 'false' %>">
+              <i class="bi bi-exclamation-triangle me-1"></i>
+              404资源
+            </button>
+          </li>
+          <li class="nav-item" role="presentation">
+            <button class="nav-link <%= activeTab === 'history' ? 'active' : '' %>" 
+                    id="history-tab" 
+                    data-bs-toggle="tab" 
+                    data-bs-target="#history-content" 
+                    type="button" 
+                    role="tab" 
+                    aria-controls="history-content" 
+                    aria-selected="<%= activeTab === 'history' ? 'true' : 'false' %>">
+              <i class="bi bi-clock-history me-1"></i>
+              下载历史
+            </button>
+          </li>
+        </ul>
+
+        <!-- 选项卡内容 -->
+        <div class="tab-content" id="assetManagerTabsContent">
+          <!-- 资源管理选项卡 -->
+          <div class="tab-pane fade <%= activeTab === 'resources' ? 'show active' : '' %>" 
+               id="resources-content" 
+               role="tabpanel" 
+               aria-labelledby="resources-tab">
+            
+            <!-- 操作按钮 -->
+            <div class="row mb-4">
+              <div class="col-12">
+                <div class="d-flex gap-2">
+                  <button id="scanResourcesBtn" class="btn btn-primary">
+                    <i class="bi bi-search me-1"></i>扫描缺失资源
+                  </button>
+                  <button id="downloadAllBtn" class="btn btn-success" disabled>
+                    <i class="bi bi-cloud-download me-1"></i>下载所有资源
+                  </button>
+                  <div class="ms-auto">
+                    <div class="form-check form-switch d-inline-block me-3">
+                      <input class="form-check-input" type="checkbox" id="forceDownloadSwitch">
+                      <label class="form-check-label" for="forceDownloadSwitch">强制重新下载</label>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- 扫描结果统计 -->
+            <div id="scanResultStats" class="row mb-4" style="display: none;">
+              <div class="col-md-3">
+                <div class="card bg-light">
+                  <div class="card-body text-center">
+                    <h6 class="card-title text-muted mb-1">总资源数</h6>
+                    <h3 id="totalResourcesCount" class="mb-0">0</h3>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-3">
+                <div class="card bg-danger text-white">
+                  <div class="card-body text-center">
+                    <h6 class="card-title mb-1">缺失资源</h6>
+                    <h3 id="missingResourcesCount" class="mb-0">0</h3>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-3">
+                <div class="card bg-success text-white">
+                  <div class="card-body text-center">
+                    <h6 class="card-title mb-1">可用资源</h6>
+                    <h3 id="availableResourcesCount" class="mb-0">0</h3>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-3">
+                <div class="card bg-info text-white">
+                  <div class="card-body text-center">
+                    <h6 class="card-title mb-1">最后扫描</h6>
+                    <p id="lastScanTime" class="mb-0">-</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- 进度条 -->
+            <div id="downloadProgressContainer" class="progress-container mb-4">
+              <div class="d-flex justify-content-between align-items-center mb-2">
+                <h6 class="mb-0">下载进度</h6>
+                <span id="downloadProgressText" class="text-muted">0%</span>
+              </div>
+              <div class="progress" style="height: 20px;">
+                <div id="downloadProgressBar" class="progress-bar progress-bar-striped progress-bar-animated" 
+                     role="progressbar" 
+                     style="width: 0%" 
+                     aria-valuenow="0" 
+                     aria-valuemin="0" 
+                     aria-valuemax="100"></div>
+              </div>
+            </div>
+
+            <!-- 资源列表 -->
+            <div id="resourcesList" class="row row-cols-1 row-cols-md-2 row-cols-xl-3 g-4">
+              <div class="col text-center py-5">
+                <div class="spinner-border text-primary" role="status">
+                  <span class="visually-hidden">加载中...</span>
+                </div>
+                <p class="mt-3 text-muted">正在加载资源信息...</p>
+              </div>
+            </div>
+
+            <!-- 无资源提示 -->
+            <div id="noResourcesMessage" class="text-center py-5" style="display: none;">
+              <i class="bi bi-emoji-smile display-1 text-muted"></i>
+              <h4 class="mt-3">太好了！所有资源都已可用</h4>
+              <p class="text-muted">没有检测到缺失的资源文件</p>
+              <button id="rescanBtn" class="btn btn-outline-primary mt-2">
+                <i class="bi bi-arrow-repeat me-1"></i>重新扫描
+              </button>
+            </div>
+          </div>
+
+          <!-- 重定向管理选项卡 -->
+          <div class="tab-pane fade <%= activeTab === 'redirects' ? 'show active' : '' %>" 
+               id="redirects-content" 
+               role="tabpanel" 
+               aria-labelledby="redirects-tab">
+            
+            <!-- 统计信息卡片 -->
+            <div class="row mb-4">
+              <div class="col-md-3">
+                <div class="card border-0 shadow-sm">
+                  <div class="card-body text-center">
+                    <div class="text-primary mb-2">
+                      <i class="bi bi-gear-fill fs-2"></i>
+                    </div>
+                    <h5 class="card-title">总规则数</h5>
+                    <h3 id="totalRulesCount" class="mb-0">0</h3>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-3">
+                <div class="card border-0 shadow-sm">
+                  <div class="card-body text-center">
+                    <div class="text-secondary mb-2">
+                      <i class="bi bi-shield-lock-fill fs-2"></i>
+                    </div>
+                    <h5 class="card-title">内置规则</h5>
+                    <h3 id="builtinRulesCount" class="mb-0">0</h3>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-3">
+                <div class="card border-0 shadow-sm">
+                  <div class="card-body text-center">
+                    <div class="text-success mb-2">
+                      <i class="bi bi-plus-circle-fill fs-2"></i>
+                    </div>
+                    <h5 class="card-title">自定义规则</h5>
+                    <h3 id="customRulesCount" class="mb-0">0</h3>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-3">
+                <div class="card border-0 shadow-sm">
+                  <div class="card-body text-center">
+                    <div class="form-check form-switch d-flex justify-content-center align-items-center">
+                      <input class="form-check-input me-2" type="checkbox" id="redirectEnabledSwitch" checked>
+                      <label class="form-check-label fs-5" for="redirectEnabledSwitch">启用重定向</label>
+                    </div>
+                    <div class="mt-2">
+                      <div class="form-check form-switch d-flex justify-content-center align-items-center">
+                        <input class="form-check-input me-2" type="checkbox" id="logRedirectsSwitch" checked>
+                        <label class="form-check-label" for="logRedirectsSwitch">记录重定向日志</label>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- 操作按钮 -->
+            <div class="row mb-4">
+              <div class="col-12">
+                <div class="d-flex gap-2">
+                  <button id="addRuleBtn" class="btn btn-primary">
+                    <i class="bi bi-plus-lg me-1"></i>添加规则
+                  </button>
+                  <button id="testRedirectBtn" class="btn btn-info text-white">
+                    <i class="bi bi-lightning me-1"></i>测试重定向
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- 规则列表 -->
+            <div class="row">
+              <div class="col-12">
+                <div class="card">
+                  <div class="card-header bg-light">
+                    <div class="d-flex justify-content-between align-items-center">
+                      <h5 class="mb-0">重定向规则列表</h5>
+                      <div class="input-group" style="width: 300px;">
+                        <span class="input-group-text"><i class="bi bi-search"></i></span>
+                        <input type="text" id="ruleSearchInput" class="form-control" placeholder="搜索规则...">
+                      </div>
+                    </div>
+                  </div>
+                  <div class="card-body p-0">
+                    <div class="table-responsive">
+                      <table class="table table-hover mb-0">
+                        <thead class="table-light">
+                          <tr>
+                            <th scope="col" width="20%">规则名称</th>
+                            <th scope="col" width="30%">匹配模式</th>
+                            <th scope="col" width="35%">描述</th>
+                            <th scope="col" width="15%">操作</th>
+                          </tr>
+                        </thead>
+                        <tbody id="redirectRulesList">
+                          <tr>
+                            <td colspan="4" class="text-center py-4">
+                              <div class="spinner-border text-primary" role="status">
+                                <span class="visually-hidden">加载中...</span>
+                              </div>
+                              <p class="mt-3 text-muted">正在加载重定向规则...</p>
+                            </td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 404资源选项卡 -->
+          <div class="tab-pane fade <%= activeTab === '404-resources' ? 'show active' : '' %>" 
+               id="404-resources-content" 
+               role="tabpanel" 
+               aria-labelledby="404-resources-tab">
+            
+            <!-- 操作按钮 -->
+            <div class="row mb-4">
+              <div class="col-12">
+                <div class="d-flex gap-2">
+                  <button id="refresh404ResourcesBtn" class="btn btn-primary">
+                    <i class="bi bi-arrow-repeat me-1"></i>刷新列表
+                  </button>
+                  <button id="clear404ResourcesBtn" class="btn btn-danger">
+                    <i class="bi bi-trash me-1"></i>清空记录
+                  </button>
+                  <div class="ms-auto">
+                    <div class="input-group">
+                      <span class="input-group-text"><i class="bi bi-search"></i></span>
+                      <input type="text" id="resource404SearchInput" class="form-control" placeholder="搜索资源...">
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- 404资源列表 -->
+            <div class="row">
+              <div class="col-12">
+                <div class="card">
+                  <div class="card-header bg-light">
+                    <h5 class="mb-0">404资源记录</h5>
+                  </div>
+                  <div class="card-body p-0">
+                    <div class="table-responsive">
+                      <table class="table table-hover mb-0">
+                        <thead class="table-light">
+                          <tr>
+                            <th scope="col" width="40%">资源URL</th>
+                            <th scope="col" width="15%">请求次数</th>
+                            <th scope="col" width="20%">首次请求</th>
+                            <th scope="col" width="20%">最近请求</th>
+                            <th scope="col" width="5%">操作</th>
+                          </tr>
+                        </thead>
+                        <tbody id="resources404List">
+                          <tr>
+                            <td colspan="5" class="text-center py-4">
+                              <div class="spinner-border text-primary" role="status">
+                                <span class="visually-hidden">加载中...</span>
+                              </div>
+                              <p class="mt-3 text-muted">正在加载404资源记录...</p>
+                            </td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 下载历史选项卡 -->
+          <div class="tab-pane fade <%= activeTab === 'history' ? 'show active' : '' %>" 
+               id="history-content" 
+               role="tabpanel" 
+               aria-labelledby="history-tab">
+            
+            <!-- 操作按钮 -->
+            <div class="row mb-4">
+              <div class="col-12">
+                <div class="d-flex gap-2">
+                  <button id="refreshHistoryBtn" class="btn btn-primary">
+                    <i class="bi bi-arrow-repeat me-1"></i>刷新历史
+                  </button>
+                  <div class="ms-auto">
+                    <div class="input-group">
+                      <span class="input-group-text"><i class="bi bi-search"></i></span>
+                      <input type="text" id="historySearchInput" class="form-control" placeholder="搜索历史...">
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- 下载历史列表 -->
+            <div class="row">
+              <div class="col-12">
+                <div class="card">
+                  <div class="card-header bg-light">
+                    <h5 class="mb-0">下载历史记录</h5>
+                  </div>
+                  <div class="card-body p-0">
+                    <div class="table-responsive">
+                      <table class="table table-hover mb-0">
+                        <thead class="table-light">
+                          <tr>
+                            <th scope="col" width="20%">资源名称</th>
+                            <th scope="col" width="30%">下载URL</th>
+                            <th scope="col" width="20%">本地路径</th>
+                            <th scope="col" width="15%">时间</th>
+                            <th scope="col" width="15%">状态</th>
+                          </tr>
+                        </thead>
+                        <tbody id="downloadHistoryList">
+                          <tr>
+                            <td colspan="5" class="text-center py-4">
+                              <div class="spinner-border text-primary" role="status">
+                                <span class="visually-hidden">加载中...</span>
+                              </div>
+                              <p class="mt-3 text-muted">正在加载下载历史...</p>
+                            </td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 添加规则模态框 -->
+  <div class="modal fade" id="addRuleModal" tabindex="-1" aria-labelledby="addRuleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="addRuleModalLabel">添加重定向规则</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="关闭"></button>
+        </div>
+        <div class="modal-body">
+          <form id="addRuleForm">
+            <div class="mb-3">
+              <label for="ruleName" class="form-label">规则名称</label>
+              <input type="text" class="form-control" id="ruleName" required>
+              <div class="form-text">唯一标识符，仅允许字母、数字和连字符</div>
+            </div>
+            <div class="mb-3">
+              <label for="rulePattern" class="form-label">匹配模式</label>
+              <input type="text" class="form-control" id="rulePattern" required>
+              <div class="form-text">正则表达式，例如: ^/old-path/(.*)$</div>
+            </div>
+            <div class="mb-3">
+              <label for="ruleRedirect" class="form-label">重定向目标</label>
+              <input type="text" class="form-control" id="ruleRedirect" required>
+              <div class="form-text">目标路径，可使用$1、$2等引用捕获组，例如: /new-path/$1</div>
+            </div>
+            <div class="mb-3">
+              <label for="ruleDescription" class="form-label">规则描述</label>
+              <input type="text" class="form-control" id="ruleDescription">
+              <div class="form-text">可选，规则的简短描述</div>
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+          <button type="button" class="btn btn-primary" id="saveRuleBtn">保存规则</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 测试重定向模态框 -->
+  <div class="modal fade" id="testRedirectModal" tabindex="-1" aria-labelledby="testRedirectModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="testRedirectModalLabel">测试重定向</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="关闭"></button>
+        </div>
+        <div class="modal-body">
+          <form id="testRedirectForm">
+            <div class="mb-3">
+              <label for="testPath" class="form-label">测试路径</label>
+              <input type="text" class="form-control" id="testPath" required>
+              <div class="form-text">输入要测试的路径，例如: /old-path/example</div>
+            </div>
+          </form>
+          <div id="testRedirectResult" class="mt-4" style="display: none;">
+            <h6>测试结果:</h6>
+            <div id="testRedirectResultContent" class="p-3 border rounded bg-light">
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">关闭</button>
+          <button type="button" class="btn btn-primary" id="runTestRedirectBtn">测试</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 资源详情模态框 -->
+  <div class="modal fade" id="resourceDetailsModal" tabindex="-1" aria-labelledby="resourceDetailsModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="resourceDetailsModalLabel">资源详情</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="关闭"></button>
+        </div>
+        <div class="modal-body">
+          <div id="resourceDetailsContent">
+            <!-- 资源详情内容将通过JavaScript动态填充 -->
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">关闭</button>
+          <button type="button" class="btn btn-primary" id="downloadResourceBtn">下载资源</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 引用依赖资源 -->
+  <script>
+    // 等待依赖资源加载完成
+    window.dependencyResourcesReady.then(() => {
+      // 初始化资源管理器
+      initAssetManager();
+    });
+
+    // 资源管理器初始化函数
+    function initAssetManager() {
+      // 根据当前活动选项卡初始化相应功能
+      const activeTab = '<%= activeTab %>';
+      
+      if (activeTab === 'resources' || activeTab === '') {
+        initResourcesTab();
+      } else if (activeTab === 'redirects') {
+        initRedirectsTab();
+      } else if (activeTab === '404-resources') {
+        init404ResourcesTab();
+      } else if (activeTab === 'history') {
+        initHistoryTab();
+      }
+
+      // 选项卡切换事件
+      document.querySelectorAll('#assetManagerTabs button').forEach(tab => {
+        tab.addEventListener('click', function(event) {
+          const tabId = this.getAttribute('id');
+          
+          if (tabId === 'resources-tab') {
+            initResourcesTab();
+          } else if (tabId === 'redirects-tab') {
+            initRedirectsTab();
+          } else if (tabId === '404-resources-tab') {
+            init404ResourcesTab();
+          } else if (tabId === 'history-tab') {
+            initHistoryTab();
+          }
+        });
+      });
+    }
+
+    // 资源管理选项卡初始化
+    function initResourcesTab() {
+      // 扫描按钮点击事件
+      document.getElementById('scanResourcesBtn').addEventListener('click', scanResources);
+      
+      // 初始扫描
+      scanResources();
+      
+      // 其他初始化代码...
+    }
+
+    // 重定向管理选项卡初始化
+    function initRedirectsTab() {
+      // 加载重定向规则
+      loadRedirectRules();
+      
+      // 添加规则按钮点击事件
+      document.getElementById('addRuleBtn').addEventListener('click', function() {
+        const modal = new bootstrap.Modal(document.getElementById('addRuleModal'));
+        modal.show();
+      });
+      
+      // 保存规则按钮点击事件
+      document.getElementById('saveRuleBtn').addEventListener('click', saveRedirectRule);
+      
+      // 测试重定向按钮点击事件
+      document.getElementById('testRedirectBtn').addEventListener('click', function() {
+        const modal = new bootstrap.Modal(document.getElementById('testRedirectModal'));
+        modal.show();
+      });
+      
+      // 运行测试按钮点击事件
+      document.getElementById('runTestRedirectBtn').addEventListener('click', testRedirect);
+      
+      // 其他初始化代码...
+    }
+
+    // 404资源选项卡初始化
+    function init404ResourcesTab() {
+      // 加载404资源记录
+      load404Resources();
+      
+      // 刷新按钮点击事件
+      document.getElementById('refresh404ResourcesBtn').addEventListener('click', load404Resources);
+      
+      // 清空按钮点击事件
+      document.getElementById('clear404ResourcesBtn').addEventListener('click', clear404Resources);
+      
+      // 其他初始化代码...
+    }
+
+    // 下载历史选项卡初始化
+    function initHistoryTab() {
+      // 加载下载历史
+      loadDownloadHistory();
+      
+      // 刷新按钮点击事件
+      document.getElementById('refreshHistoryBtn').addEventListener('click', loadDownloadHistory);
+      
+      // 其他初始化代码...
+    }
+
+    // 扫描资源函数
+    function scanResources() {
+      const resourcesList = document.getElementById('resourcesList');
+      const noResourcesMessage = document.getElementById('noResourcesMessage');
+      const scanResultStats = document.getElementById('scanResultStats');
+      
+      // 显示加载状态
+      resourcesList.innerHTML = `
+        <div class="col text-center py-5">
+          <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">加载中...</span>
+          </div>
+          <p class="mt-3 text-muted">正在扫描资源...</p>
+        </div>
+      `;
+      
+      // 隐藏无资源消息
+      noResourcesMessage.style.display = 'none';
+      
+      // 发送扫描请求
+      fetch('/api/asset-manager/scan')
+        .then(response => response.json())
+        .then(data => {
+          // 更新统计信息
+          document.getElementById('totalResourcesCount').textContent = data.total;
+          document.getElementById('missingResourcesCount').textContent = data.missing;
+          document.getElementById('availableResourcesCount').textContent = data.total - data.missing;
+          document.getElementById('lastScanTime').textContent = new Date(data.timestamp).toLocaleString();
+          
+          // 显示统计信息
+          scanResultStats.style.display = 'flex';
+          
+          // 启用/禁用下载所有按钮
+          document.getElementById('downloadAllBtn').disabled = data.missing === 0;
+          
+          if (data.missing === 0) {
+            // 显示无缺失资源消息
+            resourcesList.style.display = 'none';
+            noResourcesMessage.style.display = 'block';
+          } else {
+            // 显示资源列表
+            resourcesList.style.display = 'flex';
+            noResourcesMessage.style.display = 'none';
+            
+            // 渲染资源列表
+            renderResourcesList(data.resources);
+          }
+        })
+        .catch(error => {
+          console.error('扫描资源失败:', error);
+          resourcesList.innerHTML = `
+            <div class="col text-center py-5">
+              <i class="bi bi-exclamation-triangle text-danger display-4"></i>
+              <h4 class="mt-3">扫描失败</h4>
+              <p class="text-muted">${error.message || '无法扫描资源，请稍后重试'}</p>
+              <button id="retryBtn" class="btn btn-primary mt-2">重试</button>
+            </div>
+          `;
+          
+          // 重试按钮点击事件
+          document.getElementById('retryBtn').addEventListener('click', scanResources);
+        });
+    }
+
+    // 渲染资源列表
+    function renderResourcesList(resources) {
+      const resourcesList = document.getElementById('resourcesList');
+      resourcesList.innerHTML = '';
+      
+      resources.forEach(resource => {
+        const resourceCard = document.createElement('div');
+        resourceCard.className = 'col';
+        resourceCard.innerHTML = `
+          <div class="card resource-card h-100 shadow-sm">
+            <div class="card-header d-flex justify-content-between align-items-center">
+              <h6 class="mb-0">${resource.name}</h6>
+              <span class="badge bg-danger status-badge">缺失</span>
+            </div>
+            <div class="card-body">
+              <p class="card-text small text-muted mb-2">
+                <i class="bi bi-folder me-1"></i>${resource.localPath}
+              </p>
+              <p class="card-text small mb-2">
+                <i class="bi bi-tag me-1"></i>${resource.type || '未知类型'}
+              </p>
+              ${resource.size ? `
+                <p class="card-text small mb-2">
+                  <i class="bi bi-hdd me-1"></i>${formatFileSize(resource.size)}
+                </p>
+              ` : ''}
+            </div>
+            <div class="card-footer bg-transparent">
+              <div class="d-flex justify-content-between">
+                <button class="btn btn-sm btn-outline-primary view-details-btn" data-resource-key="${resource.key}">
+                  <i class="bi bi-info-circle me-1"></i>详情
+                </button>
+                <button class="btn btn-sm btn-success btn-download" data-resource-key="${resource.key}">
+                  <i class="bi bi-download me-1"></i>下载
+                </button>
+              </div>
+            </div>
+          </div>
+        `;
+        
+        resourcesList.appendChild(resourceCard);
+      });
+      
+      // 下载按钮点击事件
+      document.querySelectorAll('.btn-download').forEach(btn => {
+        btn.addEventListener('click', function() {
+          const resourceKey = this.getAttribute('data-resource-key');
+          downloadResource(resourceKey);
+        });
+      });
+      
+      // 查看详情按钮点击事件
+      document.querySelectorAll('.view-details-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+          const resourceKey = this.getAttribute('data-resource-key');
+          showResourceDetails(resourceKey, resources);
+        });
+      });
+    }
+
+    // 格式化文件大小
+    function formatFileSize(bytes) {
+      if (!bytes) return '未知大小';
+      
+      const units = ['B', 'KB', 'MB', 'GB', 'TB'];
+      let size = parseInt(bytes, 10);
+      let unitIndex = 0;
+      
+      while (size >= 1024 && unitIndex < units.length - 1) {
+        size /= 1024;
+        unitIndex++;
+      }
+      
+      return `${size.toFixed(2)} ${units[unitIndex]}`;
+    }
+
+    // 显示资源详情
+    function showResourceDetails(resourceKey, resources) {
+      const resource = resources.find(r => r.key === resourceKey);
+      if (!resource) return;
+      
+      const detailsContent = document.getElementById('resourceDetailsContent');
+      detailsContent.innerHTML = `
+        <h5>${resource.name}</h5>
+        <hr>
+        <div class="row">
+          <div class="col-md-6">
+            <p><strong>资源键名:</strong> ${resource.key}</p>
+            <p><strong>本地路径:</strong> ${resource.localPath}</p>
+            <p><strong>绝对路径:</strong> ${resource.absolutePath}</p>
+            <p><strong>资源类型:</strong> ${resource.type || '未知'}</p>
+          </div>
+          <div class="col-md-6">
+            <p><strong>文件大小:</strong> ${formatFileSize(resource.size)}</p>
+            <p><strong>最后修改:</strong> ${resource.lastModified || '未知'}</p>
+          </div>
+        </div>
+        
+        <h6 class="mt-3">主要下载源:</h6>
+        <div class="input-group mb-3">
+          <input type="text" class="form-control" value="${resource.primary}" readonly>
+          <button class="btn btn-outline-secondary copy-url-btn" type="button" data-url="${resource.primary}">
+            <i class="bi bi-clipboard"></i>
+          </button>
+        </div>
+        
+        ${resource.fallbacks && resource.fallbacks.length > 0 ? `
+          <h6>备选下载源:</h6>
+          <ul class="list-group mb-3">
+            ${resource.fallbacks.map(url => `
+              <li class="list-group-item d-flex justify-content-between align-items-center">
+                <span class="text-truncate me-2">${url}</span>
+                <button class="btn btn-sm btn-outline-secondary copy-url-btn" data-url="${url}">
+                  <i class="bi bi-clipboard"></i>
+                </button>
+              </li>
+            `).join('')}
+          </ul>
+        ` : ''}
+        
+        ${resource.dependencies && resource.dependencies.length > 0 ? `
+          <h6>依赖资源:</h6>
+          <ul class="list-group">
+            ${resource.dependencies.map(dep => `
+              <li class="list-group-item">${dep}</li>
+            `).join('')}
+          </ul>
+        ` : ''}
+      `;
+      
+      // 设置下载按钮的资源键
+      document.getElementById('downloadResourceBtn').setAttribute('data-resource-key', resourceKey);
+      
+      // 复制URL按钮点击事件
+      document.querySelectorAll('.copy-url-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+          const url = this.getAttribute('data-url');
+          navigator.clipboard.writeText(url).then(() => {
+            // 临时改变按钮样式表示复制成功
+            this.innerHTML = '<i class="bi bi-check"></i>';
+            setTimeout(() => {
+              this.innerHTML = '<i class="bi bi-clipboard"></i>';
+            }, 1500);
+          });
+        });
+      });
+      
+      // 显示模态框
+      const modal = new bootstrap.Modal(document.getElementById('resourceDetailsModal'));
+      modal.show();
+      
+      // 模态框中的下载按钮点击事件
+      document.getElementById('downloadResourceBtn').addEventListener('click', function() {
+        const resourceKey = this.getAttribute('data-resource-key');
+        modal.hide();
+        downloadResource(resourceKey);
+      });
+    }
+
+    // 下载资源函数
+    function downloadResource(resourceKey) {
+      // 获取强制下载选项
+      const forceDownload = document.getElementById('forceDownloadSwitch').checked;
+      
+      // 显示进度条
+      const progressContainer = document.getElementById('downloadProgressContainer');
+      progressContainer.style.display = 'block';
+      
+      // 重置进度条
+      const progressBar = document.getElementById('downloadProgressBar');
+      const progressText = document.getElementById('downloadProgressText');
+      progressBar.style.width = '0%';
+      progressBar.setAttribute('aria-valuenow', '0');
+      progressText.textContent = '0%';
+      
+      // 发送下载请求
+      fetch('/api/asset-manager/download', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          resourceKey,
+          force: forceDownload
+        })
+      })
+        .then(response => response.json())
+        .then(data => {
+          if (data.success) {
+            // 更新进度条为完成状态
+            progressBar.style.width = '100%';
+            progressBar.setAttribute('aria-valuenow', '100');
+            progressText.textContent = '100%';
+            
+            // 显示成功消息
+            alert(`资源 ${resourceKey} 下载成功!`);
+            
+            // 重新扫描资源
+            setTimeout(() => {
+              scanResources();
+              progressContainer.style.display = 'none';
+            }, 1000);
+          } else {
+            throw new Error(data.error || '下载失败');
+          }
+        })
+        .catch(error => {
+          console.error('下载资源失败:', error);
+          alert(`下载失败: ${error.message}`);
+          progressContainer.style.display = 'none';
+        });
+    }
+
+    // 加载重定向规则
+    function loadRedirectRules() {
+      const rulesList = document.getElementById('redirectRulesList');
+      
+      // 显示加载状态
+      rulesList.innerHTML = `
+        <tr>
+          <td colspan="4" class="text-center py-4">
+            <div class="spinner-border text-primary" role="status">
+              <span class="visually-hidden">加载中...</span>
+            </div>
+            <p class="mt-3 text-muted">正在加载重定向规则...</p>
+          </td>
+        </tr>
+      `;
+      
+      // 发送请求获取规则
+      fetch('/api/asset-manager/redirect-rules')
+        .then(response => response.json())
+        .then(rules => {
+          // 更新统计信息
+          document.getElementById('totalRulesCount').textContent = rules.length;
+          document.getElementById('builtinRulesCount').textContent = rules.filter(r => !r.isCustom).length;
+          document.getElementById('customRulesCount').textContent = rules.filter(r => r.isCustom).length;
+          
+          if (rules.length === 0) {
+            rulesList.innerHTML = `
+              <tr>
+                <td colspan="4" class="text-center py-4">
+                  <p class="text-muted mb-0">暂无重定向规则</p>
+                </td>
+              </tr>
+            `;
+            return;
+          }
+          
+          // 渲染规则列表
+          rulesList.innerHTML = '';
+          rules.forEach(rule => {
+            const row = document.createElement('tr');
+            row.className = `rule-item ${rule.isCustom ? 'custom-rule' : 'builtin-rule'}`;
+            row.innerHTML = `
+              <td>
+                <div class="d-flex align-items-center">
+                  ${rule.isCustom ? 
+                    '<span class="badge bg-primary me-2">自定义</span>' : 
+                    '<span class="badge bg-secondary me-2">内置</span>'}
+                  ${rule.name}
+                </div>
+              </td>
+              <td><code>${rule.pattern}</code></td>
+              <td>${rule.description}</td>
+              <td>
+                ${rule.isCustom ? `
+                  <button class="btn btn-sm btn-outline-danger delete-rule-btn" data-rule-name="${rule.name}">
+                    <i class="bi bi-trash"></i>
+                  </button>
+                ` : `
+                  <button class="btn btn-sm btn-outline-secondary" disabled>
+                    <i class="bi bi-lock"></i>
+                  </button>
+                `}
+              </td>
+            `;
+            
+            rulesList.appendChild(row);
+          });
+          
+          // 删除规则按钮点击事件
+          document.querySelectorAll('.delete-rule-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+              const ruleName = this.getAttribute('data-rule-name');
+              if (confirm(`确定要删除规则 "${ruleName}" 吗？`)) {
+                deleteRedirectRule(ruleName);
+              }
+            });
+          });
+        })
+        .catch(error => {
+          console.error('加载重定向规则失败:', error);
+          rulesList.innerHTML = `
+            <tr>
+              <td colspan="4" class="text-center py-4">
+                <i class="bi bi-exclamation-triangle text-danger"></i>
+                <p class="text-muted mt-2">加载规则失败: ${error.message}</p>
+                <button id="retryLoadRulesBtn" class="btn btn-sm btn-primary mt-2">重试</button>
+              </td>
+            </tr>
+          `;
+          
+          // 重试按钮点击事件
+          document.getElementById('retryLoadRulesBtn').addEventListener('click', loadRedirectRules);
+        });
+    }
+
+    // 保存重定向规则
+    function saveRedirectRule() {
+      const name = document.getElementById('ruleName').value.trim();
+      const pattern = document.getElementById('rulePattern').value.trim();
+      const redirect = document.getElementById('ruleRedirect').value.trim();
+      const description = document.getElementById('ruleDescription').value.trim();
+      
+      if (!name || !pattern || !redirect) {
+        alert('请填写必要的规则信息');
+        return;
+      }
+      
+      // 发送请求添加规则
+      fetch('/api/asset-manager/redirect-rules', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          name,
+          pattern,
+          redirect,
+          description: description || `自定义规则: ${name}`
+        })
+      })
+        .then(response => response.json())
+        .then(data => {
+          if (data.success) {
+            // 关闭模态框
+            bootstrap.Modal.getInstance(document.getElementById('addRuleModal')).hide();
+            
+            // 重置表单
+            document.getElementById('addRuleForm').reset();
+            
+            // 重新加载规则列表
+            loadRedirectRules();
+            
+            alert('规则添加成功');
+          } else {
+            throw new Error(data.error || '添加规则失败');
+          }
+        })
+        .catch(error => {
+          console.error('添加规则失败:', error);
+          alert(`添加规则失败: ${error.message}`);
+        });
+    }
+
+    // 删除重定向规则
+    function deleteRedirectRule(ruleName) {
+      fetch(`/api/asset-manager/redirect-rules/${ruleName}`, {
+        method: 'DELETE'
+      })
+        .then(response => response.json())
+        .then(data => {
+          if (data.success) {
+            // 重新加载规则列表
+            loadRedirectRules();
+            alert('规则删除成功');
+          } else {
+            throw new Error(data.error || '删除规则失败');
+          }
+        })
+        .catch(error => {
+          console.error('删除规则失败:', error);
+          alert(`删除规则失败: ${error.message}`);
+        });
+    }
+
+    // 测试重定向
+    function testRedirect() {
+      const testPath = document.getElementById('testPath').value.trim();
+      
+      if (!testPath) {
+        alert('请输入测试路径');
+        return;
+      }
+      
+      const resultContainer = document.getElementById('testRedirectResult');
+      const resultContent = document.getElementById('testRedirectResultContent');
+      
+      // 显示加载状态
+      resultContainer.style.display = 'block';
+      resultContent.innerHTML = `
+        <div class="text-center py-2">
+          <div class="spinner-border spinner-border-sm text-primary" role="status">
+            <span class="visually-hidden">加载中...</span>
+          </div>
+          <span class="ms-2">测试中...</span>
+        </div>
+      `;
+      
+      // 发送测试请求
+      fetch('/api/asset-manager/test-redirect', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ path: testPath })
+      })
+        .then(response => response.json())
+        .then(data => {
+          if (data.matched) {
+            resultContent.innerHTML = `
+              <div class="alert alert-success mb-0">
+                <h6><i class="bi bi-check-circle me-1"></i>匹配成功</h6>
+                <hr>
+                <p><strong>原始路径:</strong> ${data.result.originalPath}</p>
+                <p><strong>重定向到:</strong> ${data.result.newPath}</p>
+                <p><strong>使用规则:</strong> ${data.result.ruleName}</p>
+                <p><strong>规则描述:</strong> ${data.result.description}</p>
+                <p><strong>状态码:</strong> ${data.result.statusCode}</p>
+              </div>
+            `;
+          } else {
+            resultContent.innerHTML = `
+              <div class="alert alert-warning mb-0">
+                <h6><i class="bi bi-exclamation-triangle me-1"></i>未匹配</h6>
+                <hr>
+                <p>路径 <strong>${data.testPath}</strong> 未匹配任何重定向规则。</p>
+              </div>
+            `;
+          }
+        })
+        .catch(error => {
+          console.error('测试重定向失败:', error);
+          resultContent.innerHTML = `
+            <div class="alert alert-danger mb-0">
+              <h6><i class="bi bi-x-circle me-1"></i>测试失败</h6>
+              <hr>
+              <p>${error.message || '无法完成测试，请稍后重试'}</p>
+            </div>
+          `;
+        });
+    }
+
+    // 加载404资源记录
+    function load404Resources() {
+      const resourcesList = document.getElementById('resources404List');
+      
+      // 显示加载状态
+      resourcesList.innerHTML = `
+        <tr>
+          <td colspan="5" class="text-center py-4">
+            <div class="spinner-border text-primary" role="status">
+              <span class="visually-hidden">加载中...</span>
+            </div>
+            <p class="mt-3 text-muted">正在加载404资源记录...</p>
+          </td>
+        </tr>
+      `;
+      
+      // 发送请求获取404资源记录
+      fetch('/api/asset-manager/404-resources')
+        .then(response => response.json())
+        .then(resources => {
+          if (resources.length === 0) {
+            resourcesList.innerHTML = `
+              <tr>
+                <td colspan="5" class="text-center py-4">
+                  <p class="text-muted mb-0">暂无404资源记录</p>
+                </td>
+              </tr>
+            `;
+            return;
+          }
+          
+          // 渲染资源列表
+          resourcesList.innerHTML = '';
+          resources.forEach(resource => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+              <td class="text-break">${resource.url}</td>
+              <td>${resource.count}</td>
+              <td>${new Date(resource.firstSeen).toLocaleString()}</td>
+              <td>${new Date(resource.lastSeen).toLocaleString()}</td>
+              <td>
+                <button class="btn btn-sm btn-outline-primary view-404-details-btn" data-url="${resource.url}">
+                  <i class="bi bi-info-circle"></i>
+                </button>
+              </td>
+            `;
+            
+            resourcesList.appendChild(row);
+          });
+          
+          // 查看详情按钮点击事件
+          document.querySelectorAll('.view-404-details-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+              const url = this.getAttribute('data-url');
+              const resource = resources.find(r => r.url === url);
+              
+              if (resource) {
+                alert(`URL: ${resource.url}\n请求次数: ${resource.count}\n首次请求: ${new Date(resource.firstSeen).toLocaleString()}\n最近请求: ${new Date(resource.lastSeen).toLocaleString()}\n\n来源页面: ${resource.referrers.join('\n')}`);
+              }
+            });
+          });
+        })
+        .catch(error => {
+          console.error('加载404资源记录失败:', error);
+          resourcesList.innerHTML = `
+            <tr>
+              <td colspan="5" class="text-center py-4">
+                <i class="bi bi-exclamation-triangle text-danger"></i>
+                <p class="text-muted mt-2">加载404资源记录失败: ${error.message}</p>
+                <button id="retryLoad404Btn" class="btn btn-sm btn-primary mt-2">重试</button>
+              </td>
+            </tr>
+          `;
+          
+          // 重试按钮点击事件
+          document.getElementById('retryLoad404Btn').addEventListener('click', load404Resources);
+        });
+    }
+
+    // 清理404资源记录
+    function clear404Resources() {
+      if (!confirm('确定要清空所有404资源记录吗？')) {
+        return;
+      }
+      
+      fetch('/api/asset-manager/404-resources', {
+        method: 'DELETE'
+      })
+        .then(response => response.json())
+        .then(data => {
+          if (data.success) {
+            // 重新加载404资源记录
+            load404Resources();
+            alert('404资源记录已清空');
+          } else {
+            throw new Error(data.error || '清空记录失败');
+          }
+        })
+        .catch(error => {
+          console.error('清空404资源记录失败:', error);
+          alert(`清空记录失败: ${error.message}`);
+        });
+    }
+
+    // 加载下载历史
+    function loadDownloadHistory() {
+      const historyList = document.getElementById('downloadHistoryList');
+      
+      // 显示加载状态
+      historyList.innerHTML = `
+        <tr>
+          <td colspan="5" class="text-center py-4">
+            <div class="spinner-border text-primary" role="status">
+              <span class="visually-hidden">加载中...</span>
+            </div>
+            <p class="mt-3 text-muted">正在加载下载历史...</p>
+          </td>
+        </tr>
+      `;
+      
+      // 发送请求获取下载历史
+      fetch('/api/asset-manager/download-history')
+        .then(response => response.json())
+        .then(history => {
+          if (history.length === 0) {
+            historyList.innerHTML = `
+              <tr>
+                <td colspan="5" class="text-center py-4">
+                  <p class="text-muted mb-0">暂无下载历史记录</p>
+                </td>
+              </tr>
+            `;
+            return;
+          }
+          
+          // 渲染历史列表
+          historyList.innerHTML = '';
+          history.forEach(item => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+              <td>${item.resourceName}</td>
+              <td class="text-break">${item.url}</td>
+              <td class="text-break">${item.localPath}</td>
+              <td>${new Date(item.timestamp).toLocaleString()}</td>
+              <td>
+                <span class="badge ${item.success ? 'bg-success' : 'bg-danger'}">
+                  ${item.success ? '成功' : '失败'}
+                </span>
+              </td>
+            `;
+            
+            historyList.appendChild(row);
+          });
+        })
+        .catch(error => {
+          console.error('加载下载历史失败:', error);
+          historyList.innerHTML = `
+            <tr>
+              <td colspan="5" class="text-center py-4">
+                <i class="bi bi-exclamation-triangle text-danger"></i>
+                <p class="text-muted mt-2">加载下载历史失败: ${error.message}</p>
+                <button id="retryLoadHistoryBtn" class="btn btn-sm btn-primary mt-2">重试</button>
+              </td>
+            </tr>
+          `;
+          
+          // 重试按钮点击事件
+          document.getElementById('retryLoadHistoryBtn').addEventListener('click', loadDownloadHistory);
+        });
+    }
+
+    // 搜索功能
+    function initSearchFunctionality() {
+      // 重定向规则搜索
+      const ruleSearchInput = document.getElementById('ruleSearchInput');
+      if (ruleSearchInput) {
+        ruleSearchInput.addEventListener('input', function() {
+          const searchTerm = this.value.toLowerCase();
+          const rows = document.querySelectorAll('#redirectRulesList tr');
+          
+          rows.forEach(row => {
+            const text = row.textContent.toLowerCase();
+            row.style.display = text.includes(searchTerm) ? '' : 'none';
+          });
+        });
+      }
+      
+      // 404资源搜索
+      const resource404SearchInput = document.getElementById('resource404SearchInput');
+      if (resource404SearchInput) {
+        resource404SearchInput.addEventListener('input', function() {
+          const searchTerm = this.value.toLowerCase();
+          const rows = document.querySelectorAll('#resources404List tr');
+          
+          rows.forEach(row => {
+            const text = row.textContent.toLowerCase();
+            row.style.display = text.includes(searchTerm) ? '' : 'none';
+          });
+        });
+      }
+      
+      // 下载历史搜索
+      const historySearchInput = document.getElementById('historySearchInput');
+      if (historySearchInput) {
+        historySearchInput.addEventListener('input', function() {
+          const searchTerm = this.value.toLowerCase();
+          const rows = document.querySelectorAll('#downloadHistoryList tr');
+          
+          rows.forEach(row => {
+            const text = row.textContent.toLowerCase();
+            row.style.display = text.includes(searchTerm) ? '' : 'none';
+          });
+        });
+      }
+    }
+
+    // 初始化搜索功能
+    document.addEventListener('DOMContentLoaded', function() {
+      initSearchFunctionality();
+    });
+  </script>
+</body>
+</html>

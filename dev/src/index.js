@@ -13,7 +13,6 @@ const fsNative = require('fs');
 
 // 导入配置
 const paths = require('./config/pathConfig');
-const redirectService = require('./services/redirectService');
 
 // 导入工具路由
 const sitemapUpdaterRoutes = require('./tools/sitemapUpdater/routes');
@@ -21,8 +20,7 @@ const menuEditorRoutes = require('./tools/menuEditor/routes');
 const pageManagerRoutes = require('./tools/pageManager/routes');
 const pageGeneratorRoutes = require('./tools/pageGenerator/routes');
 const themeManagerRoutes = require('./tools/themeManager/routes');
-// CDN测试调试工具已删除
-const resourceManagerRoutes = require('./tools/resourceManager/routes');
+const assetManagerRoutes = require('./tools/assetManager/routes');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -78,17 +76,9 @@ app.use('/page-manager', require('./tools/pageManager/routes'));
 app.use('/theme-manager', require('./tools/themeManager/routes'));
 // 主题管理器API路由
 app.use('/api/theme', require('./tools/themeManager/routes'));
-// CDN测试调试工具路由已删除
-app.use('/resource-manager', require('./tools/resourceManager/routes'));
-app.use('/api/resource-manager', require('./tools/resourceManager/routes'));
-
-// 重定向管理路由
-app.use('/api/redirect', require('./routes/redirectRoutes'));
-
-// 重定向管理器页面路由
-app.get('/redirect-manager', (req, res) => {
-    res.render('redirect-manager');
-});
+// 资源管理器路由
+app.use('/asset-manager', require('./tools/assetManager/routes'));
+app.use('/api/asset-manager', require('./tools/assetManager/routes'));
 
 // Bootstrap测试页面路由
 app.get('/bootstrap-test', (req, res) => {
@@ -96,15 +86,18 @@ app.get('/bootstrap-test', (req, res) => {
 });
 
 // 自动重定向中间件 - 处理外部资源路径的重定向
-app.use((req, res, next) => {
-  const redirectInfo = redirectService.processRedirect(req.path);
-  
-  if (redirectInfo) {
-    // 记录重定向日志
-    redirectService.logRedirect(redirectInfo);
+app.use(async (req, res, next) => {
+  try {
+    const AssetManagerService = require('./tools/assetManager/assetManagerService');
+    const assetManager = new AssetManagerService();
+    const redirectInfo = await assetManager.processRedirect(req.path);
     
-    // 执行重定向
-    return res.redirect(redirectInfo.statusCode, redirectInfo.newPath);
+    if (redirectInfo) {
+      // 执行重定向
+      return res.redirect(redirectInfo.statusCode, redirectInfo.newPath);
+    }
+  } catch (error) {
+    console.error('重定向处理失败:', error);
   }
   
   next();
@@ -136,18 +129,18 @@ app.get('/prod', (req, res) => {
 
 // 404资源检测中间件
 app.use((req, res, next) => {
-  // 如果是静态资源请求且返回404，记录到resourceManager
+  // 如果是静态资源请求且返回404，记录到assetManager
   const originalSend = res.send;
   res.send = function(body) {
     if (res.statusCode === 404 && req.path.match(/\.(css|js|png|jpg|jpeg|gif|svg|ico|woff|woff2|ttf|eot)$/i)) {
       // 异步记录404资源，不阻塞响应
       setImmediate(async () => {
         try {
-          const ResourceManagerService = require('./tools/resourceManager/resourceManagerService');
-          const resourceManager = new ResourceManagerService();
+          const AssetManagerService = require('./tools/assetManager/assetManagerService');
+          const assetManager = new AssetManagerService();
           const fullUrl = `${req.protocol}://${req.get('host')}${req.originalUrl}`;
           const referrer = req.get('Referer') || null;
-          await resourceManager.record404Resource(fullUrl, referrer);
+          await assetManager.record404Resource(fullUrl, referrer);
         } catch (error) {
           console.error('记录404资源失败:', error);
         }
