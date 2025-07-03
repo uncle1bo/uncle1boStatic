@@ -55,15 +55,17 @@ themeManager/
 GET /api/theme/config
 // 返回: 当前主题配置数据
 
-// 更新主题配置
-POST /api/theme/config
+// 保存主题配置
+POST /api/theme/save
 {
-  "primaryColor": "#007bff",
-  "backgroundColor": "#ffffff",
-  "textColor": "#333333",
-  "mode": "light"
+  "config": {
+    "primaryColor": "#007bff",
+    "backgroundColor": "#ffffff",
+    "textColor": "#333333",
+    "mode": "light"
+  }
 }
-// 返回: 更新结果
+// 返回: 保存结果
 ```
 
 ### 主题操作
@@ -72,43 +74,20 @@ POST /api/theme/config
 POST /api/theme/reset
 // 返回: 重置结果
 
-// 应用主题到网站
-POST /api/theme/apply
+// 预览主题效果
+POST /api/theme/preview
 {
-  "themeConfig": {...}
+  "config": {...}
 }
-// 返回: 应用结果
-```
-
-### 预设主题
-```javascript
-// 获取预设主题列表
-GET /api/theme/presets
-// 返回: 预设主题列表
-
-// 加载预设主题
-POST /api/theme/load-preset
-{
-  "presetName": "dark-theme"
-}
-// 返回: 加载结果
-```
-
-### 配置导入导出
-```javascript
-// 导出主题配置
-GET /api/theme/export
-// 返回: 主题配置文件
-
-// 导入主题配置
-POST /api/theme/import
-// multipart/form-data 配置文件
-// 返回: 导入结果
+// 返回: 预览CSS样式
 ```
 
 ### 注意事项
 
+- 主题配置保存后会立即应用到当前预览
+- 重置操作会恢复到系统默认主题
+- 所有API请求都需要通过开发服务器访问
+- 主题配置文件存储在 `prod/theme-config.json`
 - 主题更改会影响整个网站外观
 - 建议在测试环境中调试主题
 - 保存前请确认预览效果
-- 支持撤销和重做操作

@@ -7,15 +7,28 @@ class ThemeManager {
   constructor() {
     this.currentMode = 'light';
     this.themeConfig = null;
-    this.init();
+    this.initialized = false;
   }
 
   /**
    * 初始化主题管理器
    */
   async init() {
-    await this.loadThemeConfig();
-    this.initEventListeners();
+    if (this.initialized) {
+      return;
+    }
+    
+    try {
+      await this.loadThemeConfig();
+      this.initEventListeners();
+      this.initColorPickers();
+      this.updateUI();
+      this.initialized = true;
+      console.log('主题管理器初始化完成');
+    } catch (error) {
+      console.error('主题管理器初始化失败:', error);
+      throw error;
+    }
   }
 
   /**
@@ -170,15 +183,15 @@ class ThemeManager {
    * 验证颜色值
    */
   isValidColor(color) {
-    const s = new Option().style;
-    s.color = color;
-    return s.color !== '';
-  }
-
-  /**
-   * 验证颜色值
-   */
-  isValidColor(color) {
+    // 支持十六进制和rgba格式的颜色验证
+    const hexPattern = /^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/;
+    const rgbaPattern = /^rgba?\([^)]+\)$/;
+    
+    if (hexPattern.test(color) || rgbaPattern.test(color)) {
+      return true;
+    }
+    
+    // 使用DOM方式验证其他格式
     const s = new Option().style;
     s.color = color;
     return s.color !== '';
@@ -217,17 +230,26 @@ class ThemeManager {
     document.querySelectorAll('.mode-btn').forEach(btn => {
       btn.classList.remove('active');
     });
-    document.querySelector(`[data-mode="${mode}"]`).classList.add('active');
+    const targetBtn = document.querySelector(`[data-mode="${mode}"]`);
+    if (targetBtn) {
+      targetBtn.classList.add('active');
+    }
     
     // 更新标题
     const title = mode === 'light' ? '明亮模式' : '暗夜模式';
-    document.getElementById('current-mode-title').textContent = title;
+    const titleElement = document.getElementById('current-mode-title');
+    if (titleElement) {
+      titleElement.textContent = title;
+    }
     
     // 更新界面
     this.updateUI();
     
     // 更新代码主题
-    this.initCodeTheme();
+    if (this.themeConfig && this.themeConfig[mode]) {
+      const codeTheme = this.themeConfig[mode].codeTheme || 'default';
+      this.updateCodeTheme(codeTheme);
+    }
   }
 
   /**
@@ -255,6 +277,12 @@ class ThemeManager {
         selectInput.value = currentTheme[key] || 'default';
       }
     });
+    
+    // 特别处理代码主题选择器
+    const codeThemeSelect = document.getElementById('codeTheme-select');
+    if (codeThemeSelect && currentTheme.codeTheme) {
+      codeThemeSelect.value = currentTheme.codeTheme;
+    }
     
     // 更新预览
     this.updatePreview();
@@ -335,7 +363,7 @@ class ThemeManager {
       // 确保JSON序列化正确处理特殊字符
       const configData = JSON.stringify({ config: this.themeConfig });
       
-      const response = await fetch('/theme-manager/save', {
+      const response = await fetch('/api/theme/save', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -367,7 +395,7 @@ class ThemeManager {
     try {
       this.showAlert('正在重置主题配置...', 'info');
       
-      const response = await fetch('/theme-manager/reset', {
+      const response = await fetch('/api/theme/reset', {
         method: 'POST'
       });
       
@@ -469,11 +497,8 @@ function toggleTheme() {
   localStorage.setItem('theme', newTheme);
 }
 
-// 页面加载完成后初始化
+// 页面加载完成后初始化主题设置
 document.addEventListener('DOMContentLoaded', () => {
-  // 初始化主题管理器
-  window.themeManager = new ThemeManager();
-  
   // 恢复主题设置
   const savedTheme = localStorage.getItem('theme') || 'light';
   document.documentElement.setAttribute('data-theme', savedTheme);

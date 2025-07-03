@@ -76,6 +76,8 @@ app.use('/sitemap-updater', require('./tools/sitemapUpdater/routes'));
 app.use('/menu-editor', require('./tools/menuEditor/routes'));
 app.use('/page-manager', require('./tools/pageManager/routes'));
 app.use('/theme-manager', require('./tools/themeManager/routes'));
+// 主题管理器API路由
+app.use('/api/theme', require('./tools/themeManager/routes'));
 // CDN测试调试工具路由已删除
 app.use('/resource-manager', require('./tools/resourceManager/routes'));
 app.use('/api/resource-manager', require('./tools/resourceManager/routes'));

@@ -716,7 +716,7 @@ window.dependencyManager.loadResource('prism-theme-css')
     ]);
     
     // 等待依赖资源加载完成后再加载主题管理器
-        window.dependencyResourcesReady.then(async () => {
+    window.dependencyResourcesReady.then(async () => {
       console.log('所有依赖资源加载完成，开始加载主题管理器');
       
       // 动态加载主题管理器脚本
@@ -724,16 +724,45 @@ window.dependencyManager.loadResource('prism-theme-css')
       script.src = '/tools/themeManager/theme-manager.js';
       script.onload = async () => {
         console.log('主题管理器脚本加载完成');
-        // 初始化主题管理器
-        const themeManager = new ThemeManager();
-        await themeManager.init();
+        try {
+          // 创建全局主题管理器实例
+          window.themeManager = new ThemeManager();
+          await window.themeManager.init();
+          console.log('主题管理器初始化成功');
+        } catch (error) {
+          console.error('主题管理器初始化失败:', error);
+          // 显示错误提示
+          const alertDiv = document.createElement('div');
+          alertDiv.className = 'alert alert-danger';
+          alertDiv.innerHTML = `
+            <i class="bi bi-exclamation-triangle-fill me-2"></i>
+            主题管理器初始化失败: ${error.message}
+          `;
+          document.querySelector('.container').prepend(alertDiv);
+        }
       };
       script.onerror = (error) => {
         console.error('主题管理器脚本加载失败:', error);
+        // 显示错误提示
+        const alertDiv = document.createElement('div');
+        alertDiv.className = 'alert alert-danger';
+        alertDiv.innerHTML = `
+          <i class="bi bi-exclamation-triangle-fill me-2"></i>
+          主题管理器脚本加载失败，请刷新页面重试
+        `;
+        document.querySelector('.container').prepend(alertDiv);
       };
       document.head.appendChild(script);
     }).catch(error => {
       console.error('依赖资源加载失败:', error);
+      // 显示错误提示
+      const alertDiv = document.createElement('div');
+      alertDiv.className = 'alert alert-danger';
+      alertDiv.innerHTML = `
+        <i class="bi bi-exclamation-triangle-fill me-2"></i>
+        依赖资源加载失败: ${error.message}
+      `;
+      document.querySelector('.container').prepend(alertDiv);
     });
   </script>
 </body>
