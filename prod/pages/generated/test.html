@@ -192,7 +192,7 @@ $</div></p>
     G --&gt; K[完成]
     H --&gt; K
     I --&gt; K
-    J --&gt; K" data-diagram-id="mermaid-b7hok7fqd">
+    J --&gt; K" data-diagram-id="mermaid-30zbz9om6">
             <pre><code class="language-mermaid">graph TD
     A[开始] --&gt; B{检测文件类型}
     B --&gt;|XML| C[XML预览]
@@ -220,7 +220,7 @@ $</div></p>
     S--&gt;&gt;W: 返回模板内容
     W-&gt;&gt;W: 渲染页面内容
     W--&gt;&gt;B: 显示生成界面
-    B--&gt;&gt;U: 展示页面工具" data-diagram-id="mermaid-k4734muau">
+    B--&gt;&gt;U: 展示页面工具" data-diagram-id="mermaid-ikchpcnh6">
             <pre><code class="language-mermaid">sequenceDiagram
     participant U as 用户
     participant B as 浏览器
@@ -250,7 +250,7 @@ $</div></p>
     section 测试优化
     功能测试        :active, test, 2024-01-12, 2024-01-14
     性能优化        :optimize, 2024-01-14, 2024-01-16
-    文档完善        :docs, 2024-01-16, 2024-01-17" data-diagram-id="mermaid-t7azj8mrr">
+    文档完善        :docs, 2024-01-16, 2024-01-17" data-diagram-id="mermaid-t9j0f8ghr">
             <pre><code class="language-mermaid">gantt
     title 网站工具开发计划
     dateFormat  YYYY-MM-DD
@@ -270,14 +270,70 @@ $</div></p>
           </div><h2>特殊功能测试</h2>
 <h3>任务列表</h3>
 <ul>
-<li><label><input checked="" disabled="" type="checkbox"> 实现页面生成器</label></li>
-<li><label><input checked="" disabled="" type="checkbox"> 实现主题管理器</label></li>
-<li><label><input checked="" disabled="" type="checkbox"> 添加菜单编辑器</label></li>
-<li><label><input checked="" disabled="" type="checkbox"> 支持实时预览</label></li>
-<li><label><input checked="" disabled="" type="checkbox"> 支持模板系统</label></li>
-<li><label><input checked="" disabled="" type="checkbox"> 添加响应式设计</label></li>
-<li><label><input disabled="" type="checkbox"> 添加更多模板</label></li>
-<li><label><input disabled="" type="checkbox"> 支持更多主题</label></li>
+<li class="list-unstyled">
+              <div class="form-check">
+                <input class="form-check-input" type="checkbox" id="checkbox-7q06g0t8t" checked readonly onclick="return false;" style="pointer-events: none;">
+                <label class="form-check-label" for="checkbox-7q06g0t8t" style="pointer-events: none; cursor: default;">
+                  实现页面生成器
+                </label>
+              </div>
+            </li>
+<li class="list-unstyled">
+              <div class="form-check">
+                <input class="form-check-input" type="checkbox" id="checkbox-h5ntkquil" checked readonly onclick="return false;" style="pointer-events: none;">
+                <label class="form-check-label" for="checkbox-h5ntkquil" style="pointer-events: none; cursor: default;">
+                  实现主题管理器
+                </label>
+              </div>
+            </li>
+<li class="list-unstyled">
+              <div class="form-check">
+                <input class="form-check-input" type="checkbox" id="checkbox-67ktvxarj" checked readonly onclick="return false;" style="pointer-events: none;">
+                <label class="form-check-label" for="checkbox-67ktvxarj" style="pointer-events: none; cursor: default;">
+                  添加菜单编辑器
+                </label>
+              </div>
+            </li>
+<li class="list-unstyled">
+              <div class="form-check">
+                <input class="form-check-input" type="checkbox" id="checkbox-1lsg59ujq" checked readonly onclick="return false;" style="pointer-events: none;">
+                <label class="form-check-label" for="checkbox-1lsg59ujq" style="pointer-events: none; cursor: default;">
+                  支持实时预览
+                </label>
+              </div>
+            </li>
+<li class="list-unstyled">
+              <div class="form-check">
+                <input class="form-check-input" type="checkbox" id="checkbox-0lh8mgpu4" checked readonly onclick="return false;" style="pointer-events: none;">
+                <label class="form-check-label" for="checkbox-0lh8mgpu4" style="pointer-events: none; cursor: default;">
+                  支持模板系统
+                </label>
+              </div>
+            </li>
+<li class="list-unstyled">
+              <div class="form-check">
+                <input class="form-check-input" type="checkbox" id="checkbox-wog7txwoh" checked readonly onclick="return false;" style="pointer-events: none;">
+                <label class="form-check-label" for="checkbox-wog7txwoh" style="pointer-events: none; cursor: default;">
+                  添加响应式设计
+                </label>
+              </div>
+            </li>
+<li class="list-unstyled">
+              <div class="form-check">
+                <input class="form-check-input" type="checkbox" id="checkbox-51cb18y5u" readonly onclick="return false;" style="pointer-events: none;">
+                <label class="form-check-label" for="checkbox-51cb18y5u" style="pointer-events: none; cursor: default;">
+                  添加更多模板
+                </label>
+              </div>
+            </li>
+<li class="list-unstyled">
+              <div class="form-check">
+                <input class="form-check-input" type="checkbox" id="checkbox-9b6lgcqel" readonly onclick="return false;" style="pointer-events: none;">
+                <label class="form-check-label" for="checkbox-9b6lgcqel" style="pointer-events: none; cursor: default;">
+                  支持更多主题
+                </label>
+              </div>
+            </li>
 </ul>
 <h3>脚注</h3>
 <p>这是一个带脚注的文本<a href="%E8%BF%99%E6%98%AF%E8%84%9A%E6%B3%A8%E5%86%85%E5%AE%B9%E3%80%82">^1</a>。</p>
@@ -416,30 +472,28 @@ $</div></p>
                 return;
             }
             
-            // 移除现有的代码主题
-            const existingThemeLink = document.getElementById('prism-theme');
-            if (existingThemeLink) {
-                existingThemeLink.remove();
+            // 确定主题文件路径
+            let themePath;
+            if (codeTheme && codeTheme !== 'default') {
+                themePath = `assets/libs/prism/themes/prism-${codeTheme}.min.css`;
+            } else {
+                themePath = 'assets/libs/prism/themes/prism.min.css';
             }
             
-            // 通过依赖管理器动态加载新主题
-            const themeResourceKey = `prism-theme-${codeTheme}`;
-            
-            // 如果依赖管理器中没有这个主题资源，动态添加
-            if (!window.dependencyManager.resources[themeResourceKey]) {
-                window.dependencyManager.addResource(themeResourceKey, {
-                    type: 'css',
-                    path: `assets/libs/prism/themes/prism-${codeTheme}.min.css`
-                });
-            }
-            
-            // 加载主题
-            window.dependencyManager.loadResource(themeResourceKey)
-                .then(() => {
-                    console.log(`代码高亮主题 ${codeTheme} 加载成功`);
-                    // 重新高亮所有代码块
-                    if (window.Prism) {
-                        Prism.highlightAll();
+            // 使用依赖管理器切换主题资源
+            window.dependencyManager.switchThemeResource('prism-theme-css', themePath)
+                .then((success) => {
+                    if (success) {
+                        console.log(`代码高亮主题 ${codeTheme} 切换成功`);
+                        // 重新高亮所有代码块
+                        if (window.Prism) {
+                            // 使用requestAnimationFrame确保样式已应用
+                            requestAnimationFrame(() => {
+                                Prism.highlightAll();
+                            });
+                        }
+                    } else {
+                        console.warn(`代码高亮主题 ${codeTheme} 切换失败`);
                     }
                 })
                 .catch(error => {

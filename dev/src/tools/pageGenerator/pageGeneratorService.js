@@ -523,7 +523,7 @@ const pageGeneratorService = {
         return `<pre><code class="language-${validLanguage}">${escapedCode}</code></pre>`;
       };
       
-      // 自定义列表项渲染，支持任务列表（checkbox）
+      // 自定义列表项渲染，支持任务列表（checkbox）- 使用Bootstrap样式
       renderer.listitem = (text) => {
         // 检查是否为任务列表项
         const taskListMatch = text.match(/^\s*<input[^>]*type="checkbox"[^>]*>\s*(.*)$/);
@@ -532,8 +532,19 @@ const pageGeneratorService = {
           const checkboxMatch = text.match(/<input[^>]*type="checkbox"[^>]*>/)[0];
           const textContent = taskListMatch[1];
           
-          // 为checkbox添加适当的label包装以提高可访问性
-          return `<li><label>${checkboxMatch} ${textContent}</label></li>\n`;
+          // 检查是否为选中状态
+          const isChecked = checkboxMatch.includes('checked');
+          const checkboxId = 'checkbox-' + Math.random().toString(36).substr(2, 9);
+          
+          // 使用Bootstrap的form-check样式（只读显示，通过CSS和事件阻止交互）
+            return `<li class="list-unstyled">
+              <div class="form-check">
+                <input class="form-check-input" type="checkbox" id="${checkboxId}"${isChecked ? ' checked' : ''} readonly onclick="return false;" style="pointer-events: none;">
+                <label class="form-check-label" for="${checkboxId}" style="pointer-events: none; cursor: default;">
+                  ${textContent}
+                </label>
+              </div>
+            </li>\n`;
         }
         
         return `<li>${text}</li>\n`;
