@@ -144,31 +144,78 @@ window.dependencyManager.loadResource('bootstrap-icons')
         
         // 获取生成的文章列表
         async function fetchGeneratedArticles() {
-            // 这里应该实现实际的文章获取逻辑
-            // 目前返回示例数据
-            return [
-                {
-                    name: 'test',
-                    title: '测试123',
-                    description: 'Markdown语法测试文档，包含了各种Markdown语法和增强功能。',
-                    url: '../generated/test.html',
-                    date: '2024-01-01'
+            try {
+                // 获取当前语言
+                const currentLang = window.i18n ? window.i18n.getCurrentLanguage() : 'zh-CN';
+                
+                // 从articles-list.json文件获取文章列表
+                const articlesListResponse = await fetch('../../articles-list.json');
+                if (!articlesListResponse.ok) {
+                    console.warn('无法加载文章列表文件，使用默认列表');
+                    return [];
                 }
-            ];
+                
+                const articlesListData = await articlesListResponse.json();
+                const articlesList = articlesListData.articles || [];
+                
+                const articles = [];
+                
+                for (const articleInfo of articlesList) {
+                    try {
+                        // 尝试加载文章的多语言配置
+                        const response = await fetch(`../../locales/${currentLang}/generated/${articleInfo.name}.json`);
+                        if (response.ok) {
+                            const articleData = await response.json();
+                            const title = articleData.meta?.title || articleData.title || articleInfo.name;
+                            const description = articleData.meta?.description || '';
+                            
+                            articles.push({
+                                name: articleInfo.name,
+                                title: title,
+                                description: description,
+                                url: `../generated/${articleInfo.name}.html`,
+                                date: new Date(articleInfo.modified).toLocaleDateString(currentLang === 'zh-CN' ? 'zh-CN' : 'en-US')
+                            });
+                        }
+                    } catch (error) {
+                        console.warn(`无法加载文章 ${articleInfo.name} 的多语言配置:`, error);
+                        // 如果多语言配置加载失败，使用默认值
+                        articles.push({
+                            name: articleInfo.name,
+                            title: articleInfo.name,
+                            description: '',
+                            url: `../generated/${articleInfo.name}.html`,
+                            date: new Date(articleInfo.modified).toLocaleDateString(currentLang === 'zh-CN' ? 'zh-CN' : 'en-US')
+                        });
+                    }
+                }
+                
+                return articles;
+            } catch (error) {
+                console.error('获取文章列表失败:', error);
+                return [];
+            }
         }
+        
+
         
         // 创建文章卡片HTML
         function createArticleCard(article) {
+            const descriptionHtml = article.description ? `<p class="card-text mb-2">${escapeHtml(article.description)}</p>` : '';
+            // 获取多语言文本
+            const createdTimeText = window.i18n ? window.i18n.t('preview.created_time') : '创建时间：';
+            const readMoreText = window.i18n ? window.i18n.t('preview.read_more') : '阅读更多';
+            
             return `
                 <div class="card article-card">
                     <div class="card-body d-flex flex-column flex-md-row align-items-start">
                         <div class="flex-grow-1">
                             <h5 class="card-title mb-2">${escapeHtml(article.title)}</h5>
-                            <p class="card-text mb-2">${escapeHtml(article.description)}</p>
-                            <small class="text-muted">${escapeHtml(article.date)}</small>
+                            ${descriptionHtml}
+                            <small class="text-muted">${createdTimeText}${escapeHtml(article.date)}</small>
                         </div>
                         <div class="mt-3 mt-md-0 ms-md-3">
-                            <a href="${escapeHtml(article.url)}" class="btn btn-outline-primary btn-sm" data-i18n="preview.read_more">阅读更多</a>
+                            <a href="${escapeHtml(article.url)}" class="btn btn-outline-primary btn-sm">${readMoreText}</a>
                         </div>
                     </div>
                 </div>

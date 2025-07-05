@@ -31,6 +31,9 @@ const pageManagerService = {
       // 按修改时间排序，最新的在前面
       pages.sort((a, b) => b.modified - a.modified);
       
+      // 自动更新文章列表文件
+      await this.generateArticlesList(pages);
+      
       return pages;
     } catch (error) {
       console.error('获取页面列表失败:', error);
@@ -218,6 +221,43 @@ const pageManagerService = {
       }
     } catch (error) {
       console.error('清理预览文件失败:', error);
+    }
+  },
+
+  /**
+   * 生成文章列表JSON文件到prod目录
+   * @param {Array} pages - 页面列表
+   * @returns {Promise<void>}
+   */
+  generateArticlesList: async function(pages) {
+    try {
+      // 过滤出生成的页面（文章），排除预览页面
+      const articles = pages.filter(page => 
+        page.type === 'generated' && 
+        !page.name.startsWith('preview-')
+      );
+      
+      // 构建文章列表数据（简化结构，只保留基本信息）
+        const articlesList = articles.map(article => ({
+          name: article.name,
+          modified: article.modified.toISOString()
+        }));
+      
+      // 确保prod目录存在
+       const prodPath = path.resolve(__dirname, '../../../../prod');
+       await fs.ensureDir(prodPath);
+      
+      // 写入文章列表JSON文件
+      const articlesListPath = path.join(prodPath, 'articles-list.json');
+      await fs.writeJson(articlesListPath, {
+        lastUpdated: new Date().toISOString(),
+        count: articlesList.length,
+        articles: articlesList
+      }, { spaces: 2 });
+      
+      console.log(`文章列表已更新: ${articlesListPath}`);
+    } catch (error) {
+      console.error('生成文章列表失败:', error);
     }
   }
 };

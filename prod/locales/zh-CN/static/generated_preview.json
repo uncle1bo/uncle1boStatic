@@ -12,6 +12,7 @@
     "no_articles": "暂无文章",
     "no_articles_desc": "还没有通过页面生成器创建的文章。",
     "error": "加载文章时出现错误",
-    "read_more": "阅读更多"
+    "read_more": "阅读更多",
+    "created_time": "创建时间："
   }
 }

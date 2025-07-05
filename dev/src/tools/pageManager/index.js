@@ -36,3 +36,17 @@ const pageManager = {
 };
 
 module.exports = pageManager;
+
+// 如果直接运行此文件，则执行getAllPages来生成文章列表
+if (require.main === module) {
+  (async () => {
+    try {
+      console.log('正在获取页面列表并生成文章列表...');
+      const pages = await pageManager.getAllPages();
+      console.log(`成功获取 ${pages.length} 个页面`);
+    } catch (error) {
+      console.error('获取页面列表失败:', error);
+      process.exit(1);
+    }
+  })();
+}

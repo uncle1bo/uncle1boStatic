@@ -12,6 +12,7 @@
     "no_articles": "No Articles",
     "no_articles_desc": "No articles have been created through the page generator yet.",
     "error": "Error loading articles",
-    "read_more": "Read More"
+    "read_more": "Read More",
+    "created_time": "Created: "
   }
 }
