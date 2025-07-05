@@ -1,0 +1,65 @@
+/* Generated Preview Page Styles */
+
+/* Hide elements by default */
+.d-none {
+    display: none;
+}
+
+/* Article card styling */
+.article-card {
+    transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+    border: 1px solid #dee2e6;
+    border-radius: 0.5rem;
+    overflow: hidden;
+}
+
+.article-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.card-body {
+    padding: 1.5rem;
+}
+
+.card-title {
+    color: #495057;
+    font-weight: 600;
+    margin-bottom: 0.75rem;
+}
+
+.card-text {
+    color: #6c757d;
+    font-size: 0.9rem;
+    line-height: 1.5;
+}
+
+.btn-outline-primary {
+    border-width: 1px;
+    font-weight: 500;
+}
+
+/* No articles styling */
+.no-articles {
+    text-align: center;
+    padding: 3rem 1rem;
+    color: #6c757d;
+    display: block;
+}
+
+.no-articles.d-none {
+    display: none !important;
+}
+
+/* No articles icon styling */
+.no-articles-icon {
+    font-size: 3rem;
+    color: #dee2e6;
+    margin-bottom: 1rem;
+}
+
+/* Loading spinner styling */
+.loading-spinner {
+    text-align: center;
+    padding: 3rem 1rem;
+}
