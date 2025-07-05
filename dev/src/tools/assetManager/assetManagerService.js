@@ -17,7 +17,7 @@ class AssetManagerService extends EventEmitter {
   constructor() {
     super();
     this.prodPath = path.resolve(__dirname, '../../../../prod');
-    this.dependencyConfigPath = path.join(this.prodPath, 'js/dependency-manager.js');
+    this.dependencyConfigPath = path.join(__dirname, 'cdnConfig.js');
     this.historyFile = path.join(paths.temp, 'asset-manager-history.json');
     this.missingResourcesFile = path.join(paths.temp, 'missing-resources.json');
     this.missing404ResourcesFile = path.join(paths.temp, '404-resources.json');
@@ -378,7 +378,7 @@ class AssetManagerService extends EventEmitter {
       // 记录失败历史
       await this.recordDownloadHistory({
         resourceKey,
-        downloadUrl,
+        downloadUrl: downloadUrl || resource.primary,
         localPath: localFilePath,
         timestamp: new Date().toISOString(),
         success: false,
