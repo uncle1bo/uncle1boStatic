@@ -15,7 +15,11 @@ prod/
 │   ├── icons/          # 图标文件
 │   └── images/         # 图片资源
 ├── css/                # CSS样式
-│   └── styles.css      # 主样式文件
+│   ├── styles.css      # 主样式文件（全站通用）
+│   ├── index.css       # 首页私人样式
+│   └── pages/          # 页面专用CSS目录
+│       ├── generated/  # 生成页面的私人CSS
+│       └── static/     # 静态页面的私人CSS
 ├── js/                 # JavaScript文件
 │   ├── dependency-manager.js # 依赖资源管理器
 │   ├── i18n.js         # 国际化支持
@@ -106,6 +110,35 @@ prod/
 - **GitHub Pages**：推送 `prod/` 内容到 `gh-pages` 分支
 
 ### 自定义配置
+
+#### CSS文件使用指导
+
+**CSS文件结构说明：**
+
+1. **styles.css**：全站通用样式，包含主题变量、Bootstrap覆盖、Markdown样式等
+2. **index.css**：首页专用样式，用于index.html的特定样式需求
+3. **pages/generated/**：存放页面生成器生成页面的私人CSS文件
+4. **pages/static/**：存放手写静态页面的私人CSS文件
+
+**使用方法：**
+
+```html
+<!-- 在HTML页面中引用CSS文件 -->
+<!-- 全站通用样式（必须） -->
+<link rel="stylesheet" href="css/styles.css">
+
+<!-- 首页专用样式（仅index.html使用） -->
+<link rel="stylesheet" href="css/index.css">
+
+<!-- 页面专用样式（根据需要） -->
+<link rel="stylesheet" href="css/pages/static/about.css">
+<link rel="stylesheet" href="css/pages/generated/article.css">
+```
+
+**注意事项：**
+- styles.css由主题管理器自动生成，请勿直接修改
+- 页面专用CSS文件按需创建，命名与页面文件对应
+- 保持CSS文件结构清晰，避免样式冲突
 
 #### 主题配置
 

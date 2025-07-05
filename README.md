@@ -29,6 +29,11 @@ uncle1boStatic/
 │   │   └── static/     # 手写的静态页面
 │   ├── assets/         # 静态资源
 │   ├── css/            # CSS样式
+│   │   ├── styles.css  # 主样式文件（全站通用）
+│   │   ├── index.css   # 首页私人样式
+│   │   └── pages/      # 页面专用CSS目录
+│   │       ├── generated/  # 生成页面的私人CSS
+│   │       └── static/     # 静态页面的私人CSS
 │   ├── js/             # JavaScript文件
 │   ├── locales/        # 语言资源
 │   │   ├── en/         # 英文语言包
