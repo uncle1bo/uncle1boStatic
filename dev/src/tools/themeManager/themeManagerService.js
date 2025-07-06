@@ -41,12 +41,8 @@ class ThemeManagerService {
         '--md-h4-color': '#525252',
         '--md-h5-color': '#666666',
         '--md-h6-color': '#737373',
-        '--md-text-color': '#212529',
-        '--md-code-bg': '#f8f9fa',
-        '--md-code-text': '#e83e8c',
-        '--md-code-block-bg': '#f8f9fa',
-        '--md-code-block-text': '#000000',
-        '--md-code-block-border': '#dee2e6',
+        // 注意：--md-text-color, --md-code-bg, --md-code-text, --md-code-block-bg, --md-code-block-text, --md-code-block-border 已移除
+        // 这些配置项现由代码高亮主题统一管理
         '--md-blockquote-bg': '#f8f9fa',
         '--md-blockquote-text': '#6c757d',
         '--md-blockquote-border': '#dee2e6',
@@ -82,12 +78,8 @@ class ThemeManagerService {
         '--md-h4-color': '#ced4da',
         '--md-h5-color': '#adb5bd',
         '--md-h6-color': '#9ca3af',
-        '--md-text-color': '#ffffff',
-        '--md-code-bg': '#2d3748',
-        '--md-code-text': '#f687b3',
-        '--md-code-block-bg': '#2d3748',
-        '--md-code-block-text': '#ffffff',
-        '--md-code-block-border': '#4a5568',
+        // 注意：--md-text-color, --md-code-bg, --md-code-text, --md-code-block-bg, --md-code-block-text, --md-code-block-border 已移除
+        // 这些配置项现由代码高亮主题统一管理
         '--md-blockquote-bg': '#2d3748',
         '--md-blockquote-text': '#a0aec0',
         '--md-blockquote-border': '#4a5568',
@@ -199,12 +191,8 @@ class ThemeManagerService {
   --md-h4-color: ${lightTheme['--md-h4-color']};
   --md-h5-color: ${lightTheme['--md-h5-color']};
   --md-h6-color: ${lightTheme['--md-h6-color']};
-  --md-text-color: ${lightTheme['--md-text-color']};
-  --md-code-bg: ${lightTheme['--md-code-bg']};
-  --md-code-text: ${lightTheme['--md-code-text']};
-  --md-code-block-bg: ${lightTheme['--md-code-block-bg']};
-  --md-code-block-text: ${lightTheme['--md-code-block-text']};
-  --md-code-block-border: ${lightTheme['--md-code-block-border']};
+  /* 注意：--md-text-color, --md-code-bg, --md-code-text, --md-code-block-bg, --md-code-block-text, --md-code-block-border 已移除 */
+  /* 这些配置项现由代码高亮主题统一管理 */
   --md-blockquote-bg: ${lightTheme['--md-blockquote-bg']};
   --md-blockquote-text: ${lightTheme['--md-blockquote-text']};
   --md-blockquote-border: ${lightTheme['--md-blockquote-border']};
@@ -242,12 +230,8 @@ class ThemeManagerService {
   --md-h4-color: ${darkTheme['--md-h4-color']};
   --md-h5-color: ${darkTheme['--md-h5-color']};
   --md-h6-color: ${darkTheme['--md-h6-color']};
-  --md-text-color: ${darkTheme['--md-text-color']};
-  --md-code-bg: ${darkTheme['--md-code-bg']};
-  --md-code-text: ${darkTheme['--md-code-text']};
-  --md-code-block-bg: ${darkTheme['--md-code-block-bg']};
-  --md-code-block-text: ${darkTheme['--md-code-block-text']};
-  --md-code-block-border: ${darkTheme['--md-code-block-border']};
+  /* 注意：--md-text-color, --md-code-bg, --md-code-text, --md-code-block-bg, --md-code-block-text, --md-code-block-border 已移除 */
+  /* 这些配置项现由代码高亮主题统一管理 */
   --md-blockquote-bg: ${darkTheme['--md-blockquote-bg']};
   --md-blockquote-text: ${darkTheme['--md-blockquote-text']};
   --md-blockquote-border: ${darkTheme['--md-blockquote-border']};

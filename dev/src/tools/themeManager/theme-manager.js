@@ -66,7 +66,8 @@ class ThemeManager {
       'text', 'textSecondary', 'link', 'linkHover',
       'border', 'shadow', 'success', 'warning', 'danger', 'info',
       'mdH1', 'mdH2', 'mdH3', 'mdH4', 'mdH5', 'mdH6',
-      'mdText', 'mdCodeBg', 'mdCodeText', 'mdCodeBlockBg', 'mdCodeBlockText', 'mdCodeBlockBorder',
+      // 注意：mdText, mdCodeBg, mdCodeText, mdCodeBlockBg, mdCodeBlockText, mdCodeBlockBorder 已移除
+      // 这些配置项现由代码高亮主题统一管理
       'mdBlockquoteBg', 'mdBlockquoteText', 'mdBlockquoteBorder',
       'mdTableBorder', 'mdTableHeaderBg', 'mdTableHeaderText',
       'katexText', 'katexBg', 'mermaidBg', 'mermaidText', 'mermaidBorder'
