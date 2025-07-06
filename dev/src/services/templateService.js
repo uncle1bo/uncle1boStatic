@@ -132,7 +132,7 @@ const templateService = {
         </div>
 
         <!-- 返回顶部按钮 -->
-        <button type="button" class="btn btn-primary position-fixed bottom-0 end-0 m-3" id="backToTopBtn" style="display: none; z-index: 1050;" title="返回顶部" data-i18n-title="backToTop.title">
+        <button type="button" class="btn position-fixed bottom-0 end-0 m-3" id="backToTopBtn" style="display: none; z-index: 1050; background-color: var(--card-background-color); border: 1px solid var(--border-color); color: var(--text-color);" title="返回顶部" data-i18n-title="backToTop.title">
             <i class="bi bi-arrow-up"></i>
         </button>
 
