@@ -96,6 +96,9 @@ window.dependencyManager.loadResource('bootstrap-icons')
                 container.classList.remove('d-none');
                 container.style.display = 'flex';
                 
+                // 清空容器内容，避免重复添加
+                container.innerHTML = '';
+                
                 articles.forEach(article => {
                     const cardHtml = createArticleCard(article);
                     container.innerHTML += cardHtml;
@@ -195,6 +198,15 @@ window.dependencyManager.loadResource('bootstrap-icons')
             return div.innerHTML;
         }
         
+        // 监听语言切换事件
+        function setupLanguageChangeListener() {
+            // 监听语言切换事件
+            document.addEventListener('languageChanged', function(event) {
+                // 重新加载文章列表以更新多语言文本
+                loadGeneratedArticles();
+            });
+        }
+        
         // 等待CDN资源和DOM加载完成后初始化
         async function initializePage() {
             try {
@@ -212,6 +224,9 @@ window.dependencyManager.loadResource('bootstrap-icons')
                 
                 // 加载Bootstrap JS
                 await window.dependencyManager.loadResource('bootstrap-js');
+                
+                // 设置语言切换监听器
+                setupLanguageChangeListener();
                 
                 // 初始化多语言支持
                 if (typeof initI18n === 'function') {

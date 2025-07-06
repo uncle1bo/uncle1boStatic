@@ -213,6 +213,12 @@ async function loadLanguageResources(lang, pageName = null) {
         // 应用翻译
         applyTranslations(mergedTranslations);
         
+        // 触发语言切换事件，通知其他组件更新
+        const languageChangedEvent = new CustomEvent('languageChanged', {
+            detail: { language: lang, pageName: pageName }
+        });
+        document.dispatchEvent(languageChangedEvent);
+        
     } catch (error) {
         console.error('Error loading language resources:', error);
         // 如果加载失败，可以选择重定向到相应语言的页面
