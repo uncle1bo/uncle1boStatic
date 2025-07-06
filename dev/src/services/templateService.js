@@ -201,35 +201,63 @@ const templateService = {
                 // 获取当前主题模式
                 const currentTheme = document.documentElement.getAttribute('data-bs-theme') || 'light';
                 
-                // 从theme-config.json文件获取主题配置
-                fetch('${rootPath}theme-config.json')
-                    .then(response => response.json())
-                    .then(themeConfig => {
-                        if (themeConfig && themeConfig[currentTheme]) {
-                            const config = themeConfig[currentTheme];
-                            
-                            // 应用CSS变量
-                            const root = document.documentElement;
-                            Object.keys(config).forEach(key => {
-                                if (key !== 'codeTheme') {
-                                    // 将驼峰命名转换为CSS变量格式
-                                    const cssVar = '--' + key.replace(/([A-Z])/g, '-$1').toLowerCase();
-                                    root.style.setProperty(cssVar, config[key]);
-                                }
-                            });
-                            
-                            // 通过依赖管理器加载代码高亮主题
-                            if (config.codeTheme && window.dependencyManager) {
-                                loadCodeTheme(config.codeTheme);
-                            }
-                        }
-                    })
-                    .catch(error => {
-                        console.warn('加载主题配置失败:', error);
-                    });
+                // 尝试多个可能的主题配置文件路径
+                tryLoadThemeConfigFromPaths([
+                    '${rootPath}theme-config.json',
+                    './theme-config.json',
+                    '../theme-config.json',
+                    '../../theme-config.json',
+                    '../../../theme-config.json',
+                    '/theme-config.json'
+                ], currentTheme);
             } catch (error) {
                 console.warn('应用主题配置失败:', error);
             }
+        }
+        
+        // 递归尝试从多个路径加载主题配置
+        function tryLoadThemeConfigFromPaths(paths, currentTheme, index = 0) {
+            if (index >= paths.length) {
+                console.warn('所有主题配置路径都加载失败');
+                return;
+            }
+            
+            const currentPath = paths[index];
+            console.log('Loading theme config from: ' + currentPath);
+            
+            fetch(currentPath)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('HTTP ' + response.status);
+                    }
+                    return response.json();
+                })
+                .then(themeConfig => {
+                    console.log('Theme config loaded successfully from: ' + currentPath);
+                    if (themeConfig && themeConfig[currentTheme]) {
+                        const config = themeConfig[currentTheme];
+                        
+                        // 应用CSS变量
+                        const root = document.documentElement;
+                        Object.keys(config).forEach(key => {
+                            if (key !== 'codeTheme') {
+                                // 将驼峰命名转换为CSS变量格式
+                                const cssVar = '--' + key.replace(/([A-Z])/g, '-$1').toLowerCase();
+                                root.style.setProperty(cssVar, config[key]);
+                            }
+                        });
+                        
+                        // 通过依赖管理器加载代码高亮主题
+                        if (config.codeTheme && window.dependencyManager) {
+                            loadCodeTheme(config.codeTheme);
+                        }
+                    }
+                })
+                .catch(error => {
+                    console.warn('Failed to load from path: ' + currentPath, error.message);
+                    // 尝试下一个路径
+                    tryLoadThemeConfigFromPaths(paths, currentTheme, index + 1);
+                });
         }
         
         // 通过依赖管理器加载代码高亮主题
@@ -242,7 +270,7 @@ const templateService = {
             // 确定主题文件路径
             let themePath;
             if (codeTheme && codeTheme !== 'default') {
-                themePath = \`assets/libs/prism/themes/prism-\${codeTheme}.min.css\`;
+                themePath = 'assets/libs/prism/themes/prism-' + codeTheme + '.min.css';
             } else {
                 themePath = 'assets/libs/prism/themes/prism.min.css';
             }
@@ -251,7 +279,7 @@ const templateService = {
             window.dependencyManager.switchThemeResource('prism-theme-css', themePath)
                 .then((success) => {
                     if (success) {
-                        console.log(\`代码高亮主题 \${codeTheme} 切换成功\`);
+                        console.log('Code highlight theme switched successfully: ' + codeTheme);
                         // 重新高亮所有代码块
                         if (window.Prism) {
                             // 使用requestAnimationFrame确保样式已应用
@@ -260,11 +288,11 @@ const templateService = {
                             });
                         }
                     } else {
-                        console.warn(\`代码高亮主题 \${codeTheme} 切换失败\`);
+                        console.warn('Code highlight theme switch failed: ' + codeTheme);
                     }
                 })
                 .catch(error => {
-                    console.warn(\`代码高亮主题 \${codeTheme} 加载失败:\`, error);
+                    console.warn('Code highlight theme load failed: ' + codeTheme, error);
                 });
         }
         
@@ -287,19 +315,19 @@ const templateService = {
             // 为每个组件动态注册依赖资源
             commonComponents.forEach(component => {
                 // 特殊处理CSS组件，避免与CSS主题文件冲突
-                const resourceKey = component === 'css' ? 'prism-css-component' : \`prism-\${component}\`;
+                const resourceKey = component === 'css' ? 'prism-css-component' : 'prism-' + component;
                 
                 // 检查是否已经注册
                 if (!window.dependencyManager.resources[resourceKey]) {
                     window.dependencyManager.addResource(resourceKey, {
                         type: 'js',
-                        path: \`assets/libs/prism/components/prism-\${component}.min.js\`,
+                        path: 'assets/libs/prism/components/prism-' + component + '.min.js',
                         dependencies: component === 'clike' ? ['prism-core'] : ['prism-core', 'prism-clike']
                     });
                 }
             });
             
-            console.log('已注册Prism组件资源:', commonComponents.length, '个组件');
+            console.log('Prism component resources registered: ' + commonComponents.length + ' components');
         }
         
         // 拦截Prism autoloader的组件加载请求
@@ -310,7 +338,7 @@ const templateService = {
                 
                 // 重写loadLanguages方法
                 Prism.plugins.autoloader.loadLanguages = function(languages, success, error) {
-                    console.log('Prism autoloader请求加载语言:', languages);
+                    console.log('Prism autoloader requesting to load languages: ' + languages);
                     
                     // 确保languages是数组
                     const languageArray = Array.isArray(languages) ? languages : [languages];
@@ -318,25 +346,25 @@ const templateService = {
                     // 为每个语言动态注册依赖资源并加载
                     const loadPromises = languageArray.map(async (lang) => {
                         // 特殊处理CSS组件，避免与CSS主题文件冲突
-                        const resourceKey = lang === 'css' ? 'prism-css-component' : \`prism-\${lang}\`;
+                        const resourceKey = lang === 'css' ? 'prism-css-component' : 'prism-' + lang;
                         
                         // 动态注册资源（如果尚未注册）
                         if (!window.dependencyManager.resources[resourceKey]) {
                             window.dependencyManager.addResource(resourceKey, {
                                 type: 'js',
-                                path: \`assets/libs/prism/components/prism-\${lang}.min.js\`,
+                                path: 'assets/libs/prism/components/prism-' + lang + '.min.js',
                                 dependencies: lang === 'clike' ? ['prism-core'] : ['prism-core', 'prism-clike']
                             });
-                            console.log(\`动态注册Prism组件: \${resourceKey}\`);
+                            console.log('Dynamically registering Prism component: ' + resourceKey);
                         }
                         
                         try {
                             // 通过依赖管理器加载资源
                             await window.dependencyManager.loadResourceWithDependencies(resourceKey);
-                            console.log(\`Prism组件 \${lang} 加载成功\`);
+                            console.log('Prism component loaded successfully: ' + lang);
                             return { lang, success: true };
                         } catch (err) {
-                            console.warn(\`Prism组件 \${lang} 加载失败:\`, err);
+                            console.warn('Prism component loading failed: ' + lang, err);
                             // 如果依赖管理器加载失败，回退到原始方法
                             try {
                                 await new Promise((resolve, reject) => {
@@ -344,7 +372,7 @@ const templateService = {
                                 });
                                 return { lang, success: true };
                             } catch (fallbackErr) {
-                                console.error(\`Prism组件 \${lang} 回退加载也失败:\`, fallbackErr);
+                                console.error('Prism component fallback loading also failed: ' + lang, fallbackErr);
                                 return { lang, success: false, error: fallbackErr };
                             }
                         }
@@ -362,24 +390,24 @@ const templateService = {
                                 .map(result => result.status === 'fulfilled' ? result.value.lang : 'unknown');
                             
                             if (successfulLanguages.length > 0) {
-                                console.log('Prism组件加载成功:', successfulLanguages);
+                                console.log('Prism components loaded successfully:', successfulLanguages);
                                 if (success) success(successfulLanguages);
                             }
                             
                             if (failedLanguages.length > 0) {
-                                console.warn('Prism组件加载失败:', failedLanguages);
-                                if (error) error(new Error(\`Failed to load languages: \${failedLanguages.join(', ')}\`));
+                                console.warn('Prism component loading failed:', failedLanguages);
+                                if (error) error(new Error('Failed to load languages: ' + failedLanguages.join(', ')));
                             }
                         })
                         .catch(err => {
-                            console.error('Prism autoloader拦截器发生错误:', err);
+                            console.error('Prism autoloader interceptor error:', err);
                             if (error) error(err);
                         });
                 };
                 
-                console.log('已拦截Prism autoloader，启用依赖管理器加载');
+                console.log('Prism autoloader intercepted, dependency manager loading enabled');
             } else {
-                console.warn('Prism autoloader未找到，无法拦截');
+                console.warn('Prism autoloader not found, cannot intercept');
             }
         }
         
@@ -388,7 +416,7 @@ const templateService = {
             if (typeof Prism !== 'undefined' && Prism.plugins && Prism.plugins.toolbar) {
                 // 检查是否已经注册了copy-to-clipboard按钮
                 if (Prism.plugins.toolbar.getButton && Prism.plugins.toolbar.getButton('copy-to-clipboard')) {
-                    console.log('copy-to-clipboard按钮已存在，跳过重复注册');
+                    console.log('copy-to-clipboard button already exists, skipping duplicate registration');
                     return true;
                 }
             }
@@ -399,7 +427,7 @@ const templateService = {
         function initEnhancedMarkdown() {
             // 防止重复注册copy按钮
             if (preventDuplicateCopyButton()) {
-                console.log('检测到重复的copy按钮注册，已阻止');
+                console.log('Detected duplicate copy button registration, blocked');
             }
             
             // 注册Prism组件资源
@@ -425,7 +453,7 @@ const templateService = {
                         try {
                             element.innerHTML = katex.renderToString(formula, { displayMode: false });
                         } catch (e) {
-                            console.warn('KaTeX渲染失败:', e);
+                            console.warn('KaTeX rendering failed:', e);
                         }
                     }
                 });
@@ -437,7 +465,7 @@ const templateService = {
                         try {
                             element.innerHTML = katex.renderToString(formula, { displayMode: true });
                         } catch (e) {
-                            console.warn('KaTeX渲染失败:', e);
+                            console.warn('KaTeX rendering failed:', e);
                         }
                     }
                 });
@@ -459,10 +487,10 @@ const templateService = {
                             mermaid.render(id, code).then(function(result) {
                                 element.innerHTML = result.svg;
                             }).catch(function(error) {
-                                console.warn('Mermaid渲染失败:', error);
+                                console.warn('Mermaid rendering failed:', error);
                             });
                         } catch (e) {
-                            console.warn('Mermaid渲染失败:', e);
+                            console.warn('Mermaid rendering failed:', e);
                         }
                     }
                 });

@@ -191,44 +191,89 @@ window.ThemeManager = {
      */
     loadThemeConfig: function(theme) {
         try {
-            // 根据页面位置确定主题配置文件路径
+            // 更可靠的主题配置文件路径确定方法
             let configPath = './theme-config.json';
-            if (window.location.pathname.includes('/pages/static/') || window.location.pathname.includes('/pages/generated/')) {
+            
+            // 获取当前页面的路径深度
+            const pathname = window.location.pathname;
+            const pathSegments = pathname.split('/').filter(segment => segment !== '');
+            
+            // 根据路径深度确定相对路径
+            if (pathname.includes('/pages/static/') || pathname.includes('/pages/generated/')) {
                 configPath = '../../theme-config.json';
-            } else if (window.location.pathname.includes('/pages/')) {
+            } else if (pathname.includes('/pages/')) {
                 configPath = '../theme-config.json';
+            } else if (pathSegments.length > 1 && !pathname.endsWith('index.html') && !pathname.endsWith('/')) {
+                // 处理其他深层路径
+                const depth = pathSegments.length - 1;
+                configPath = '../'.repeat(depth) + 'theme-config.json';
             }
             
-            fetch(configPath)
-                .then(response => response.json())
-                .then(themeConfig => {
-                    if (themeConfig && themeConfig[theme]) {
-                        const config = themeConfig[theme];
-                        
-                        // 应用CSS变量
-                        const root = document.documentElement;
-                        
-                        // 遍历主题配置并应用CSS变量
-                        Object.keys(config).forEach(key => {
-                            if (key === 'codeTheme') {
-                                // 处理代码主题
-                                this.loadCodeTheme(config[key]);
-                            } else if (key.startsWith('--')) {
-                                // 直接应用CSS变量（属性名已经是CSS变量格式）
-                                root.style.setProperty(key, config[key]);
-                            }
-                        });
-                        
-                        // 处理代码高亮主题
-                        this.loadCodeTheme(config.codeTheme);
-                    }
-                })
-                .catch(error => {
-                    console.warn('加载主题配置失败:', error);
-                });
+            // 尝试多个可能的路径
+            const possiblePaths = [
+                configPath,
+                './theme-config.json',
+                '../theme-config.json',
+                '../../theme-config.json',
+                '/theme-config.json'  // 绝对路径作为最后尝试
+            ];
+            
+            this.tryLoadThemeConfig(possiblePaths, 0, theme);
         } catch (error) {
             console.warn('应用主题配置失败:', error);
         }
+    },
+    
+    /**
+     * 尝试从多个路径加载主题配置
+     * @param {Array} paths - 可能的路径数组
+     * @param {number} index - 当前尝试的路径索引
+     * @param {string} theme - 主题名称
+     */
+    tryLoadThemeConfig: function(paths, index, theme) {
+        if (index >= paths.length) {
+            console.warn('所有主题配置路径都加载失败');
+            return;
+        }
+        
+        const currentPath = paths[index];
+        
+        fetch(currentPath)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(themeConfig => {
+                if (themeConfig && themeConfig[theme]) {
+                    const config = themeConfig[theme];
+                    
+                    // 应用CSS变量
+                    const root = document.documentElement;
+                    
+                    // 遍历主题配置并应用CSS变量
+                    Object.keys(config).forEach(key => {
+                        if (key === 'codeTheme') {
+                            // 处理代码主题
+                            this.loadCodeTheme(config[key]);
+                        } else if (key.startsWith('--')) {
+                            // 直接应用CSS变量（属性名已经是CSS变量格式）
+                            root.style.setProperty(key, config[key]);
+                        }
+                    });
+                    
+                    // 处理代码高亮主题
+                    this.loadCodeTheme(config.codeTheme);
+                } else {
+                    console.warn(`主题配置中未找到主题: ${theme}`);
+                }
+            })
+            .catch(error => {
+                // 当前路径失败，尝试下一个
+                console.warn(`路径 ${currentPath} 加载失败:`, error.message);
+                this.tryLoadThemeConfig(paths, index + 1, theme);
+            });
     },
     
     /**
