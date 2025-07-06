@@ -21,7 +21,7 @@
   --shadow-color: rgba(0, 0, 0, 0.1);
   --success-color: #22c55e;
   --warning-color: #ffc107;
-  --danger-color: undefined;
+  --danger-color: #dc3545;
   --info-color: #17a2b8;
   --md-h1-color: #1a1a1a;
   --md-h2-color: #2d2d2d;
@@ -29,12 +29,8 @@
   --md-h4-color: #525252;
   --md-h5-color: #666666;
   --md-h6-color: #737373;
-  --md-text-color: #212529;
-  --md-code-bg: #f8f9fa;
-  --md-code-text: #e83e8c;
-  --md-code-block-bg: #f8f9fa;
-  --md-code-block-text: #000000;
-  --md-code-block-border: #dee2e6;
+  /* 注意：--md-text-color, --md-code-bg, --md-code-text, --md-code-block-bg, --md-code-block-text, --md-code-block-border 已移除 */
+  /* 这些配置项现由代码高亮主题统一管理 */
   --md-blockquote-bg: #f8f9fa;
   --md-blockquote-text: #6c757d;
   --md-blockquote-border: #dee2e6;
@@ -64,7 +60,7 @@
   --shadow-color: rgba(0, 0, 0, 0.3);
   --success-color: #16a34a;
   --warning-color: #fd7e14;
-  --danger-color: undefined;
+  --danger-color: #e74c3c;
   --info-color: #3498db;
   --md-h1-color: #ffffff;
   --md-h2-color: #e9ecef;
@@ -72,12 +68,8 @@
   --md-h4-color: #ced4da;
   --md-h5-color: #adb5bd;
   --md-h6-color: #9ca3af;
-  --md-text-color: #ffffff;
-  --md-code-bg: #2d3748;
-  --md-code-text: #f687b3;
-  --md-code-block-bg: #2d3748;
-  --md-code-block-text: #ffffff;
-  --md-code-block-border: #4a5568;
+  /* 注意：--md-text-color, --md-code-bg, --md-code-text, --md-code-block-bg, --md-code-block-text, --md-code-block-border 已移除 */
+  /* 这些配置项现由代码高亮主题统一管理 */
   --md-blockquote-bg: #2d3748;
   --md-blockquote-text: #a0aec0;
   --md-blockquote-border: #4a5568;

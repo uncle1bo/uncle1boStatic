@@ -62,15 +62,15 @@ class ThemeManager {
    */
   initColorPickers() {
     const colorKeys = [
-      'primary', 'secondary', 'background', 'surface', 'cardBackground',
-      'text', 'textSecondary', 'link', 'linkHover',
-      'border', 'shadow', 'success', 'warning', 'danger', 'info',
-      'mdH1', 'mdH2', 'mdH3', 'mdH4', 'mdH5', 'mdH6',
+      '--primary-color', '--secondary-color', '--background-color', '--surface-color', '--card-background-color',
+      '--text-color', '--text-secondary-color', '--link-color', '--link-hover-color',
+      '--border-color', '--shadow-color', '--success-color', '--warning-color', '--danger-color', '--info-color',
+      '--md-h1-color', '--md-h2-color', '--md-h3-color', '--md-h4-color', '--md-h5-color', '--md-h6-color',
       // 注意：mdText, mdCodeBg, mdCodeText, mdCodeBlockBg, mdCodeBlockText, mdCodeBlockBorder 已移除
       // 这些配置项现由代码高亮主题统一管理
-      'mdBlockquoteBg', 'mdBlockquoteText', 'mdBlockquoteBorder',
-      'mdTableBorder', 'mdTableHeaderBg', 'mdTableHeaderText',
-      'katexText', 'katexBg', 'mermaidBg', 'mermaidText', 'mermaidBorder'
+      '--md-blockquote-bg', '--md-blockquote-text', '--md-blockquote-border',
+      '--md-table-border', '--md-table-header-bg', '--md-table-header-text',
+      '--katex-text', '--katex-bg', '--mermaid-bg', '--mermaid-text', '--mermaid-border'
     ];
 
     colorKeys.forEach(key => {
@@ -433,47 +433,47 @@ console.log(result);`;
     
     if (preview) {
       // 应用主题样式到预览区域
-      preview.style.backgroundColor = currentTheme.surface;
-      preview.style.color = currentTheme.text;
-      preview.style.borderColor = currentTheme.border;
+      preview.style.backgroundColor = currentTheme['--surface-color'];
+      preview.style.color = currentTheme['--text-color'];
+      preview.style.borderColor = currentTheme['--border-color'];
       
       // 更新预览区域内的按钮样式
       const buttons = preview.querySelectorAll('.btn');
       buttons.forEach(btn => {
         if (btn.classList.contains('btn-primary')) {
-          btn.style.backgroundColor = currentTheme.primary;
-          btn.style.borderColor = currentTheme.primary;
+          btn.style.backgroundColor = currentTheme['--primary-color'];
+          btn.style.borderColor = currentTheme['--primary-color'];
         } else if (btn.classList.contains('btn-success')) {
-          btn.style.backgroundColor = currentTheme.success;
-          btn.style.borderColor = currentTheme.success;
+          btn.style.backgroundColor = currentTheme['--success-color'];
+          btn.style.borderColor = currentTheme['--success-color'];
         } else if (btn.classList.contains('btn-warning')) {
-          btn.style.backgroundColor = currentTheme.warning;
-          btn.style.borderColor = currentTheme.warning;
+          btn.style.backgroundColor = currentTheme['--warning-color'];
+          btn.style.borderColor = currentTheme['--warning-color'];
         } else if (btn.classList.contains('btn-danger')) {
-          btn.style.backgroundColor = currentTheme.danger;
-          btn.style.borderColor = currentTheme.danger;
+          btn.style.backgroundColor = currentTheme['--danger-color'];
+          btn.style.borderColor = currentTheme['--danger-color'];
         }
       });
       
       // 更新链接颜色
       const links = preview.querySelectorAll('a');
       links.forEach(link => {
-        link.style.color = currentTheme.link;
+        link.style.color = currentTheme['--link-color'];
       });
       
       // 更新提示框颜色
       const alerts = preview.querySelectorAll('.alert');
       alerts.forEach(alert => {
         if (alert.classList.contains('alert-info')) {
-          alert.style.backgroundColor = currentTheme.info;
-          alert.style.borderColor = currentTheme.info;
+          alert.style.backgroundColor = currentTheme['--info-color'];
+          alert.style.borderColor = currentTheme['--info-color'];
         }
       });
       
       // 更新次要文字颜色
       const mutedTexts = preview.querySelectorAll('.text-muted');
       mutedTexts.forEach(text => {
-        text.style.color = currentTheme.textSecondary;
+        text.style.color = currentTheme['--text-secondary-color'];
       });
     }
     
