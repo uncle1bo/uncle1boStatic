@@ -67,6 +67,6 @@
     "--mermaid-text": "#ffffff",
     "--mermaid-border": "#4a5568",
     "codeTheme": "okaidia",
-    "--card-background-color": "#6ab988"
+    "--card-background-color": "#28375a"
   }
 }

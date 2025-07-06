@@ -11,7 +11,7 @@
     border: 1px solid var(--border-color);
     border-radius: 0.5rem;
     overflow: hidden;
-    background-color: var(--card-background-color);
+    background-color: var(--card-background-color) !important;
 }
 
 .article-card:hover {
