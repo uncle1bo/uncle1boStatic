@@ -62,7 +62,7 @@ class ThemeManager {
    */
   initColorPickers() {
     const colorKeys = [
-      'primary', 'secondary', 'background', 'surface',
+      'primary', 'secondary', 'background', 'surface', 'cardBackground',
       'text', 'textSecondary', 'link', 'linkHover',
       'border', 'shadow', 'success', 'warning', 'danger', 'info',
       'mdH1', 'mdH2', 'mdH3', 'mdH4', 'mdH5', 'mdH6',
@@ -286,9 +286,6 @@ console.log(result);`;
     } catch (error) {
       console.warn('重新高亮代码失败:', error);
     }
-    
-    // 触发主题变化事件，通知其他组件更新
-    this.dispatchThemeChangedEvent();
   }
 
   /**
@@ -333,7 +330,10 @@ console.log(result);`;
     if (codeThemeSelect) {
       codeThemeSelect.addEventListener('change', async (e) => {
         const theme = e.target.value;
-        this.updateThemeValue('codeTheme', theme);
+        // 直接更新配置，避免触发不必要的预览更新
+        if (this.themeConfig && this.themeConfig[this.currentMode]) {
+          this.themeConfig[this.currentMode]['codeTheme'] = theme;
+        }
         await this.updateCodeTheme(theme);
       });
     }
@@ -387,23 +387,21 @@ console.log(result);`;
     
     // 更新所有颜色输入框
     Object.keys(currentTheme).forEach(key => {
+      if (key === 'codeTheme') return;
+      
       const colorInput = document.getElementById(`${key}-color`);
       const textInput = document.getElementById(`${key}-text`);
       const preview = document.getElementById(`${key}-preview`);
-      const selectInput = document.getElementById(`${key}-select`);
       
       if (colorInput && textInput && preview) {
         const color = currentTheme[key];
         colorInput.value = color;
         textInput.value = color;
         preview.style.backgroundColor = color;
-      } else if (selectInput) {
-        // 处理选择器类型的配置
-        selectInput.value = currentTheme[key] || 'default';
       }
     });
     
-    // 特别处理代码主题选择器
+    // 更新代码主题选择器
     const codeThemeSelect = document.getElementById('codeTheme-select');
     if (codeThemeSelect && currentTheme.codeTheme) {
       codeThemeSelect.value = currentTheme.codeTheme;
@@ -420,6 +418,7 @@ console.log(result);`;
     if (this.themeConfig && this.themeConfig[this.currentMode]) {
       this.themeConfig[this.currentMode][key] = value;
     }
+    this.updatePreview();
   }
 
   /**

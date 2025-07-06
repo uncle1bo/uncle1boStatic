@@ -8,14 +8,15 @@
 /* Article card styling */
 .article-card {
     transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
-    border: 1px solid #dee2e6;
+    border: 1px solid var(--border-color);
     border-radius: 0.5rem;
     overflow: hidden;
+    background-color: var(--card-background-color);
 }
 
 .article-card:hover {
     transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    box-shadow: 0 4px 8px var(--shadow-color);
 }
 
 .card-body {
@@ -23,13 +24,13 @@
 }
 
 .card-title {
-    color: #495057;
+    color: var(--text-color);
     font-weight: 600;
     margin-bottom: 0.75rem;
 }
 
 .card-text {
-    color: #6c757d;
+    color: var(--text-secondary-color);
     font-size: 0.9rem;
     line-height: 1.5;
 }
@@ -43,7 +44,7 @@
 .no-articles {
     text-align: center;
     padding: 3rem 1rem;
-    color: #6c757d;
+    color: var(--text-secondary-color);
     display: block;
 }
 
@@ -54,7 +55,7 @@
 /* No articles icon styling */
 .no-articles-icon {
     font-size: 3rem;
-    color: #dee2e6;
+    color: var(--border-color);
     margin-bottom: 1rem;
 }
 
@@ -62,4 +63,5 @@
 .loading-spinner {
     text-align: center;
     padding: 3rem 1rem;
+    color: var(--text-secondary-color);
 }

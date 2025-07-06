@@ -37,7 +37,8 @@
     "mermaidBg": "#ffffff",
     "mermaidText": "#212529",
     "mermaidBorder": "#dee2e6",
-    "codeTheme": "default"
+    "codeTheme": "default",
+    "cardBackground": "#e3f2fd"
   },
   "dark": {
     "primary": "#5a7cff",
@@ -77,6 +78,7 @@
     "mermaidBg": "#1e1e1e",
     "mermaidText": "#ffffff",
     "mermaidBorder": "#4a5568",
-    "codeTheme": "okaidia"
+    "codeTheme": "okaidia",
+    "cardBackground": "#6ab988"
   }
 }

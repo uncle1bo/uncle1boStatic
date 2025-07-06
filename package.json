@@ -11,7 +11,8 @@
     "ejs": "^3.1.10",
     "express": "^5.1.0",
     "fs-extra": "^11.3.0",
-    "http-server": "^14.1.1"
+    "http-server": "^14.1.1",
+    "node-fetch": "^3.3.2"
   },
   "author": "Uncle1bo",
   "license": "MIT"

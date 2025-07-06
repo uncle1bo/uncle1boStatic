@@ -207,11 +207,15 @@ window.ThemeManager = {
                         
                         // 应用CSS变量
                         const root = document.documentElement;
+                        
+                        // 遍历主题配置并应用CSS变量
                         Object.keys(config).forEach(key => {
-                            if (key !== 'codeTheme') {
-                                // 将驼峰命名转换为CSS变量格式
-                                const cssVar = '--' + key.replace(/([A-Z])/g, '-$1').toLowerCase();
-                                root.style.setProperty(cssVar, config[key]);
+                            if (key === 'codeTheme') {
+                                // 处理代码主题
+                                this.loadCodeTheme(config[key]);
+                            } else if (key.startsWith('--')) {
+                                // 直接应用CSS变量（属性名已经是CSS变量格式）
+                                root.style.setProperty(key, config[key]);
                             }
                         });
                         
