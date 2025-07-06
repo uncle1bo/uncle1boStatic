@@ -97,9 +97,10 @@ prod/
 **CSS文件结构说明：**
 
 1. **styles.css**：全站通用样式，包含主题变量、Bootstrap覆盖、Markdown样式等
-2. **index.css**：首页专用样式，用于index.html的特定样式需求
-3. **pages/generated/**：存放页面生成器生成页面的私人CSS文件
-4. **pages/static/**：存放手写静态页面的私人CSS文件
+2. **common.css**：非自动化主题配置样式，用于头尾模板的固定样式配置
+3. **index.css**：首页专用样式，用于index.html的特定样式需求
+4. **pages/generated/**：存放页面生成器生成页面的私人CSS文件
+5. **pages/static/**：存放手写静态页面的私人CSS文件
 
 **使用方法：**
 
@@ -107,6 +108,8 @@ prod/
 <!-- 在HTML页面中引用CSS文件 -->
 <!-- 全站通用样式（必须） -->
 <link rel="stylesheet" href="css/styles.css">
+<!-- 非自动化主题配置样式（头尾模板自动引用） -->
+<link rel="stylesheet" href="css/common.css">
 
 <!-- 首页专用样式（仅index.html使用） -->
 <link rel="stylesheet" href="css/index.css">
@@ -118,6 +121,7 @@ prod/
 
 **注意事项：**
 - styles.css由主题管理器自动生成，请勿直接修改
+- common.css用于非自动化主题配置，可手动编辑，已在header.html模板中自动引用
 - 页面专用CSS文件按需创建，命名与页面文件对应
 - 保持CSS文件结构清晰，避免样式冲突
 

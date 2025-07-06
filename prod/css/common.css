@@ -1,0 +1,19 @@
+/* Common CSS - 非自动化主题配置样式 */
+/* 此文件用于存放不由主题管理器自动生成的通用样式配置 */
+
+/* Logo样式配置 */
+.navbar-brand {
+    color: var(--bs-primary) !important;
+}
+
+.navbar-brand:hover,
+.navbar-brand:focus {
+    color: var(--bs-primary) !important;
+    opacity: 0.8;
+}
+
+/* 确保在不同主题下logo颜色保持一致 */
+[data-bs-theme="dark"] .navbar-brand,
+[data-bs-theme="light"] .navbar-brand {
+    color: var(--bs-primary) !important;
+}
