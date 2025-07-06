@@ -196,6 +196,22 @@ const templateService = {
                         Prism.highlightAll();
                     }
                 });
+                
+                // 监听语言切换事件，重新初始化增强功能
+                document.addEventListener('languageChanged', function(event) {
+                    console.log('Language changed, reinitializing enhanced features...');
+                    
+                    // 使用Promise确保DOM更新完成后再执行
+                    Promise.resolve().then(() => {
+                        try {
+                            // 重新初始化增强Markdown渲染
+                            initEnhancedMarkdown();
+                            console.log('Enhanced features reinitialized successfully');
+                        } catch (error) {
+                            console.warn('Error reinitializing enhanced features:', error);
+                        }
+                    });
+                });
             } catch (error) {
                 console.error('页面初始化失败:', error);
                 // 即使依赖资源加载失败，也要尝试初始化基本功能
