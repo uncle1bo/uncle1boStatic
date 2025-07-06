@@ -6,18 +6,25 @@
 dev/
 ├── src/
 │   ├── config/           # 配置文件
+│   │   ├── pathConfig.js        # 路径配置
+│   │   └── redirectConfig.js    # 重定向配置
+│   ├── data/             # 数据文件
+│   │   ├── pages/               # 页面数据
+│   │   └── theme-config.json    # 主题配置
 │   ├── services/         # 通用服务模块
 │   │   ├── fileService.js       # 文件操作服务
 │   │   ├── i18nService.js       # 多语言服务
 │   │   ├── markdownService.js   # Markdown处理服务
 │   │   └── templateService.js   # 模板处理服务
 │   ├── tools/            # 工具集合
+│   │   ├── assetManager/        # 资源管理器工具
 │   │   ├── sitemapUpdater/      # 站点地图更新工具
 │   │   ├── menuEditor/          # 目录编辑器工具
 │   │   ├── pageGenerator/       # 页面生成器工具
 │   │   ├── pageManager/         # 页面管理器工具
 │   │   └── themeManager/        # 主题管理器工具
 │   ├── public/           # 静态资源
+│   ├── routes/           # 路由配置
 │   ├── uploads/          # 上传文件临时目录
 │   ├── views/            # 视图模板
 │   └── index.js          # 应用入口
@@ -31,11 +38,12 @@ dev/
 
 ### 已实现功能列表
 
-- **站点地图更新器**：自动扫描网站页面并生成符合标准的sitemap.xml文件
-- **目录编辑器**：采用模块化架构的菜单编辑器，支持智能状态检测和拖拽排序
-- **页面生成器**：支持Markdown编写，自动转换为HTML页面，生成的页面存储在`prod/pages/generated/`目录
-- **页面管理器**：管理网站页面，支持生成页面（可编辑）和静态页面（不可编辑）的统一管理
-- **主题管理器**：可视化主题配色编辑，支持明亮/暗夜模式切换
+- **资源管理器**：集成外部资源管理和重定向功能，支持缺失资源检测、一键批量下载、完整性校验、版本管理和自动重定向规则管理 - [详细文档](src/tools/assetManager/README.md)
+- **站点地图更新器**：自动扫描网站页面并生成符合标准的sitemap.xml文件 - [详细文档](src/tools/sitemapUpdater/README.md)
+- **目录编辑器**：采用模块化架构的菜单编辑器，支持智能状态检测和拖拽排序 - [详细文档](src/tools/menuEditor/README.md)
+- **页面生成器**：支持Markdown编写，自动转换为HTML页面，生成的页面存储在`prod/pages/generated/`目录 - [详细文档](src/tools/pageGenerator/README.md)
+- **页面管理器**：管理网站页面，支持生成页面（可编辑）和静态页面（不可编辑）的统一管理 - [详细文档](src/tools/pageManager/README.md)
+- **主题管理器**：可视化主题配色编辑，支持明亮/暗夜模式切换 - [详细文档](src/tools/themeManager/README.md)
 
 ## 3. 用户使用方法
 
@@ -117,6 +125,20 @@ templateService.processTemplate(template, variables);
 ### 工具模块路由
 
 ```javascript
+// 资源管理器
+GET /api/asset-manager/scan
+POST /api/asset-manager/download
+POST /api/asset-manager/download-batch
+GET /api/asset-manager/history
+GET /api/asset-manager/404-resources
+DELETE /api/asset-manager/404-resources
+GET /api/asset-manager/redirect-rules
+POST /api/asset-manager/redirect-rules
+DELETE /api/asset-manager/redirect-rules/:ruleName
+POST /api/asset-manager/test-redirect
+GET /api/asset-manager/redirect-stats
+PUT /api/asset-manager/redirect-config
+
 // 站点地图更新器
 POST /api/sitemap/update
 
@@ -246,3 +268,31 @@ if (modal) {
 - **静态页面**：手写HTML页面，存储在 `prod/pages/static/` 目录，只支持查看，不可通过工具编辑
 - **多语言文件**：按页面类型分别存储在 `prod/locales/{lang}/generated/` 和 `prod/locales/{lang}/static/` 目录
 - **可编辑性判断**：基于页面文件位置自动判断，无需额外配置
+
+### 资源管理规范
+
+⚠️ **重要警告**：资源配置必须使用正确的格式
+
+#### 资源配置格式要求
+- **必须使用 `path` 属性**：资源配置对象必须包含 `path` 属性来指定本地文件路径
+- **禁止使用 `localPath` 属性**：`localPath` 属性已完全废弃，不再支持
+- **路径相对性**：所有路径都相对于项目根目录
+
+#### 正确的配置示例
+```javascript
+'bootstrap-css': {
+  type: 'css',
+  path: 'assets/libs/bootstrap/bootstrap.min.css',  // 必须使用 path 属性
+  integrity: null
+}
+```
+
+#### 资源管理注意事项
+- 下载前先备份重要文件
+- 定期清理下载历史和404记录
+- 谨慎使用强制下载选项
+- 重定向规则测试后再启用
+- 注意CDN资源的版本兼容性
+- 下载大文件时请保持网络连接稳定
+- 重定向规则的正则表达式需要谨慎编写，避免冲突
+- 自定义重定向规则会覆盖内置规则，请注意优先级

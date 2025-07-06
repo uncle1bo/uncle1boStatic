@@ -7,47 +7,16 @@
 ```
 uncle1boStatic/
 ├── README.md           # 项目说明文档
-├── docs/               # 文档目录
+├── docs/               # 多语言文档目录
 ├── dev/                # 开发环境目录
-│   ├── src/            # 源代码目录
-│   │   ├── tools/      # 开发工具集
-│   │   │   ├── sitemapUpdater/   # 站点地图更新器
-│   │   │   ├── menuEditor/       # 目录编辑器
-│   │   │   ├── pageGenerator/    # 页面生成器
-│   │   │   ├── pageManager/      # 页面管理器
-│   │   │   └── themeManager/     # 主题管理器
-│   │   ├── config/     # 配置文件
-│   │   ├── services/   # 通用服务模块
-│   │   ├── public/     # 静态资源
-│   │   ├── views/      # 视图模板
-│   │   └── index.js    # 应用入口
-│   └── package.json    # 开发工具依赖配置
 ├── prod/               # 生产环境目录
-│   ├── index.html      # 主页面
-│   ├── pages/          # 用户页面
-│   │   ├── generated/  # 页面生成器生成的页面
-│   │   └── static/     # 手写的静态页面
-│   ├── assets/         # 静态资源
-│   ├── css/            # CSS样式
-│   │   ├── styles.css  # 主样式文件（全站通用）
-│   │   ├── index.css   # 首页私人样式
-│   │   └── pages/      # 页面专用CSS目录
-│   │       ├── generated/  # 生成页面的私人CSS
-│   │       └── static/     # 静态页面的私人CSS
-│   ├── js/             # JavaScript文件
-│   ├── locales/        # 语言资源
-│   │   ├── en/         # 英文语言包
-│   │   │   ├── generated/  # 生成页面的语言文件
-│   │   │   └── static/     # 静态页面的语言文件
-│   │   └── zh-CN/      # 中文语言包
-│   │       ├── generated/  # 生成页面的语言文件
-│   │       └── static/     # 静态页面的语言文件
-│   ├── templates/      # 页面模板
-│   ├── robots.txt      # 搜索引擎配置
-│   ├── sitemap.xml     # 网站地图
-│   └── 404.html        # 404错误页面
+├── prod_docs/          # 生产环境文档目录
 ├── server.js           # 生产环境服务器
+├── LICENSE             # 许可协议
+├── .gitignore          # Git忽略文件
+├── locall.bat          # 生产服务器启动脚本
 └── package.json        # 项目依赖配置
+
 ```
 
 ## 2. 功能介绍
@@ -70,79 +39,25 @@ uncle1boStatic/
 
 ### 快速开始
 
-1. **环境要求**：Node.js 16.x+、npm
-2. **安装依赖**：
-   ```bash
-   npm install && cd dev && npm install
-   ```
-3. **启动服务**：
-   - 开发工具：`cd dev && npm run dev` → http://localhost:3000
-   - 生产预览：`npm start` → http://localhost:8000
+1. [开启生产环境服务器，请访问生产环境README文档](prod_docs/README.md)
+2. [开启开发环境服务器，请访问开发环境README文档](dev/README.md)
 
 ### 开发工具使用
 
-详细使用方法请参考各工具的README文档：
+详细使用方法请参考各环境的README文档：
 
-- [开发工具集总览](dev/README.md)
-- [生产环境文档](prod_docs/README.md)
-- [站点地图更新器](dev/src/tools/sitemapUpdater/README.md)
-- [目录编辑器](dev/src/tools/menuEditor/README.md)
-- [页面生成器](dev/src/tools/pageGenerator/README.md)
-- [页面管理器](dev/src/tools/pageManager/README.md)
-- [主题管理器](dev/src/tools/themeManager/README.md)
+1. [开发目录文档](dev/README.md)
+2. [生产环境文档](prod_docs/README.md)
 
 ### Cloudflare Pages 部署
 
-1. **准备部署**
-   - 确保 `prod/` 目录包含所有必要文件
-   - 检查 `_headers` 和 `_redirects` 配置
-
-2. **连接仓库**
-   - 登录 [Cloudflare Pages](https://pages.cloudflare.com/)
-   - 连接你的 GitHub/GitLab 仓库
-
-3. **配置构建**
-   - 构建命令：留空（静态文件）
-   - 构建输出目录：`prod`
-   - 根目录：`/`
-
-4. **环境变量**（可选）
-   ```
-   NODE_VERSION=16
-   ```
-
-5. **自定义域名**
-   - 在 Cloudflare Pages 控制台添加自定义域名
-   - 配置 DNS 记录指向 Cloudflare
-
-6. **部署完成**
-   - 每次推送到主分支自动部署
-   - 支持预览分支部署
+1. [具体操作请参考生产环境文档](prod_docs/README.md)
 
 ## 4. API使用方法
 
 ### 开发工具API
 
-所有开发工具通过Express.js提供RESTful API接口，基础URL：`http://localhost:3000`
-
+所有开发工具通过Express.js提供RESTful API接口
 详细API文档请参考：
-- [开发工具集API文档](dev/README.md#4-api使用方法)
-- 各工具的README文档中的API部分
-
-### 核心API概览
-
-```javascript
-// 依赖资源管理
-window.dependencyManager.loadResource('bootstrap-css');
-
-// 国际化
-i18n.t('key');
-i18n.setLanguage('en');
-
-// 开发工具API示例
-POST /api/sitemap/update    // 更新站点地图
-GET /api/menu               // 获取菜单结构
-POST /api/pages/create      // 创建页面
-GET /api/pages              // 获取页面列表
-POST /api/theme/save        // 保存主题
-```
+1. [开发工具集API文档](dev/README.md#4-api使用方法)
+2. 各工具的README文档中的API部分

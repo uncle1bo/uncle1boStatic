@@ -48,16 +48,6 @@ prod/
 
 这是项目的生产环境目录，包含所有部署到静态托管平台的文件。所有文件都经过优化，适合直接部署。
 
-### 核心功能
-
-- **静态网站**：完整的静态网站文件，支持直接部署
-- **多语言支持**：内置中英文国际化支持
-- **响应式设计**：Bootstrap 5框架，适配所有设备
-- **依赖资源管理**：智能依赖资源加载和故障转移
-- **模板系统**：支持页面模板和动态内容替换
-- **SEO优化**：包含sitemap.xml、robots.txt等SEO文件
-- **Cloudflare优化**：针对Cloudflare Pages优化的配置
-
 ### 已实现功能列表
 
 - **主页面**：响应式主页，支持多语言切换
@@ -80,16 +70,7 @@ prod/
    npm start
    # 访问 http://localhost:8000
    ```
-
-2. **静态服务器**：
-   ```bash
-   # 使用任何静态服务器
-   cd prod
-   python -m http.server 8000
-   # 或使用 serve
-   npx serve .
-   ```
-
+  
 ### 部署到托管平台
 
 #### Cloudflare Pages
@@ -142,15 +123,7 @@ prod/
 
 #### 主题配置
 
-编辑 `theme-config.json`：
-
-```json
-{
-  "primaryColor": "#007bff",
-  "secondaryColor": "#6c757d",
-  "darkMode": true,
-  "fontFamily": "system-ui"
-}
+禁止直接编辑 `theme-config.json`，它由dev的主题管理器自动生成，详情参考主题管理器文档,具体路径请在[dev环境文档中寻找](dev/README.md)
 ```
 
 #### 语言配置
@@ -168,58 +141,71 @@ locales/
 
 ## 4. API使用方法
 
-### 前端JavaScript API
-
-#### 依赖资源管理器
-
-**核心功能：**
-
-```javascript
-// 加载依赖资源
-// 依赖管理器会自动初始化，无需手动创建实例
-
-// 基础用法
-await window.dependencyManager.loadResource('bootstrap-css');
-
-// 加载带依赖的资源
-await dependencyManager.loadResourceWithDependencies('dataTables-bootstrap');
-
-// 批量加载
-await dependencyManager.loadMultipleResourcesWithDependencies([
-  'bootstrap-css',
-  'bootstrap-js',
-  'jquery'
-]);
-
-// 获取依赖信息
-const info = dependencyManager.getDependencyInfo('dataTables-bootstrap');
-```
-
 #### 国际化API
 
 ```javascript
-// 获取翻译
-const text = i18n.t('welcome.title');
+// 初始化多语言支持
+await window.i18n.initI18n();
+// 或指定页面名称
+await window.i18n.initI18n('about');
 
 // 切换语言
-i18n.setLanguage('en');
+await window.i18n.setLanguage('en');
 
 // 获取当前语言
-const currentLang = i18n.getCurrentLanguage();
+const currentLang = window.i18n.getCurrentLanguage();
 
-// 检测浏览器语言
-const detectedLang = i18n.detectLanguage();
+// 获取翻译文本
+const text = window.i18n.getTranslation('meta.title', '默认值');
+
+// 加载语言资源
+await window.i18n.loadLanguageResources('en', 'about');
+
+// 应用翻译到页面
+window.i18n.applyTranslations(translations);
+
+// 合并翻译对象
+const merged = window.i18n.mergeTranslations(common, page);
 ```
 
-#### 模板处理器
+#### 模板处理器API
 
 ```javascript
-// 处理模板变量
-const processor = new TemplateProcessor();
-const result = processor.process(template, variables);
+// 加载所有模板（头部和底部）
+await window.templateProcessor.loadTemplates();
 
-// 加载模板文件
-const template = await processor.loadTemplate('header.html');
+// 获取当前页面信息
+const pageInfo = window.templateProcessor.getPageInfo();
+// 返回对象包含：pageName, isRoot, rootPath, cssPath, jsPath, homeActive等
+```
+
+#### 依赖管理器API
+
+```javascript
+// 加载单个资源
+await window.dependencyManager.loadResource('bootstrap-css');
+
+// 批量加载资源
+await window.dependencyManager.loadResources(['bootstrap-css', 'bootstrap-js']);
+
+// 检查资源是否已加载
+const isLoaded = window.dependencyManager.isResourceLoaded('jquery');
+
+// 获取所有可用资源
+const resources = window.dependencyManager.getAvailableResources();
+
+// 添加新资源配置
+window.dependencyManager.addResource('custom-lib', {
+  type: 'js',
+  path: 'assets/libs/custom/custom.min.js',
+  dependencies: ['jquery']
+});
+
+// 切换主题资源
+await window.dependencyManager.switchThemeResource('prism-theme-css', 'assets/libs/prism/themes/prism-dark.min.css');
+
+// 等待DOM元素准备就绪
+const element = await window.dependencyManager.waitForElement('.my-element');
 ```
 
 ### 配置文件API
@@ -235,21 +221,6 @@ fetch('/theme-config.json')
     applyTheme(config);
   });
 ```
-
-#### 站点地图
-
-```xml
-<!-- sitemap.xml 自动生成 -->
-<?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <url>
-    <loc>https://example.com/</loc>
-    <lastmod>2024-01-01</lastmod>
-    <priority>1.0</priority>
-  </url>
-</urlset>
-```
-
 ## 5. 注意事项
 
 ### 部署注意事项
@@ -282,7 +253,7 @@ fetch('/theme-config.json')
 
 ### 常见问题
 
-1. **资源加载失败**：检查CDN配置和网络连接
+1. **资源加载失败**：检查本地文件是否存在，
 2. **语言切换异常**：验证语言文件路径和格式
 3. **样式显示问题**：检查CSS文件加载和主题配置
 4. **404错误**：确认页面路径和重定向配置
