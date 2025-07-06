@@ -131,6 +131,11 @@ const templateService = {
             </div>
         </div>
 
+        <!-- 返回顶部按钮 -->
+        <button type="button" class="btn btn-primary position-fixed bottom-0 end-0 m-3" id="backToTopBtn" style="display: none; z-index: 1050;" title="返回顶部" data-i18n-title="backToTop.title">
+            <i class="bi bi-arrow-up"></i>
+        </button>
+
         <!-- 底部模板 -->
         <div id="footer-template"></div>
     </div>
@@ -180,6 +185,9 @@ const templateService = {
                 
                 // 初始化增强Markdown渲染
                 initEnhancedMarkdown();
+                
+                // 初始化返回顶部按钮
+                initBackToTopButton();
                 
                 // 监听主题变化事件
                 document.addEventListener('themeChanged', function(event) {
@@ -495,6 +503,29 @@ const templateService = {
                     }
                 });
             }
+        }
+        
+        // 初始化返回顶部按钮
+        function initBackToTopButton() {
+            const backToTopBtn = document.getElementById('backToTopBtn');
+            if (!backToTopBtn) return;
+            
+            // 监听滚动事件
+            window.addEventListener('scroll', function() {
+                if (window.pageYOffset > 300) {
+                    backToTopBtn.style.display = 'block';
+                } else {
+                    backToTopBtn.style.display = 'none';
+                }
+            });
+            
+            // 点击返回顶部
+            backToTopBtn.addEventListener('click', function() {
+                window.scrollTo({
+                    top: 0,
+                    behavior: 'smooth'
+                });
+            });
         }
     </script>
 </body>
