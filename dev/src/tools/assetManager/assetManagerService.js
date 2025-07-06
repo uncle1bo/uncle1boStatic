@@ -16,7 +16,7 @@ const redirectConfig = require('../../config/redirectConfig');
 class AssetManagerService extends EventEmitter {
   constructor() {
     super();
-    this.prodPath = path.resolve(__dirname, '../../../../prod');
+    this.prodPath = paths.prod;
     this.dependencyConfigPath = path.join(__dirname, 'cdnConfig.js');
     this.historyFile = path.join(paths.temp, 'asset-manager-history.json');
     this.missingResourcesFile = path.join(paths.temp, 'missing-resources.json');
