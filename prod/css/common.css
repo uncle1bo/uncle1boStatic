@@ -17,3 +17,22 @@
 [data-bs-theme="light"] .navbar-brand {
     color: var(--bs-primary) !important;
 }
+
+/* 表面色应用配置 */
+/* 页脚背景 - 使用表面色区别于主背景 */
+.footer {
+    background-color: var(--surface-color) !important;
+}
+
+/* 页眉背景 - 使用表面色 */
+.navbar {
+    background-color: var(--surface-color) !important;
+    border-bottom: 1px solid var(--border-color);
+}
+
+/* 下拉菜单背景 - 使用表面色 */
+.dropdown-menu {
+    background-color: var(--surface-color) !important;
+    border: 1px solid var(--border-color);
+    box-shadow: 0 4px 8px var(--shadow-color);
+}
