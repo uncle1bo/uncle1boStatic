@@ -56,38 +56,212 @@
     <!-- 多语言支持 -->
     <script src="js/i18n.js"></script>
     <script>
-        // 代码雨效果
+        // 增强代码雨效果 - 包含溅射和鼠标交互
         function createCodeRain() {
             const codeRain = document.getElementById('codeRain');
             const chars = 'uncle1bo0./*-#@!$%^&'.split('');
-            const columns = Math.floor(window.innerWidth / 20);
+            const raindrops = [];
+            const splashes = [];
+            let animationId;
+            let mouseX = 0;
+            let mouseY = 0;
             
-            function createChar() {
-                const char = document.createElement('div');
-                char.className = 'code-char';
-                char.textContent = chars[Math.floor(Math.random() * chars.length)];
-                char.style.left = Math.random() * 100 + '%';
-                char.style.animationDuration = (Math.random() * 3 + 2) + 's';
-                char.style.animationDelay = Math.random() * 2 + 's';
-                char.style.fontSize = (Math.random() * 6 + 12) + 'px';
+            // 鼠标位置跟踪
+            document.addEventListener('mousemove', (e) => {
+                mouseX = e.clientX;
+                mouseY = e.clientY;
+            });
+            
+            // 雨滴类
+            class Raindrop {
+                constructor() {
+                    this.element = document.createElement('div');
+                    this.element.className = 'code-char simple-char';
+                    this.element.textContent = chars[Math.floor(Math.random() * chars.length)];
+                    
+                    // 物理属性
+                    this.x = Math.random() * window.innerWidth;
+                    this.y = -20;
+                    this.vx = 0; // 水平速度
+                    this.vy = Math.random() * 2 + 2; // 垂直速度
+                    this.size = Math.random() * 6 + 12;
+                    this.life = 2.0;
+                    this.fadeSpeed = Math.random() * 0.005 + 0.002;
+                    this.redTime = 0; // 变红时间
+                    this.bounced = false;
+                    
+                    // 样式设置
+                    this.element.style.fontSize = this.size + 'px';
+                    this.element.style.left = this.x + 'px';
+                    this.element.style.top = this.y + 'px';
+                    this.element.style.opacity = this.life;
+                    this.element.style.color = '#00ff00';
+                    
+                    codeRain.appendChild(this.element);
+                }
                 
-                codeRain.appendChild(char);
-                
-                // 移除动画完成的字符
-                setTimeout(() => {
-                    if (char.parentNode) {
-                        char.parentNode.removeChild(char);
+                update() {
+                    // 鼠标排斥力
+                    const dx = this.x - mouseX;
+                    const dy = this.y - mouseY;
+                    const distance = Math.sqrt(dx * dx + dy * dy);
+                    const mouseRadius = 100;
+                    
+                    if (distance < mouseRadius && distance > 0) {
+                        const force = (mouseRadius - distance) / mouseRadius;
+                        const forceX = (dx / distance) * 3 * force;
+                        const forceY = (dy / distance) * 3 * force;
+                        
+                        // 简单的位置偏移，不影响恒定下落速度
+                        this.x += forceX;
+                        this.y += forceY;
+                        
+                        // 鼠标交互时变红
+                        this.redTime = Math.max(this.redTime, 30);
                     }
-                }, parseFloat(char.style.animationDuration) * 1000 + parseFloat(char.style.animationDelay) * 1000);
+                    
+                    // 恒定速度下落
+                    this.y += this.vy;
+                    
+                    // 边界检测
+                    if (this.x <= 0) {
+                        this.x = 0;
+                        this.redTime = Math.max(this.redTime, 15);
+                    }
+                    if (this.x >= window.innerWidth) {
+                        this.x = window.innerWidth;
+                        this.redTime = Math.max(this.redTime, 15);
+                    }
+                    
+                    // 落地溅射效果
+                    if (this.y >= window.innerHeight - 50 && !this.bounced) {
+                        this.createSplash();
+                        this.bounced = true;
+                        this.redTime = Math.max(this.redTime, 15);
+                    }
+                    
+                    // 生命周期管理
+                    if (this.bounced) {
+                        this.life -= 0.01;
+                    } else {
+                        this.life -= this.fadeSpeed;
+                    }
+                    
+                    // 红色时间递减
+                    if (this.redTime > 0) {
+                        this.redTime--;
+                    }
+                    
+                    // 更新DOM元素
+                    this.element.style.left = this.x + 'px';
+                    this.element.style.top = this.y + 'px';
+                    this.element.style.opacity = this.life;
+                    this.element.style.color = this.redTime > 0 ? '#ff4444' : '#00ff00';
+                }
+                
+                createSplash() {
+                    // 创建溅射粒子
+                    for (let i = 0; i < 3; i++) {
+                        splashes.push(new SplashParticle(this.x, this.y));
+                    }
+                }
+                
+                destroy() {
+                    if (this.element.parentNode) {
+                        this.element.parentNode.removeChild(this.element);
+                    }
+                }
             }
             
-            // 初始创建字符
-            for (let i = 0; i < columns; i++) {
-                setTimeout(createChar, Math.random() * 1000);
+            // 溅射粒子类
+            class SplashParticle {
+                constructor(x, y) {
+                    this.element = document.createElement('div');
+                    this.element.className = 'code-char simple-char';
+                    this.element.textContent = chars[Math.floor(Math.random() * chars.length)];
+                    
+                    this.x = x;
+                    this.y = y;
+                    this.vx = (Math.random() - 0.5) * 8;
+                    this.vy = -Math.random() * 4 - 2;
+                    this.size = Math.random() * 4 + 8;
+                    this.life = 0.8;
+                    this.fadeSpeed = 0.02;
+                    
+                    this.element.style.fontSize = this.size + 'px';
+                    this.element.style.left = this.x + 'px';
+                    this.element.style.top = this.y + 'px';
+                    this.element.style.opacity = this.life;
+                    this.element.style.color = '#ffaa00';
+                    
+                    codeRain.appendChild(this.element);
+                }
+                
+                update() {
+                    this.vy += 0.2; // 重力
+                    this.x += this.vx;
+                    this.y += this.vy;
+                    this.life -= this.fadeSpeed;
+                    
+                    this.element.style.left = this.x + 'px';
+                    this.element.style.top = this.y + 'px';
+                    this.element.style.opacity = this.life;
+                }
+                
+                destroy() {
+                    if (this.element.parentNode) {
+                        this.element.parentNode.removeChild(this.element);
+                    }
+                }
             }
             
-            // 持续创建新字符
-            setInterval(createChar, 200);
+            // 增强动画循环
+            function animate() {
+                // 创建新雨滴
+                if (Math.random() < 0.3 && raindrops.length < 160) {
+                    raindrops.push(new Raindrop());
+                }
+                
+                // 更新所有雨滴
+                for (let i = raindrops.length - 1; i >= 0; i--) {
+                    const raindrop = raindrops[i];
+                    raindrop.update();
+                    
+                    // 清理超出屏幕或生命周期结束的雨滴
+                    if (raindrop.life <= 0 || raindrop.y > window.innerHeight + 100) {
+                        raindrop.destroy();
+                        raindrops.splice(i, 1);
+                    }
+                }
+                
+                // 更新所有溅射粒子
+                for (let i = splashes.length - 1; i >= 0; i--) {
+                    const splash = splashes[i];
+                    splash.update();
+                    
+                    // 清理生命周期结束的溅射粒子
+                    if (splash.life <= 0 || splash.y > window.innerHeight + 50) {
+                        splash.destroy();
+                        splashes.splice(i, 1);
+                    }
+                }
+                
+                animationId = requestAnimationFrame(animate);
+            }
+            
+            // 启动动画
+            animate();
+            
+            // 窗口大小改变时重新计算
+            window.addEventListener('resize', () => {
+                // 清理超出边界的雨滴
+                for (let i = raindrops.length - 1; i >= 0; i--) {
+                    if (raindrops[i].x > window.innerWidth) {
+                        raindrops[i].destroy();
+                        raindrops.splice(i, 1);
+                    }
+                }
+            });
         }
         
         // 初始化多语言支持和代码雨效果
