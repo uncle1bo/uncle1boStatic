@@ -51,10 +51,3 @@
   border-color: var(--card-background-color) !important;
   opacity: 0.9;
 }
-
-/* 首页响应式样式 */
-@media (max-width: 768px) {
-  .hero-section {
-    /* 移动端首页样式调整 */
-  }
-}
