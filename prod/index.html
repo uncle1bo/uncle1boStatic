@@ -19,6 +19,9 @@
     <script src="js/template-processor.js"></script>
 </head>
 <body>
+    <!-- 代码雨幕背景 -->
+    <div class="code-rain" id="codeRain"></div>
+    
     <div class="container-fluid">
         <!-- 头部模板 -->
         <div id="header-template"></div>
@@ -53,10 +56,46 @@
     <!-- 多语言支持 -->
     <script src="js/i18n.js"></script>
     <script>
-        // 初始化多语言支持
+        // 代码雨效果
+        function createCodeRain() {
+            const codeRain = document.getElementById('codeRain');
+            const chars = 'uncle1bo0./*-#@!$%^&'.split('');
+            const columns = Math.floor(window.innerWidth / 20);
+            
+            function createChar() {
+                const char = document.createElement('div');
+                char.className = 'code-char';
+                char.textContent = chars[Math.floor(Math.random() * chars.length)];
+                char.style.left = Math.random() * 100 + '%';
+                char.style.animationDuration = (Math.random() * 3 + 2) + 's';
+                char.style.animationDelay = Math.random() * 2 + 's';
+                char.style.fontSize = (Math.random() * 6 + 12) + 'px';
+                
+                codeRain.appendChild(char);
+                
+                // 移除动画完成的字符
+                setTimeout(() => {
+                    if (char.parentNode) {
+                        char.parentNode.removeChild(char);
+                    }
+                }, parseFloat(char.style.animationDuration) * 1000 + parseFloat(char.style.animationDelay) * 1000);
+            }
+            
+            // 初始创建字符
+            for (let i = 0; i < columns; i++) {
+                setTimeout(createChar, Math.random() * 1000);
+            }
+            
+            // 持续创建新字符
+            setInterval(createChar, 200);
+        }
+        
+        // 初始化多语言支持和代码雨效果
         document.addEventListener('DOMContentLoaded', function() {
             // 初始化多语言支持，指定当前页面名称
             initI18n('index');
+            // 启动代码雨效果
+            createCodeRain();
         });
     </script>
 </body>
