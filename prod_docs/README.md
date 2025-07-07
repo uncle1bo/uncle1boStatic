@@ -51,6 +51,7 @@ prod/
 ### 已实现功能列表
 
 - **主页面**：响应式主页，支持多语言切换
+- **代码雨效果**：首页动态代码雨背景特效，增强视觉体验
 - **页面系统**：支持生成页面和静态页面
 - **资源管理**：优化的CSS、JS和静态资源
 - **国际化**：完整的多语言支持系统
@@ -98,7 +99,7 @@ prod/
 
 1. **styles.css**：全站通用样式，包含主题变量、Bootstrap覆盖、Markdown样式等
 2. **common.css**：非自动化主题配置样式，用于头尾模板的固定样式配置
-3. **index.css**：首页专用样式，用于index.html的特定样式需求
+3. **index.css**：首页专用样式，用于index.html的特定样式需求，包含代码雨效果样式
 4. **pages/generated/**：存放页面生成器生成页面的私人CSS文件
 5. **pages/static/**：存放手写静态页面的私人CSS文件
 
@@ -124,6 +125,34 @@ prod/
 - common.css用于非自动化主题配置，可手动编辑，已在header.html模板中自动引用
 - 页面专用CSS文件按需创建，命名与页面文件对应
 - 保持CSS文件结构清晰，避免样式冲突
+
+#### 代码雨效果配置
+
+**功能说明：**
+首页包含动态代码雨背景特效，使用纯CSS和JavaScript实现，无需外部依赖。
+
+**技术实现：**
+- CSS动画：使用`@keyframes char-fall`定义字符下落动画
+- JavaScript控制：动态创建和管理代码字符元素
+- 性能优化：自动清理完成动画的DOM元素
+- 响应式设计：根据屏幕宽度自适应字符列数
+
+**自定义配置：**
+```javascript
+// 在index.html中可调整以下参数
+const chars = 'uncle1bo0./*-#@!$%^&'.split(''); // 字符集
+const columns = Math.floor(window.innerWidth / 20); // 列数计算
+setInterval(createChar, 200); // 字符生成频率（毫秒）
+```
+
+**样式自定义：**
+```css
+.code-char {
+  color: rgba(25, 135, 84, 0.8); /* 字符颜色 */
+  font-size: 14px; /* 基础字体大小 */
+  text-shadow: 0 0 5px rgba(25, 135, 84, 0.5); /* 发光效果 */
+}
+```
 
 **表面色应用规范：**
 - 表面色主要用于页脚背景（区别于主背景）
