@@ -5,7 +5,8 @@
   },
 
   "hero": {
-    "title": "Under Development",
-    "subtitle": "Website is under development, stay tuned"
+    "title": "Welcome to <span class='brand-name'>Uncle1Bo</span>'s World!",
+    "subtitle": "Explore Technology, Share Knowledge, Record Growth",
+    "button": "View Articles List"
   }
 }

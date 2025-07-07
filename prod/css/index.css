@@ -5,17 +5,51 @@
 
 /* 首页Hero区域样式 */
 .hero-section {
-  /* 预留给首页特定样式 */
+  padding: 4rem 0;
+  margin-bottom: 2rem;
+}
+
+.hero-title {
+  font-weight: 700;
+  margin-bottom: 1.5rem;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  color: var(--md-h1-color);
+}
+
+.hero-title .brand-name {
+  color: var(--primary-color);
 }
 
 /* 首页特定的卡片样式 */
 .index-card {
-  /* 预留给首页特定卡片样式 */
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  border: none;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.index-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
 }
 
 /* 首页特定的按钮样式 */
 .index-btn {
-  /* 预留给首页特定按钮样式 */
+  padding: 0.75rem 2rem;
+  font-weight: 600;
+  border-radius: 50px;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+  background-color: var(--card-background-color) !important;
+  border-color: var(--card-background-color) !important;
+  color: var(--text-color) !important;
+}
+
+.index-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+  background-color: var(--card-background-color) !important;
+  border-color: var(--card-background-color) !important;
+  opacity: 0.9;
 }
 
 /* 首页响应式样式 */

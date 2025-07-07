@@ -5,7 +5,8 @@
   },
 
   "hero": {
-    "title": "待开发",
-    "subtitle": "网站正在开发中，敬请期待"
+    "title": "欢迎来到 <span class='brand-name'>Uncle1Bo</span> 的世界！",
+    "subtitle": "探索技术、分享知识、记录成长",
+    "button": "查看文章列表"
   }
 }
