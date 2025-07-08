@@ -129,30 +129,35 @@ prod/
 #### 代码雨效果配置
 
 **功能说明：**
-首页包含动态代码雨背景特效，使用纯CSS和JavaScript实现，无需外部依赖。
+首页包含简洁的代码雨背景特效，使用纯JavaScript实现，无需外部依赖。
 
 **技术实现：**
-- 物理引擎：使用JavaScript实现重力、摩擦力和弹性碰撞
-- 鼠标交互：实时检测鼠标位置，雨滴会被鼠标排斥
-- 边界检测：雨滴碰到屏幕边缘和页脚顶端会反弹
-- 生命周期管理：雨滴碰撞后逐渐消失，自动清理DOM元素
+- 雨滴下落：恒定速度下落，透明度固定不变
+- 鼠标交互：左键点击或移动端按住屏幕时，所有雨滴和溅射动画速度减慢
+- 落地检测：雨滴落到页脚顶部时生成简单循环溅射动画
 - 性能优化：使用requestAnimationFrame优化动画性能
-- 响应式设计：支持窗口大小变化，动态调整边界
+- 响应式设计：支持窗口大小变化，动态调整页脚位置
 
 **自定义配置：**
 ```javascript
 // 在index.html中可调整以下参数
-const chars = 'uncle1bo0./*-#@!$%^&'.split(''); // 字符集
-const columns = Math.floor(window.innerWidth / 20); // 列数计算
-setInterval(createChar, 200); // 字符生成频率（毫秒）
+const chars = 'uncle1bo0!@#$%^&*/-=+'.split(''); // 字符集
+this.baseSpeed = Math.floor(Math.random() * 4) + 6; // 速度范围6-9
+this.size = Math.floor(Math.random() * 3) + 12; // 大小范围12-14
+this.opacity = (Math.floor(Math.random() * 5) + 4) / 10; // 透明度0.4-0.8
+const splashHeight = this.size * this.baseSpeed * 1; // 溅射高度修正系数
 ```
 
 **样式自定义：**
 ```css
 .code-char {
-  color: rgba(25, 135, 84, 0.8); /* 字符颜色 */
-  font-size: 14px; /* 基础字体大小 */
-  text-shadow: 0 0 5px rgba(25, 135, 84, 0.5); /* 发光效果 */
+  color: #00ff00; /* 雨滴颜色 */
+  font-family: 'Courier New', monospace; /* 字体 */
+}
+
+.splash-effect {
+  color: #00ff00; /* 溅射效果颜色 */
+  font-family: 'Courier New', monospace; /* 字体 */
 }
 ```
 
