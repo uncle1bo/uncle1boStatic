@@ -70,7 +70,8 @@ class ThemeManager {
       // 这些配置项现由代码高亮主题统一管理
       '--md-blockquote-bg', '--md-blockquote-text', '--md-blockquote-border',
       '--md-table-border', '--md-table-header-bg', '--md-table-header-text',
-      '--katex-text', '--katex-bg', '--mermaid-bg', '--mermaid-text', '--mermaid-border'
+      '--katex-text', '--katex-bg', '--mermaid-bg', '--mermaid-text', '--mermaid-border',
+      '--code-rain-color'
     ];
 
     colorKeys.forEach(key => {

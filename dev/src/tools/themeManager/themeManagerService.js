@@ -54,6 +54,7 @@ class ThemeManagerService {
         '--mermaid-bg': '#ffffff',
         '--mermaid-text': '#212529',
         '--mermaid-border': '#dee2e6',
+        '--code-rain-color': '#5a7cff',
         'codeTheme': 'default'
       },
       dark: {
@@ -91,6 +92,7 @@ class ThemeManagerService {
         '--mermaid-bg': '#1e1e1e',
         '--mermaid-text': '#ffffff',
         '--mermaid-border': '#4a5568',
+        '--code-rain-color': '#22c55e',
         'codeTheme': 'dark'
       }
     };
@@ -204,6 +206,7 @@ class ThemeManagerService {
   --mermaid-bg: ${lightTheme['--mermaid-bg']};
   --mermaid-text: ${lightTheme['--mermaid-text']};
   --mermaid-border: ${lightTheme['--mermaid-border']};
+  --code-rain-color: ${lightTheme['--code-rain-color']};
 
 }
 
@@ -230,8 +233,6 @@ class ThemeManagerService {
   --md-h4-color: ${darkTheme['--md-h4-color']};
   --md-h5-color: ${darkTheme['--md-h5-color']};
   --md-h6-color: ${darkTheme['--md-h6-color']};
-  /* 注意：--md-text-color, --md-code-bg, --md-code-text, --md-code-block-bg, --md-code-block-text, --md-code-block-border 已移除 */
-  /* 这些配置项现由代码高亮主题统一管理 */
   --md-blockquote-bg: ${darkTheme['--md-blockquote-bg']};
   --md-blockquote-text: ${darkTheme['--md-blockquote-text']};
   --md-blockquote-border: ${darkTheme['--md-blockquote-border']};
@@ -243,6 +244,7 @@ class ThemeManagerService {
   --mermaid-bg: ${darkTheme['--mermaid-bg']};
   --mermaid-text: ${darkTheme['--mermaid-text']};
   --mermaid-border: ${darkTheme['--mermaid-border']};
+  --code-rain-color: ${darkTheme['--code-rain-color']};
 
 }
 

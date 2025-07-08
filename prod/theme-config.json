@@ -31,6 +31,7 @@
     "--mermaid-bg": "#ffffff",
     "--mermaid-text": "#212529",
     "--mermaid-border": "#dee2e6",
+    "--code-rain-color": "#5a7cff",
     "codeTheme": "default",
     "--card-background-color": "#e3f2fd"
   },
@@ -66,6 +67,7 @@
     "--mermaid-bg": "#1e1e1e",
     "--mermaid-text": "#ffffff",
     "--mermaid-border": "#4a5568",
+    "--code-rain-color": "#22c55e",
     "codeTheme": "okaidia",
     "--card-background-color": "#28375a"
   }

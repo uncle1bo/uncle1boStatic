@@ -125,7 +125,7 @@
                     this.element.style.left = this.x + 'px';
                     this.element.style.top = this.y + 'px';
                     this.element.style.opacity = this.opacity;
-                    this.element.style.color = '#00ff00';
+                    // 颜色由CSS变量控制，不在这里设置
                     
                     codeRain.appendChild(this.element);
                 }
@@ -184,7 +184,7 @@
                     this.element.style.left = this.x + 'px';
                     this.element.style.fontSize = '12px';
                      this.baseAnimationSpeed = 1; // 基础动画速度
-                    this.element.style.color = '#00ff00';
+                    // 颜色由CSS变量控制，不在这里设置
                     this.element.style.opacity = '0.8';
                     
                     codeRain.appendChild(this.element);
@@ -219,7 +219,7 @@
             // 动画循环
             function animate() {
                 // 创建新雨滴
-                if (Math.random() < 0.3 && raindrops.length < 100) {
+                if (Math.random() < 0.5 && raindrops.length < 1000) {
                     raindrops.push(new Raindrop());
                 }
                 

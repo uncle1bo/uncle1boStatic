@@ -42,6 +42,7 @@
   --mermaid-bg: #ffffff;
   --mermaid-text: #212529;
   --mermaid-border: #dee2e6;
+  --code-rain-color: #5a7cff;
 
 }
 
@@ -68,8 +69,6 @@
   --md-h4-color: #ced4da;
   --md-h5-color: #adb5bd;
   --md-h6-color: #9ca3af;
-  /* 注意：--md-text-color, --md-code-bg, --md-code-text, --md-code-block-bg, --md-code-block-text, --md-code-block-border 已移除 */
-  /* 这些配置项现由代码高亮主题统一管理 */
   --md-blockquote-bg: #2d3748;
   --md-blockquote-text: #a0aec0;
   --md-blockquote-border: #4a5568;
@@ -81,6 +80,7 @@
   --mermaid-bg: #1e1e1e;
   --mermaid-text: #ffffff;
   --mermaid-border: #4a5568;
+  --code-rain-color: #22c55e;
 
 }
 
