@@ -116,8 +116,8 @@
                     this.x = Math.random() * window.innerWidth;
                     this.y = -20;
                     this.baseSpeed = Math.floor(Math.random() * 4) + 6; // 6-9
-                     this.size = Math.floor(Math.random() * 3) + 12; // 12-14
-                    this.opacity = (Math.floor(Math.random() * 5) + 4) / 10; // 0.4-0.8，间隔0.1
+                    this.size = Math.floor(Math.random() * 3) + 12; // 12-14
+                    this.opacity = (Math.floor(Math.random() * 4) + 6) / 10; // 0.6-0.9，间隔0.1
                     this.hasLanded = false;
                     
                     // 样式设置
@@ -199,14 +199,19 @@
                      
                      this.animationTime += currentAnimationSpeed;
                      
-                     // 简单的循环上下运动
-                     const progress = (this.animationTime % this.duration) / this.duration;
-                     const offset = Math.sin(progress * Math.PI * 2) * this.height * 0.5;
+                     // 抛物线运动：弹起再落地，不重复
+                     const progress = this.animationTime / this.duration;
+                     if (progress <= 1) {
+                         // 使用抛物线公式：y = -4 * height * progress * (progress - 1)
+                         const offset = -4 * this.height * 0.5 * progress * (progress - 1);
+                         this.element.style.top = (this.y - offset) + 'px';
+                         
+                         // 透明度随时间减少
+                         this.element.style.opacity = (0.8 * (1 - progress * 0.5));
+                     }
                      
-                     this.element.style.top = (this.y - Math.abs(offset)) + 'px';
-                     
-                     // 溅射效果持续一定时间后消失
-                     return this.animationTime < this.duration * 3;
+                     // 动画完成后消失
+                     return this.animationTime < this.duration;
                  }
                 
                 destroy() {
@@ -219,7 +224,7 @@
             // 动画循环
             function animate() {
                 // 创建新雨滴
-                if (Math.random() < 0.5 && raindrops.length < 1000) {
+                if (Math.random() < 0.8 && raindrops.length < 50) {
                     raindrops.push(new Raindrop());
                 }
                 
