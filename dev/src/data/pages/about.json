@@ -1,0 +1,34 @@
+{
+  "pageName": "about",
+  "tabTitle": "关于我",
+  "pageTitle": "关于我",
+  "seoDescription": "介绍网站和有关uncle1bo的一些信息",
+  "seoKeywords": "关于,简介,uncle1bo",
+  "content": "这里是**Uncle1Bo**网站的**2.0**版本",
+  "translations": {
+    "zh-CN": {
+      "meta.title": "关于我",
+      "meta.description": "介绍网站和有关uncle1bo的一些信息",
+      "meta.keywords": "关于,简介,uncle1bo",
+      "about.title": "关于我",
+      "about.content": "这里是**Uncle1Bo**网站的**2.0**版本",
+      "title": "关于我",
+      "content": "这里是**Uncle1Bo**网站的**2.0**版本"
+    },
+    "en": {
+      "meta.title": "About me",
+      "meta.description": "Introduce myself and this website.",
+      "meta.keywords": "about,introduce,uncle1bo",
+      "about.title": "About me",
+      "about.content": "This is **Uncle1Bo 2.0** Version!",
+      "title": "About me",
+      "content": "This is **Uncle1Bo 2.0** Version!"
+    }
+  },
+  "editable": true,
+  "metadata": {
+    "type": "edit",
+    "savedAt": "2025-07-13T09:56:39.410Z",
+    "version": "1.0.0"
+  }
+}

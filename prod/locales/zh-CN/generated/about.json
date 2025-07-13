@@ -1,0 +1,13 @@
+{
+  "meta": {
+    "title": "关于我",
+    "description": "介绍网站和有关uncle1bo的一些信息",
+    "keywords": "关于,简介,uncle1bo"
+  },
+  "about": {
+    "title": "关于我",
+    "content": "<div class=\"markdown-content\"><p>这里是<strong>Uncle1Bo</strong>网站的<strong>2.0</strong>版本</p>\n</div>"
+  },
+  "title": "关于我",
+  "content": "这里是**Uncle1Bo**网站的**2.0**版本"
+}

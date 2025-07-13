@@ -1,0 +1,13 @@
+{
+  "meta": {
+    "title": "About me",
+    "description": "Introduce myself and this website.",
+    "keywords": "about,introduce,uncle1bo"
+  },
+  "about": {
+    "title": "About me",
+    "content": "<div class=\"markdown-content\"><p>This is <strong>Uncle1Bo 2.0</strong> Version!</p>\n</div>"
+  },
+  "title": "About me",
+  "content": "This is **Uncle1Bo 2.0** Version!"
+}

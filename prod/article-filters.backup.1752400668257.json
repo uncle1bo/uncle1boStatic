@@ -1,13 +1,13 @@
 {
+  "lastUpdated": "2025-07-13T07:46:00.056Z",
   "blacklist": {
     "description": "黑名单：即使文章出现在generated目录也不显示在列表里",
     "articles": [
-      "about"
+      "test"
     ]
   },
   "whitelist": {
     "description": "白名单：对于在static目录的文章，特别允许它显示在文章列表里",
     "articles": []
-  },
-  "lastUpdated": "2025-07-13T09:57:50.847Z"
+  }
 }
