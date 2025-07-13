@@ -6,7 +6,6 @@
 const fs = require('fs-extra');
 const path = require('path');
 const paths = require('../../config/pathConfig');
-const pageGenerator = require('../pageGenerator');
 
 /**
  * 页面管理器服务
@@ -14,9 +13,10 @@ const pageGenerator = require('../pageGenerator');
 const pageManagerService = {
   /**
    * 获取所有页面列表
+   * @param {boolean} updateArticlesList - 是否更新文章列表文件，默认为false
    * @returns {Promise<Array>} 页面列表
    */
-  getAllPages: async function() {
+  getAllPages: async function(updateArticlesList = false) {
     try {
       const pages = [];
       
@@ -31,8 +31,10 @@ const pageManagerService = {
       // 按修改时间排序，最新的在前面
       pages.sort((a, b) => b.modified - a.modified);
       
-      // 自动更新文章列表文件
-      await this.generateArticlesList(pages);
+      // 只有明确要求时才更新文章列表文件
+      if (updateArticlesList) {
+        await this.generateArticlesList(pages);
+      }
       
       return pages;
     } catch (error) {
@@ -95,7 +97,8 @@ const pageManagerService = {
     const titles = {};
     const languages = ['zh-CN', 'en'];
     
-    for (const lang of languages) {
+    // 并行读取所有语言文件以提高性能
+    const titlePromises = languages.map(async (lang) => {
       let localeFile;
       if (pageType === 'generated') {
         localeFile = path.join(paths.getGeneratedLocalesPath(lang), `${pageName}.json`);
@@ -106,15 +109,23 @@ const pageManagerService = {
       try {
         if (await fs.pathExists(localeFile)) {
           const localeData = await fs.readJson(localeFile);
-          titles[lang] = localeData.meta?.title || localeData.title || pageName;
+          return { lang, title: localeData.meta?.title || localeData.title || pageName };
         } else {
-          titles[lang] = pageName;
+          return { lang, title: pageName };
         }
       } catch (error) {
         console.error(`读取语言文件失败: ${localeFile}`, error);
-        titles[lang] = pageName;
+        return { lang, title: pageName };
       }
-    }
+    });
+    
+    // 等待所有语言文件读取完成
+    const results = await Promise.all(titlePromises);
+    
+    // 构建结果对象
+    results.forEach(result => {
+      titles[result.lang] = result.title;
+    });
     
     return titles;
   },
@@ -183,15 +194,16 @@ const pageManagerService = {
   
   /**
    * 清理预览文件
-   * @returns {Promise<void>}
+   * @returns {Promise<number>} 清理的文件数量
    */
   cleanupPreviewFiles: async function() {
+    let cleanedCount = 0;
     try {
       const generatedPagesPath = paths.getGeneratedPagesPath();
       
       // 确保目录存在
       if (!(await fs.pathExists(generatedPagesPath))) {
-        return;
+        return cleanedCount;
       }
       
       const files = await fs.readdir(generatedPagesPath);
@@ -205,6 +217,7 @@ const pageManagerService = {
           if (stats.mtime < oneHourAgo) {
             // 删除HTML文件
             await fs.remove(filePath);
+            cleanedCount++;
             
             // 删除对应的语言文件
             const pageName = file.replace('.html', '');
@@ -222,6 +235,7 @@ const pageManagerService = {
     } catch (error) {
       console.error('清理预览文件失败:', error);
     }
+    return cleanedCount;
   },
 
   /**
@@ -244,18 +258,15 @@ const pageManagerService = {
         }));
       
       // 确保prod目录存在
-       const prodPath = path.resolve(__dirname, '../../../../prod');
-       await fs.ensureDir(prodPath);
+      await fs.ensureDir(paths.prod);
       
       // 写入文章列表JSON文件
-      const articlesListPath = path.join(prodPath, 'articles-list.json');
+      const articlesListPath = path.join(paths.prod, 'articles-list.json');
       await fs.writeJson(articlesListPath, {
         lastUpdated: new Date().toISOString(),
         count: articlesList.length,
         articles: articlesList
       }, { spaces: 2 });
-      
-      console.log(`文章列表已更新: ${articlesListPath}`);
     } catch (error) {
       console.error('生成文章列表失败:', error);
     }

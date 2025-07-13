@@ -47,23 +47,8 @@ sitemapUpdater/
 ### 站点地图操作
 ```javascript
 // 更新站点地图
-POST /api/sitemap/update
+POST /sitemap-updater/update
 // 返回: 更新结果和统计信息
-
-// 获取站点地图状态
-GET /api/sitemap/status
-// 返回: 当前站点地图信息
-```
-
-### 页面扫描
-```javascript
-// 扫描网站页面
-GET /api/sitemap/scan
-// 返回: 扫描到的页面列表
-
-// 获取页面详情
-GET /api/sitemap/pages/:pageName
-// 返回: 特定页面的详细信息
 ```
 
 ### 响应格式示例

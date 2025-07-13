@@ -11,10 +11,11 @@ const pageManagerService = require('./pageManagerService');
 const pageManager = {
   /**
    * 获取所有页面列表
+   * @param {boolean} updateArticlesList - 是否更新文章列表文件，默认为false
    * @returns {Promise<Array>} 页面列表
    */
-  getAllPages: async function() {
-    return await pageManagerService.getAllPages();
+  getAllPages: async function(updateArticlesList = false) {
+    return await pageManagerService.getAllPages(updateArticlesList);
   },
   
   /**

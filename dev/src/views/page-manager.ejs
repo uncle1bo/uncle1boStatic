@@ -45,13 +45,6 @@
                 </thead>
                 <tbody id="pagesList">
                   <!-- 页面列表将通过JavaScript动态加载 -->
-                  <tr>
-                    <td>加载中...</td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                  </tr>
                 </tbody>
               </table>
             </div>
@@ -190,20 +183,68 @@
       }
       
       // 加载页面列表
-      function loadPages() {
+      window.loadPages = function() {
+        // 清空DataTable并显示加载状态
+        table.clear().draw();
+        
+        // 显示加载状态
+        const loadingRow = `
+          <tr>
+            <td colspan="5" class="text-center">
+              <div class="spinner-border spinner-border-sm me-2" role="status"></div>
+              正在加载页面列表...
+            </td>
+          </tr>
+        `;
+        $('#pagesList').html(loadingRow);
+        
         $.ajax({
           url: '/page-manager/list',
           method: 'GET',
+          timeout: 30000, // 30秒超时
           success: function(response) {
             if (response.success) {
               // 清空表格并添加新数据
               table.clear().rows.add(response.pages).draw();
             } else {
               showAlert('danger', '加载页面列表失败: ' + (response.error || '未知错误'));
+              // 清空DataTable并显示错误状态
+              table.clear().draw();
+              $('#pagesList').html(`
+                <tr>
+                  <td colspan="5" class="text-center text-danger">
+                    <i class="bi bi-exclamation-triangle me-2"></i>
+                    加载失败: ${response.error || '未知错误'}
+                  </td>
+                </tr>
+              `);
             }
           },
-          error: function(xhr) {
-            showAlert('danger', '加载页面列表失败: ' + (xhr.responseJSON?.error || '服务器错误'));
+          error: function(xhr, status, error) {
+            let errorMessage = '服务器错误';
+            if (status === 'timeout') {
+              errorMessage = '请求超时，请检查网络连接';
+            } else if (xhr.responseJSON?.error) {
+              errorMessage = xhr.responseJSON.error;
+            } else if (error) {
+              errorMessage = error;
+            }
+            
+            showAlert('danger', '加载页面列表失败: ' + errorMessage);
+            // 清空DataTable并显示错误状态
+            table.clear().draw();
+            $('#pagesList').html(`
+              <tr>
+                <td colspan="5" class="text-center text-danger">
+                  <i class="bi bi-exclamation-triangle me-2"></i>
+                  加载失败: ${errorMessage}
+                  <br>
+                  <button class="btn btn-sm btn-outline-primary mt-2" onclick="window.loadPages()">
+                    <i class="bi bi-arrow-clockwise me-1"></i>重试
+                  </button>
+                </td>
+              </tr>
+            `);
           }
         });
       }
@@ -235,7 +276,7 @@
           success: function(response) {
             if (response.success) {
               showAlert('success', `页面 ${pageToDelete} 已成功删除`);
-              loadPages(); // 重新加载页面列表
+              window.loadPages(); // 重新加载页面列表
             } else {
               showAlert('danger', '删除页面失败: ' + (response.error || '未知错误'));
             }

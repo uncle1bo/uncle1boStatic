@@ -58,13 +58,13 @@ menuEditor/
 
 ### 获取菜单数据
 ```javascript
-GET /api/menu
+GET /menu-editor/config
 // 返回: 当前菜单配置的JSON数据
 ```
 
 ### 更新菜单数据
 ```javascript
-POST /api/menu/update
+POST /menu-editor/update
 {
   "menuData": [...] // 新的菜单配置数据
 }

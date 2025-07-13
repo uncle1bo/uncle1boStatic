@@ -17,12 +17,22 @@ router.get('/', (req, res) => {
 
 // 获取所有页面列表
 router.get('/list', async (req, res) => {
+  const startTime = Date.now();
+  console.log('开始获取页面列表...');
+  
   try {
-    const pages = await pageManager.getAllPages();
+    // 页面管理器需要更新文章列表文件
+    const pages = await pageManager.getAllPages(true);
+    const duration = Date.now() - startTime;
+    console.log(`页面列表获取成功，耗时: ${duration}ms，页面数量: ${pages.length}`);
     res.json({ success: true, pages });
   } catch (error) {
-    console.error('获取页面列表失败:', error);
-    res.status(500).json({ error: '获取页面列表失败: ' + error.message });
+    const duration = Date.now() - startTime;
+    console.error(`获取页面列表失败，耗时: ${duration}ms，错误:`, error);
+    res.status(500).json({ 
+      error: '获取页面列表失败: ' + error.message,
+      duration: duration
+    });
   }
 });
 

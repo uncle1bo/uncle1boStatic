@@ -117,6 +117,19 @@ window.dependencyManager.loadResource('bootstrap-icons')
                 // 获取当前语言
                 const currentLang = window.i18n ? window.i18n.getCurrentLanguage() : 'zh-CN';
                 
+                // 加载黑白名单配置
+                const filtersResponse = await fetch('../../article-filters.json');
+                let blacklist = [];
+                let whitelist = [];
+                
+                if (filtersResponse.ok) {
+                    const filtersData = await filtersResponse.json();
+                    blacklist = filtersData.blacklist?.articles || [];
+                    whitelist = filtersData.whitelist?.articles || [];
+                } else {
+                    console.warn('无法加载黑白名单配置，使用默认设置');
+                }
+                
                 // 从articles-list.json文件获取文章列表
                 const articlesListResponse = await fetch('../../articles-list.json');
                 if (!articlesListResponse.ok) {
@@ -129,7 +142,14 @@ window.dependencyManager.loadResource('bootstrap-icons')
                 
                 const articles = [];
                 
+                // 处理generated目录的文章（应用黑名单过滤）
                 for (const articleInfo of articlesList) {
+                    // 检查是否在黑名单中
+                    if (blacklist.includes(articleInfo.name)) {
+                        console.log(`文章 ${articleInfo.name} 在黑名单中，跳过显示`);
+                        continue;
+                    }
+                    
                     try {
                         // 尝试加载文章的多语言配置
                         const response = await fetch(`../../locales/${currentLang}/generated/${articleInfo.name}.json`);
@@ -143,7 +163,8 @@ window.dependencyManager.loadResource('bootstrap-icons')
                                 title: title,
                                 description: description,
                                 url: `../generated/${articleInfo.name}.html`,
-                                date: new Date(articleInfo.modified).toLocaleDateString(currentLang === 'zh-CN' ? 'zh-CN' : 'en-US')
+                                date: new Date(articleInfo.modified).toLocaleDateString(currentLang === 'zh-CN' ? 'zh-CN' : 'en-US'),
+                                type: 'generated'
                             });
                         }
                     } catch (error) {
@@ -154,8 +175,40 @@ window.dependencyManager.loadResource('bootstrap-icons')
                             title: articleInfo.name,
                             description: '',
                             url: `../generated/${articleInfo.name}.html`,
-                            date: new Date(articleInfo.modified).toLocaleDateString(currentLang === 'zh-CN' ? 'zh-CN' : 'en-US')
+                            date: new Date(articleInfo.modified).toLocaleDateString(currentLang === 'zh-CN' ? 'zh-CN' : 'en-US'),
+                            type: 'generated'
                         });
+                    }
+                }
+                
+                // 处理static目录的文章（应用白名单过滤）
+                for (const staticArticleName of whitelist) {
+                    try {
+                        // 检查static文章是否存在
+                        const staticResponse = await fetch(`../static/${staticArticleName}.html`);
+                        if (staticResponse.ok) {
+                            // 尝试加载static文章的多语言配置
+                            const localeResponse = await fetch(`../../locales/${currentLang}/static/${staticArticleName}.json`);
+                            let title = staticArticleName;
+                            let description = '';
+                            
+                            if (localeResponse.ok) {
+                                const localeData = await localeResponse.json();
+                                title = localeData.meta?.title || localeData.title || staticArticleName;
+                                description = localeData.meta?.description || '';
+                            }
+                            
+                            articles.push({
+                                name: staticArticleName,
+                                title: title,
+                                description: description,
+                                url: `../static/${staticArticleName}.html`,
+                                date: new Date().toLocaleDateString(currentLang === 'zh-CN' ? 'zh-CN' : 'en-US'),
+                                type: 'static'
+                            });
+                        }
+                    } catch (error) {
+                        console.warn(`无法加载static文章 ${staticArticleName}:`, error);
                     }
                 }
                 

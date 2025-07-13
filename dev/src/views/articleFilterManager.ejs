@@ -1,0 +1,714 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title %></title>
+    <!-- 依赖资源管理器 -->
+    <script src="/prod/js/dependency-manager.js"></script>
+    <script>
+        window.dependencyResourcesReady = Promise.all([
+            window.dependencyManager.loadResource('bootstrap-css'),
+            window.dependencyManager.loadResource('bootstrap-js'),
+            window.dependencyManager.loadResource('bootstrap-icons')
+        ]).catch(error => {
+            console.warn('依赖资源加载失败，使用备选方案:', error);
+        });
+    </script>
+    <style>
+        .page-item {
+            cursor: move;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+        
+        .page-item:hover {
+            background-color: #f8f9fa;
+            border-color: #dee2e6;
+        }
+        
+        .page-item.dragging {
+            opacity: 0.5;
+            transform: rotate(5deg);
+        }
+        
+        .drop-zone {
+            min-height: 200px;
+            border: 2px dashed #dee2e6;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+        
+        .drop-zone.drag-over {
+            border-color: #0d6efd;
+            background-color: #e7f3ff;
+        }
+        
+        .filter-list {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        
+        .page-type-badge {
+            font-size: 0.75rem;
+        }
+        
+        .action-buttons {
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        
+        .page-item:hover .action-buttons {
+            opacity: 1;
+        }
+        
+        .tab-content {
+            border: 1px solid #dee2e6;
+            border-top: none;
+            border-radius: 0 0 8px 8px;
+            padding: 1rem;
+        }
+        
+        .nav-tabs {
+            border-bottom: 1px solid #dee2e6;
+        }
+        
+        .empty-state {
+            text-align: center;
+            color: #6c757d;
+            padding: 2rem;
+        }
+        
+        .empty-state i {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid mt-4">
+        <div class="row">
+            <div class="col-12">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h1 class="h3"><i class="bi bi-funnel"></i> 文章黑白名单管理器</h1>
+                    <div>
+                        <button type="button" class="btn btn-outline-secondary me-2" onclick="refreshData()">
+                            <i class="bi bi-arrow-clockwise"></i> 刷新
+                        </button>
+                        <button type="button" class="btn btn-outline-warning me-2" onclick="cleanupDeletedPages()">
+                            <i class="bi bi-trash"></i> 清理
+                        </button>
+                        <button type="button" class="btn btn-success" onclick="saveConfig()">
+                            <i class="bi bi-check-lg"></i> 保存配置
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="row">
+            <!-- 左侧：所有页面列表 -->
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">
+                            <i class="bi bi-files"></i> 所有页面
+                            <span class="badge bg-secondary ms-2" id="total-pages-count">0</span>
+                        </h5>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="list-group list-group-flush" id="all-pages-list" style="max-height: 600px; overflow-y: auto;">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 右侧：黑白名单管理 -->
+            <div class="col-md-8">
+                <div class="card">
+                    <div class="card-header">
+                        <ul class="nav nav-tabs card-header-tabs" id="filter-tabs" role="tablist">
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link active" id="blacklist-tab" data-bs-toggle="tab" data-bs-target="#blacklist-pane" type="button" role="tab">
+                                    <i class="bi bi-x-circle"></i> 黑名单
+                                    <span class="badge bg-danger ms-2" id="blacklist-count">0</span>
+                                </button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link" id="whitelist-tab" data-bs-toggle="tab" data-bs-target="#whitelist-pane" type="button" role="tab">
+                                    <i class="bi bi-check-circle"></i> 白名单
+                                    <span class="badge bg-success ms-2" id="whitelist-count">0</span>
+                                </button>
+                            </li>
+                        </ul>
+                    </div>
+                    
+                    <div class="tab-content">
+                        <!-- 黑名单标签页 -->
+                        <div class="tab-pane fade show active" id="blacklist-pane" role="tabpanel">
+                            <div class="mb-3">
+                                <h6 class="text-muted">
+                                    <i class="bi bi-info-circle"></i> 
+                                    黑名单中的generated文章不会在文章预览页面显示
+                                </h6>
+                            </div>
+                            <div class="drop-zone" id="blacklist-drop-zone" ondrop="drop(event, 'blacklist')" ondragover="allowDrop(event)">
+                                <div class="filter-list" id="blacklist-items">
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- 白名单标签页 -->
+                        <div class="tab-pane fade" id="whitelist-pane" role="tabpanel">
+                            <div class="mb-3">
+                                <h6 class="text-muted">
+                                    <i class="bi bi-info-circle"></i> 
+                                    白名单中的static文章会在文章预览页面显示
+                                </h6>
+                            </div>
+                            <div class="drop-zone" id="whitelist-drop-zone" ondrop="drop(event, 'whitelist')" ondragover="allowDrop(event)">
+                                <div class="filter-list" id="whitelist-items">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 加载状态模态框 -->
+    <div class="modal fade" id="loadingModal" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false">
+        <div class="modal-dialog modal-sm modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-body text-center">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">加载中...</span>
+                    </div>
+                    <div class="mt-2">处理中...</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        
+        let allPagesData = null;
+        let currentConfig = null;
+        let loadingModal = null;
+        
+        async function initializePage() {
+            try {
+                await window.dependencyResourcesReady;
+                
+                const modalElement = document.getElementById('loadingModal');
+                if (modalElement) {
+                    loadingModal = new bootstrap.Modal(modalElement);
+                }
+                
+                await refreshData(true);
+                
+            } catch (error) {
+                console.error('页面初始化失败:', error);
+            }
+        }
+        
+        initializePage();
+        
+        async function refreshData(showLoadingIndicator = true) {
+            if (showLoadingIndicator) {
+                showLoading();
+            }
+            
+            try {
+                const response = await fetch('/article-filter-manager/api/pages');
+                const result = await response.json();
+                
+                if (result.success) {
+                    allPagesData = result.data;
+                    currentConfig = result.data.filterConfig;
+                    renderAllPages();
+                    renderFilterLists();
+                    updateCounts();
+                } else {
+                    throw new Error(result.message || '获取数据失败');
+                }
+            } catch (error) {
+                console.error('刷新数据失败:', error);
+                alert('刷新数据失败: ' + error.message);
+            } finally {
+                if (showLoadingIndicator) {
+                    hideLoading();
+                }
+            }
+        }
+        
+        function renderAllPages() {
+            const container = document.getElementById('all-pages-list');
+            container.innerHTML = '';
+            
+            if (!allPagesData) return;
+            
+            const allPages = [...allPagesData.generated, ...allPagesData.static];
+            
+            if (allPages.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <i class="bi bi-file-earmark"></i>
+                        <div>暂无页面</div>
+                    </div>
+                `;
+                return;
+            }
+            
+            allPages.forEach(page => {
+                const pageItem = createPageItem(page);
+                container.appendChild(pageItem);
+            });
+        }
+        
+        function createPageItem(page) {
+            const item = document.createElement('div');
+            item.className = 'list-group-item page-item';
+            item.draggable = true;
+            item.dataset.pageName = page.name;
+            item.dataset.pageType = page.type;
+            
+            let statusBadge = '';
+            let actionButtons = '';
+            
+            if (page.type === 'generated') {
+                if (page.inBlacklist) {
+                    statusBadge = '<span class="badge bg-danger ms-2">黑名单</span>';
+                    actionButtons = `
+                        <button class="btn btn-sm btn-outline-secondary" onclick="removeFromFilter('${page.name}')" title="移除">
+                            <i class="bi bi-x"></i>
+                        </button>
+                    `;
+                } else {
+                    actionButtons = `
+                        <button class="btn btn-sm btn-outline-danger" onclick="addToBlacklist('${page.name}')" title="加入黑名单">
+                            <i class="bi bi-x-circle"></i>
+                        </button>
+                    `;
+                }
+            } else if (page.type === 'static') {
+                if (page.inWhitelist) {
+                    statusBadge = '<span class="badge bg-success ms-2">白名单</span>';
+                    actionButtons = `
+                        <button class="btn btn-sm btn-outline-secondary" onclick="removeFromFilter('${page.name}')" title="移除">
+                            <i class="bi bi-x"></i>
+                        </button>
+                    `;
+                } else {
+                    actionButtons = `
+                        <button class="btn btn-sm btn-outline-success" onclick="addToWhitelist('${page.name}')" title="加入白名单">
+                            <i class="bi bi-check-circle"></i>
+                        </button>
+                    `;
+                }
+            }
+            
+            item.innerHTML = `
+                <div class="d-flex justify-content-between align-items-center">
+                    <div class="flex-grow-1">
+                        <div class="fw-bold">${escapeHtml(page.zhTitle || page.name)}</div>
+                        <small class="text-muted">${escapeHtml(page.name)}</small>
+                        <span class="badge page-type-badge ${page.type === 'generated' ? 'bg-primary' : 'bg-info'} ms-2">
+                            ${page.type === 'generated' ? 'Generated' : 'Static'}
+                        </span>
+                        ${statusBadge}
+                    </div>
+                    <div class="action-buttons">
+                        ${actionButtons}
+                    </div>
+                </div>
+            `;
+            
+            item.addEventListener('dragstart', function(e) {
+                e.dataTransfer.setData('text/plain', JSON.stringify({
+                    name: page.name,
+                    type: page.type,
+                    title: page.zhTitle || page.name
+                }));
+                item.classList.add('dragging');
+            });
+            
+            item.addEventListener('dragend', function(e) {
+                item.classList.remove('dragging');
+            });
+            
+            return item;
+        }
+        
+        function renderFilterLists() {
+            renderBlacklist();
+            renderWhitelist();
+        }
+        
+        function renderBlacklist() {
+            const container = document.getElementById('blacklist-items');
+            container.innerHTML = '';
+            
+            if (!allPagesData || !allPagesData.blacklist || allPagesData.blacklist.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <i class="bi bi-x-circle"></i>
+                        <div>黑名单为空</div>
+                        <small>将generated页面拖拽到此处</small>
+                    </div>
+                `;
+                return;
+            }
+            
+            allPagesData.blacklist.forEach(articleName => {
+                const page = allPagesData.generated.find(p => p.name === articleName);
+                if (page) {
+                    const item = createFilterItem(page, 'blacklist');
+                    container.appendChild(item);
+                }
+            });
+        }
+        
+        function renderWhitelist() {
+            const container = document.getElementById('whitelist-items');
+            container.innerHTML = '';
+            
+            if (!allPagesData || !allPagesData.whitelist || allPagesData.whitelist.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <i class="bi bi-check-circle"></i>
+                        <div>白名单为空</div>
+                        <small>将static页面拖拽到此处</small>
+                    </div>
+                `;
+                return;
+            }
+            
+            allPagesData.whitelist.forEach(articleName => {
+                const page = allPagesData.static.find(p => p.name === articleName);
+                if (page) {
+                    const item = createFilterItem(page, 'whitelist');
+                    container.appendChild(item);
+                }
+            });
+        }
+        
+        function createFilterItem(page, listType) {
+            const item = document.createElement('div');
+            item.className = 'list-group-item';
+            
+            const badgeClass = listType === 'blacklist' ? 'bg-danger' : 'bg-success';
+            const oppositeAction = listType === 'blacklist' ? 'whitelist' : 'blacklist';
+            const oppositeIcon = listType === 'blacklist' ? 'check-circle' : 'x-circle';
+            const oppositeText = listType === 'blacklist' ? '转为白名单' : '转为黑名单';
+            
+            item.innerHTML = `
+                <div class="d-flex justify-content-between align-items-center">
+                    <div class="flex-grow-1">
+                        <div class="fw-bold">${escapeHtml(page.zhTitle || page.name)}</div>
+                        <small class="text-muted">${escapeHtml(page.name)}</small>
+                        <span class="badge page-type-badge ${badgeClass} ms-2">
+                            ${listType === 'blacklist' ? '黑名单' : '白名单'}
+                        </span>
+                    </div>
+                    <div>
+                        ${page.type === 'generated' && listType === 'blacklist' ? `
+                            <button class="btn btn-sm btn-outline-success me-2" onclick="moveToWhitelist('${page.name}')" title="${oppositeText}" disabled>
+                                <i class="bi bi-${oppositeIcon}"></i>
+                            </button>
+                        ` : ''}
+                        ${page.type === 'static' && listType === 'whitelist' ? `
+                            <button class="btn btn-sm btn-outline-danger me-2" onclick="moveToBlacklist('${page.name}')" title="${oppositeText}" disabled>
+                                <i class="bi bi-${oppositeIcon}"></i>
+                            </button>
+                        ` : ''}
+                        <button class="btn btn-sm btn-outline-secondary" onclick="removeFromFilter('${page.name}')" title="移除">
+                            <i class="bi bi-trash"></i>
+                        </button>
+                    </div>
+                </div>
+            `;
+            
+            return item;
+        }
+        
+        function updateCounts() {
+            if (!allPagesData) return;
+            
+            const totalPages = allPagesData.generated.length + allPagesData.static.length;
+            const blacklistCount = allPagesData.blacklist ? allPagesData.blacklist.length : 0;
+            const whitelistCount = allPagesData.whitelist ? allPagesData.whitelist.length : 0;
+            
+            document.getElementById('total-pages-count').textContent = totalPages;
+            document.getElementById('blacklist-count').textContent = blacklistCount;
+            document.getElementById('whitelist-count').textContent = whitelistCount;
+        }
+        
+        function allowDrop(ev) {
+            ev.preventDefault();
+            ev.currentTarget.classList.add('drag-over');
+        }
+        
+        function drop(ev, listType) {
+            ev.preventDefault();
+            ev.currentTarget.classList.remove('drag-over');
+            
+            try {
+                const data = JSON.parse(ev.dataTransfer.getData('text/plain'));
+                
+                if (listType === 'blacklist' && data.type === 'generated') {
+                    addToBlacklist(data.name);
+                } else if (listType === 'whitelist' && data.type === 'static') {
+                    addToWhitelist(data.name);
+                } else {
+                    alert(`${data.type === 'generated' ? 'Generated' : 'Static'}页面不能添加到${listType === 'blacklist' ? '黑' : '白'}名单`);
+                }
+            } catch (error) {
+                console.error('拖拽处理失败:', error);
+            }
+        }
+        
+        document.addEventListener('dragleave', function(e) {
+            if (e.target.classList.contains('drop-zone')) {
+                e.target.classList.remove('drag-over');
+            }
+        });
+        
+        let refreshTimeout = null;
+        function debounceRefresh() {
+            if (refreshTimeout) {
+                clearTimeout(refreshTimeout);
+            }
+            refreshTimeout = setTimeout(() => {
+                refreshData(false);
+            }, 300);
+        }
+        
+        function updateLocalData(articleName, action) {
+            if (!allPagesData) {
+                return;
+            }
+            
+            switch (action) {
+                case 'addToBlacklist':
+                    if (!allPagesData.blacklist.includes(articleName)) {
+                        allPagesData.blacklist.push(articleName);
+                    }
+                    allPagesData.whitelist = allPagesData.whitelist.filter(name => name !== articleName);
+                    break;
+                case 'addToWhitelist':
+                    if (!allPagesData.whitelist.includes(articleName)) {
+                        allPagesData.whitelist.push(articleName);
+                    }
+                    allPagesData.blacklist = allPagesData.blacklist.filter(name => name !== articleName);
+                    break;
+                case 'remove':
+                    allPagesData.blacklist = allPagesData.blacklist.filter(name => name !== articleName);
+                    allPagesData.whitelist = allPagesData.whitelist.filter(name => name !== articleName);
+                    break;
+            }
+            
+
+            allPagesData.generated.forEach(page => {
+                if (page.name === articleName) {
+                    page.inBlacklist = allPagesData.blacklist.includes(articleName);
+                }
+            });
+            
+            allPagesData.static.forEach(page => {
+                if (page.name === articleName) {
+                    page.inWhitelist = allPagesData.whitelist.includes(articleName);
+                }
+            });
+            
+            renderAllPages();
+            renderFilterLists();
+            updateCounts();
+        }
+        
+        async function addToBlacklist(articleName) {
+            try {
+                updateLocalData(articleName, 'addToBlacklist');
+                
+                const response = await fetch('/article-filter-manager/api/blacklist/add', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ articles: articleName })
+                });
+                
+                const result = await response.json();
+                if (!result.success) {
+                    throw new Error(result.message);
+                }
+            } catch (error) {
+                console.error('添加到黑名单失败:', error);
+                alert('添加到黑名单失败: ' + error.message);
+                debounceRefresh();
+            }
+        }
+        
+        async function addToWhitelist(articleName) {
+            try {
+                updateLocalData(articleName, 'addToWhitelist');
+                
+                const response = await fetch('/article-filter-manager/api/whitelist/add', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ articles: articleName })
+                });
+                
+                const result = await response.json();
+                if (!result.success) {
+                    throw new Error(result.message);
+                }
+            } catch (error) {
+                console.error('添加到白名单失败:', error);
+                alert('添加到白名单失败: ' + error.message);
+                debounceRefresh();
+            }
+        }
+        
+        async function removeFromFilter(articleName) {
+            try {
+                updateLocalData(articleName, 'remove');
+                
+                const response = await fetch('/article-filter-manager/api/remove', {
+                    method: 'DELETE',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ articles: articleName })
+                });
+                
+                const result = await response.json();
+                if (!result.success) {
+                    throw new Error(result.message);
+                }
+            } catch (error) {
+                console.error('移除失败:', error);
+                alert('移除失败: ' + error.message);
+                debounceRefresh();
+            }
+        }
+        
+        async function cleanupDeletedPages() {
+            if (!confirm('确定要清理已删除页面的过滤规则吗？')) {
+                return;
+            }
+            
+            try {
+                showLoading();
+                const response = await fetch('/article-filter-manager/api/cleanup', {
+                    method: 'POST'
+                });
+                
+                const result = await response.json();
+                if (result.success) {
+                    await refreshData(false);
+                    alert('清理完成');
+                } else {
+                    throw new Error(result.message);
+                }
+            } catch (error) {
+                console.error('清理失败:', error);
+                alert('清理失败: ' + error.message);
+            } finally {
+                hideLoading();
+            }
+        }
+        
+        async function saveConfig() {
+            if (!allPagesData) {
+                alert('没有数据可保存');
+                return;
+            }
+            
+            const saveButton = document.querySelector('button[onclick="saveConfig()"]');
+            const originalText = saveButton.innerHTML;
+            saveButton.disabled = true;
+            saveButton.innerHTML = '<i class="bi bi-hourglass-split"></i> 保存中...';
+            
+            try {
+                const response = await fetch('/article-filter-manager/api/config/update', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        blacklist: allPagesData.blacklist || [],
+                        whitelist: allPagesData.whitelist || []
+                    })
+                });
+                
+                const result = await response.json();
+                if (result.success) {
+                    saveButton.innerHTML = '<i class="bi bi-check-lg"></i> 保存成功';
+                    saveButton.className = 'btn btn-success';
+                    
+                    setTimeout(() => {
+                        saveButton.innerHTML = originalText;
+                        saveButton.className = 'btn btn-success';
+                        saveButton.disabled = false;
+                    }, 2000);
+                } else {
+                    throw new Error(result.message);
+                }
+            } catch (error) {
+                console.error('保存配置失败:', error);
+                alert('保存配置失败: ' + error.message);
+                
+                saveButton.innerHTML = originalText;
+                saveButton.className = 'btn btn-success';
+                saveButton.disabled = false;
+            }
+        }
+        
+        function showLoading() {
+            if (loadingModal) {
+                loadingModal.show();
+            }
+        }
+
+        function hideLoading() {
+            if (loadingModal) {
+                loadingModal.hide();
+                setTimeout(() => {
+                    const backdrops = document.querySelectorAll('.modal-backdrop');
+                    backdrops.forEach(backdrop => {
+                        if (backdrop.parentNode) {
+                            backdrop.parentNode.removeChild(backdrop);
+                        }
+                    });
+                     
+                     const modalElement = document.getElementById('loadingModal');
+                    if (modalElement) {
+                        modalElement.classList.remove('show');
+                        modalElement.style.display = 'none';
+                        modalElement.setAttribute('aria-hidden', 'true');
+                        modalElement.removeAttribute('aria-modal');
+                        modalElement.removeAttribute('role');
+                    }
+                     
+                     document.body.classList.remove('modal-open');
+                    document.body.style.overflow = '';
+                    document.body.style.paddingRight = '';
+                    document.body.removeAttribute('data-bs-overflow');
+                    document.body.removeAttribute('data-bs-padding-right');
+                }, 150);
+            }
+        }
+        
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+    </script>
+</body>
+</html>

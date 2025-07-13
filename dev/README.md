@@ -44,6 +44,7 @@ dev/
 - **页面生成器**：支持Markdown编写，自动转换为HTML页面，生成的页面存储在`prod/pages/generated/`目录 - [详细文档](src/tools/pageGenerator/README.md)
 - **页面管理器**：管理网站页面，支持生成页面（可编辑）和静态页面（不可编辑）的统一管理 - [详细文档](src/tools/pageManager/README.md)
 - **主题管理器**：可视化主题配色编辑，支持明亮/暗夜模式切换 - [详细文档](src/tools/themeManager/README.md)
+- **文章黑白名单管理器**：管理文章显示过滤规则，支持黑名单和白名单功能，控制文章在预览页面的显示 - [详细文档](src/tools/articleFilterManager/README.md)
 
 ## 3. 用户使用方法
 
@@ -140,23 +141,35 @@ GET /api/asset-manager/redirect-stats
 PUT /api/asset-manager/redirect-config
 
 // 站点地图更新器
-POST /api/sitemap/update
+POST /sitemap-updater/update
 
 // 目录编辑器
-GET /api/menu
-POST /api/menu/update
+GET /menu-editor/config
+POST /menu-editor/update
 
 // 页面生成器
-POST /api/pages/create
-POST /api/upload
+POST /page-generator/create
+POST /page-generator/upload
 
 // 页面管理器
-GET /api/pages
-DELETE /api/pages/:filename
+GET /page-manager/list
+DELETE /page-manager/delete/:pageName
+POST /page-manager/cleanup-preview
 
 // 主题管理器
-GET /api/theme
+GET /api/theme/config
 POST /api/theme/save
+POST /api/theme/reset
+POST /api/theme/preview
+
+// 文章黑白名单管理器
+GET /article-filter-manager/api/config
+GET /article-filter-manager/api/pages
+POST /article-filter-manager/api/config/update
+POST /article-filter-manager/api/blacklist/add
+POST /article-filter-manager/api/whitelist/add
+DELETE /article-filter-manager/api/remove
+POST /article-filter-manager/api/cleanup
 ```
 
 ## 5. 注意事项

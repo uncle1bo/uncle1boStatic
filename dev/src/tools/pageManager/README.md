@@ -44,42 +44,19 @@ pageManager/
 ### 页面列表管理
 ```javascript
 // 获取页面列表
-GET /api/pages
+GET /page-manager/list
 // 返回: 页面列表数据
-
-// 搜索页面
-GET /api/pages?search=关键词
-// 返回: 匹配的页面列表
 ```
 
 ### 页面内容操作
 ```javascript
-// 获取页面内容
-GET /api/pages/:pageName
-// 返回: 页面详细内容
-
-// 更新页面
-PUT /api/pages/:pageName
-{
-  "title": "页面标题",
-  "content": "Markdown内容",
-  "language": "zh-CN"
-}
-// 返回: 更新结果
-
 // 删除页面
-DELETE /api/pages/:pageName
+DELETE /page-manager/delete/:pageName
 // 返回: 删除结果
-```
 
-### 预览功能
-```javascript
-// 预览页面
-POST /api/pages/:pageName/preview
-{
-  "content": "Markdown内容"
-}
-// 返回: 预览HTML
+// 清理预览文件
+POST /page-manager/cleanup-preview
+// 返回: 清理结果
 ```
 
 ### 注意事项

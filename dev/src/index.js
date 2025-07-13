@@ -21,6 +21,7 @@ const pageManagerRoutes = require('./tools/pageManager/routes');
 const pageGeneratorRoutes = require('./tools/pageGenerator/routes');
 const themeManagerRoutes = require('./tools/themeManager/routes');
 const assetManagerRoutes = require('./tools/assetManager/routes');
+const articleFilterManagerRoutes = require('./tools/articleFilterManager');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -79,6 +80,8 @@ app.use('/api/theme', require('./tools/themeManager/routes'));
 // 资源管理器路由
 app.use('/asset-manager', require('./tools/assetManager/routes'));
 app.use('/api/asset-manager', require('./tools/assetManager/routes'));
+// 文章黑白名单管理器路由
+app.use('/article-filter-manager', require('./tools/articleFilterManager'));
 
 // Bootstrap测试页面路由
 app.get('/bootstrap-test', (req, res) => {
